@@ -3,6 +3,27 @@
  * http://krasimirtsonev.com/blog/article/Real-time-chat-with-NodeJS-Socketio-and-ExpressJS
  */
 
+
+/**
+ * TODO: Clean up updateGame so that there's no need to pass the game reference.
+ * TODO: Create a "Quick game" button for development, that:
+ *   - Creates a game
+ *   - Invites another user
+ *   - Confirms the game
+ *   - [Selects the monsters for the users]
+ * TODO: Randomize the order of monsters on selection
+ * TODO: Randomize the player order on game confirmation
+ * TODO: Clean up user stats when resetting. Game users appear to get stuck?
+          /home/erno/Documents/version_control/rok/rok-test-1/index.js:458
+            if (games[user.game_id].game_state == "select_monsters") {
+                                  ^
+          TypeError: Cannot read property 'game_state' of undefined
+              at selectMonster (/home/erno/Documents/version_control/rok/rok-test-1/index.js:458:26)
+              at Socket.<anonymous> (/home/erno/Documents/version_control/
+ *
+ *
+ */
+
 /**
  * This method reads the .html page and simply sends it to the browser.
  */
@@ -68,6 +89,27 @@ io.sockets.on('connection', function (socket) {
   // Create a new user.
   var user = addUser(socket);
   
+  /**
+   * Debug
+   */
+  
+  // Debug game
+  socket.on("log_game_state", function(args) {
+    console.log(dump(games));
+    updateGame(user.game_id);
+  });
+  
+  // Debug users
+  socket.on("log_users_state", function(args) {
+    console.log(dump(users));
+    updateLobby();
+  });
+
+
+  /**
+   * Lobby
+   */
+  
   // Sends the welcome message to a new user.
   socket.emit("welcome", user);
   
@@ -93,22 +135,25 @@ io.sockets.on('connection', function (socket) {
   socket.on("confirm_game", function() {
     confirmGame(socket);
   });
+
+  /**
+   * Game
+   */
   
-  // Debug game
-  socket.on("log_game_state", function(args) {
-    console.log(dump(games));
-    updateGame(user.game_id);
+  /**
+   * Player selecting a monster to play with.
+   */
+  socket.on("select_monster", function(args) {
+    selectMonster(user, args.monster_id);
   });
   
-  // Debug users
-  socket.on("log_users_state", function(args) {
-    console.log(dump(users));
-    updateLobby();
+  /**
+   * Player rolling dice.
+   */
+  socket.on("roll_dice", function(args) {
+    rollDice(user, args.keep_dice_ids);
   });
 
-  
-
-  // select_monster(monster_id)
   // dice_roll(keep_dice_ids)
   // yield(yield)
   
@@ -157,6 +202,8 @@ var newGame = function(user) {
   var game_users = {};
   game_users[user.socket_id] = user.socket_id;
   
+  // TODO: randomize initial values for dice
+  // TODO: Prepare for extra dice
   var game = {
     id: game_id,
     host: user.name,
@@ -165,8 +212,32 @@ var newGame = function(user) {
     next_input_from_user: 0,
     users: game_users,
     monsters: [],
-    dice_values: [0, 0, 0, 0, 0, 0, 0, 0],
-    dice_states: ["r", "r", "r", "r", "r", "r", "r", "r", ],
+    dice: [
+      {
+          value: 1,
+          state: "i"
+      },
+      {
+          value: 1,
+          state: "i"
+      },
+      {
+          value: 1,
+          state: "i"
+      },
+      {
+          value: 1,
+          state: "i"
+      },
+      {
+          value: 1,
+          state: "i"
+      },
+      {
+          value: 1,
+          state: "i"
+      },
+    ],
     monster_to_yield_tokyo_city: 0, // ?
     monster_to_yield_tokyo_bay: 0, // ?
   }
@@ -348,8 +419,7 @@ var startGame = function(game_id) {
  * 
  */ 
 var updateGame = function(game_id) {
-  console.log("updateGame");
-  console.log(game_id);
+  console.log("updateGame " + game_id);
   
   var current_game = games[game_id];
   
@@ -362,27 +432,112 @@ var updateGame = function(game_id) {
   }
   current_game.formatted_users = new_users;
   
-  // Drop the empty zero monster, it's not needed on the front end
+  // Drop the empty zero monster, it's not needed on the front end.
+  // TODO: If the game is confirmed, drop any monsters not in play.
   var new_monsters = [];
-  
   for (var i = 1; i <= current_game.monsters.length - 1; i++) {
-    console.log("original monster "+i+":");
-    console.log(current_game.monsters[i]);
     if (typeof current_game.monsters[i] != undefined) {
       var new_monster = JSON.parse(JSON.stringify(current_game.monsters[i]));
-      console.log(new_monster);
       new_monsters.push(new_monster);
     }
   }
   current_game.formatted_monsters = new_monsters;
-  console.log("New monsters");
-  console.log(new_monsters);
   
   // Loop through all users in this game and send them the data.
   for (var game_user in games[game_id].users) {
     var target_socket = io.sockets.socket(game_user);
     target_socket.emit("update_game", current_game);
   }
+}
+
+/**
+ * Assigns a monster to a user
+ */
+var selectMonster = function (user, monster_id) {
+  // TODO: Make sure the monster isn't selected already
+  console.log("selectMonster");
+  console.log("user.game_id: " + user.game_id);
+  if (games[user.game_id].game_state == "select_monsters") {
+    // Check that the user hasn't already selected a monster.
+    if (user.monster_id == 0) {
+      user.monster_id = monster_id;
+      games[user.game_id].monsters[monster_id].user = user.socket_id;
+      
+      // If this was the last player to select a monster, advance the game state.
+      var game_users = games[user.game_id].users;
+      //console.log(game_users);
+      var ready = 1;
+      for (var game_user in game_users) {
+        if (users[game_user].monster_id == 0) {
+          ready = 0;
+        }
+      }
+      
+      if (ready) {
+        console.log(games);
+        // TODO: Select the player order randomly.
+        games[user.game_id].game_state = 1;
+        games[user.game_id].turn_phase = 'r1';
+        games[user.game_id].next_input_from_user = 1; // TODO: Do we need this?
+      }
+      
+      updateGame(user.game_id);
+    }
+    else {
+      console.log('already selected error');
+      var msg = "You have already selected a monster.";
+      io.sockets.socket(user.socket_id).emit("game_message", msg);
+    }  
+  }
+  else {
+    console.log('not in monster_selection error');
+    var msg = "This is not the time to select a monster.";
+    io.sockets.socket(user.socket_id).emit("game_message", msg);   
+  }
+}
+
+/**
+ * Player rolling dice.
+ * 
+ * @param keep_dice_ids array The ids of the dice that are not to be
+ * re-rolled.
+ */
+var rollDice = function (user, keep_dice_ids) {
+  console.log('rollDice');
+
+  
+  // TODO fix user references versus game_state "1"
+  
+  
+  
+  // TODO check that it's the correct game_state for rolling.
+
+  // TODO allow re-rolls!
+  var faces = [
+    1,
+    2,
+    3,
+    'P',
+    'H',
+    'E'
+  ];
+  // TODO only roll the not-kept dice.
+  if (games[user.game_id].turn_phase == 'r1') {
+    console.log('state r1');
+    // TODO: take into account possible extra dice
+    for (var i = 0; i < 6; i++) {
+      var r = getRandomInt(0, 5);
+      games[user.game_id].dice[i].value = faces[r];
+    }
+  }
+  
+  // TODO: If there are more re-rolls, set dice states to r.
+  // TODO: Except for kept dice, which should be kept as k
+  // TODO: Otherwise, set dice states to f (final)
+  
+  // TODO increment game_state
+  
+  updateGame(user.game_id);
 }
 
 
@@ -423,4 +578,11 @@ function dump(arr,level) {
 		dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
 	}
 	return dumped_text;
+}
+
+/**
+ * TODO find the node.js way of doing this.
+ */
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }

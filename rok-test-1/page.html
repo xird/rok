@@ -9,10 +9,12 @@
 }
 
 #game {
+  position: relative;
   display: none;
 }
 
-#lobby_messages {
+#lobby_messages,
+#game_messages {
   position: absolute;
   top: 30px;
   border: 1px solid #444;
@@ -41,6 +43,22 @@ table.monster {
 
 #game #data table {
   font-size: 0.9em;
+}
+
+tr.users {
+  display: none;
+}
+
+td.die {
+  width: 20px;
+}
+
+td.die_status_i {
+  background: #888;
+}
+
+td.die_status_r {
+  background: #cfc;
 }
 
 </style>
@@ -140,7 +158,6 @@ $(document).ready(function() {
     socket.emit("confirm_game");
   });
   
-  
   /**
    * Game functionality.
    */
@@ -152,12 +169,8 @@ $(document).ready(function() {
     var transforms = {
       'main': [
         {tag: 'tr', children: [
-          {tag: "th", html: "Id"},
-          {tag: "td", html: "${id}"}
-        ]},
-        {tag: 'tr', children: [
-          {tag: "th", html: "Host"},
-          {tag: "td", html: "${host}"}
+          {tag: "th", html: "Host: Id"},
+          {tag: "td", html: "${host}: ${id}"}
         ]},
         {tag: 'tr', children: [
           {tag: "th", html: "Game state"},
@@ -171,13 +184,25 @@ $(document).ready(function() {
           {tag: "th", html: "Next input from user (?)"},
           {tag: "td", html: "${next_input_from_user}"}
         ]},
-        {tag: 'tr', children: [
+        {tag: 'tr', class: "users", children: [
           {tag: "th", html: "Users"},
           {tag: "td", children: [
             {tag: "table", children: function(){
               return(json2html.transform(this.formatted_users,transforms.users));
             }}
           ]}
+        ]},
+        {tag: 'tr', class: "dice", children: [
+          {tag: "th", html: "Dice"},
+          {tag: "td", children: [
+            {tag: "table", children: [
+              {tag: "tr", children: function(){
+                console.log(this.dice);
+                return(json2html.transform(this.dice, transforms.dice));
+              }}
+            ]},
+            {tag: 'input', type: "button", id: "roll_dice_button", value: "Roll"}
+          ]},
         ]},
         {tag: 'tr', children: [
           {tag: "th", html: "Monsters"},
@@ -194,6 +219,9 @@ $(document).ready(function() {
         {tag: "tr", children: [
           {tag: "td", html: "${socket}"}
         ]}
+      ],
+      'dice': [
+          {tag: "td", class: "die die_status_${state}", html: "${value}"},
       ],
       'monsters': [
         
@@ -247,7 +275,21 @@ $(document).ready(function() {
   // Select a monster to play with
   $('#game #data').on("click", ".monster_select_button", function(){
     console.log('select monster '+$(this).data('monster_id'));
-    //socket.emit("confirm_game");
+    socket.emit("select_monster", {monster_id: $(this).data('monster_id')});
+  });
+  
+  // Game message
+  socket.on('game_message', function (data) {
+    console.log('game message received');
+    console.log(data);
+    $('#game_messages').html(data).show().delay(1500).fadeOut(1000);
+  });
+  
+  // Roll dice.
+  $('#game #data').on("click", "#roll_dice_button", function(){
+    console.log('roll_dice');
+    // TODO: Define dice to keep
+    socket.emit("roll_dice", {keep_dice_ids: []});
   });
   
 });
@@ -274,6 +316,8 @@ $(document).ready(function() {
 
 <div id="game">
   <h2>Game</h2>
+  
+  <div id="game_messages"></div>
   
   <div id="data"></div>
 </div>
