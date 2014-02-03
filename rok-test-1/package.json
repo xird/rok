@@ -1,0 +1,12 @@
+{
+  "name": "SocketioExample",
+  "version": "0.0.1",
+  "description": "SocketioExample",
+  "dependencies": {
+    "socket.io": "latest",
+    "moniker": "latest",
+    "node-uuid": "latest",
+    "node-static": "latest"
+  },
+  "author": "dev"
+}
