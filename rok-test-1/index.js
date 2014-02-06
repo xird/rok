@@ -5,6 +5,8 @@
 
 
 /**
+ * TODO NEXT: Sessions!
+ * 
  * TODO: Clean up updateGame so that there's no need to pass the game reference.
  * TODO: Create a "Quick game" button for development, that:
  *   - Creates a game
@@ -21,7 +23,65 @@
               at selectMonster (/home/erno/Documents/version_control/rok/rok-test-1/index.js:458:26)
               at Socket.<anonymous> (/home/erno/Documents/version_control/
  *
- *
+ * TODO: Game states:
+ *   - init
+ *   - select
+ *   - start
+ *     - Beginning of a player's turn
+ *     - If in Kyoto, increment VP
+ *     - Resolve card effects
+ *       - Urbavore
+ *   - roll
+ *     - reset dice
+ *     - take cards into account
+ *       - extra head
+ *       - shrink ray counters
+ *     - roll
+ *       - take cards into account
+ *         - bg dweller
+ *     - Number of rerolls defaults to two, but:
+ *       - Check if there are cards that give (optional) rerolls
+ *       - Not all rerolls affect all dice (reroll any "3"s for example)
+ *   - resolve
+ *     - final dice results in
+ *     - increment money
+ *       - and take cards into account
+ *         - "Friend of children"
+ *     - decrement target health
+ *       - not forgetting cards
+ *         - extra damage cards
+ *         - cards with damage reactions "lightning armor"
+ *     - check if anyone died
+ *       - check win
+ *       - check any cards that react to deaths
+ *     - damaged monster in Kyoto?
+ *       - Yield input
+ *         - Increment VP
+ *       - Figure out card "Jets" - decrement health and then restore, or don't decrement
+ *         - Must do the latter, otherwise death might be triggered
+ *     - Add rolled numbers to VPs
+ *       - Take number roll modifier cards into account
+ *     - TODO: players should be allowed to resolve dice in any order
+ *   - buy
+ *     - Optionally buy cards if there's money
+ *       - "Alien metabolism"
+ *     - Resolve any discard cards
+ *       - check win
+ *   - end
+ *     - Resolve poison counters
+ *       - TODO: Check if this is done on the poisened monster's turn or the poisoning monster's turn
+ *     - game state to "start"
+ *     - next_input_from_user set to the next user in user_order
+ * TODO: Game attribute turn_user for which user's turn it is. NOTE: This is not the same as next_input_from_user
+ * TODO: When initializing the game, randomize user order into user_order
+ * 
+ * TODO: Add new game state variable: roll number
+ * 
+ * TODO: Design a way to pass currently available actions to front end:
+ *   - One object, keys contain all existing actions
+ *   - values contain users that can currently take the actions
+ *   - Front end needs to know this user's id
+ *     - 
  */
 
 /**
@@ -214,27 +274,27 @@ var newGame = function(user) {
     monsters: [],
     dice: [
       {
-          value: 1,
+          value: "",
           state: "i"
       },
       {
-          value: 1,
+          value: "",
           state: "i"
       },
       {
-          value: 1,
+          value: "",
           state: "i"
       },
       {
-          value: 1,
+          value: "",
           state: "i"
       },
       {
-          value: 1,
+          value: "",
           state: "i"
       },
       {
-          value: 1,
+          value: "",
           state: "i"
       },
     ],
@@ -294,9 +354,11 @@ var removeUser = function(user) {
   for(var i = 0; i < keys.length; i++) {
     var user = users[keys[i]];
     // TODO idenfify by id, not username
+    // TODO: Clean up also from the game object, in game.users and game.monsters
     if(user.name === users[keys[i]].name) {
       delete users[keys[i]];
       updateLobby();
+      updateGame(user.game_id);
       return;
     }
   }
@@ -445,6 +507,7 @@ var updateGame = function(game_id) {
   
   // Loop through all users in this game and send them the data.
   for (var game_user in games[game_id].users) {
+    current_game.this_user = game_user;
     var target_socket = io.sockets.socket(game_user);
     target_socket.emit("update_game", current_game);
   }
@@ -528,10 +591,13 @@ var rollDice = function (user, keep_dice_ids) {
     for (var i = 0; i < 6; i++) {
       var r = getRandomInt(0, 5);
       games[user.game_id].dice[i].value = faces[r];
+      if (games[user.game_id].dice[i].state = 'i') {
+        // TODO: If there are more re-rolls, set dice states to r.
+        games[user.game_id].dice[i].state = 'r';
+      }
     }
   }
   
-  // TODO: If there are more re-rolls, set dice states to r.
   // TODO: Except for kept dice, which should be kept as k
   // TODO: Otherwise, set dice states to f (final)
   

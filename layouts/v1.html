@@ -1,0 +1,304 @@
+<html><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>ROK v1</title>
+
+  <style type="text/css">
+    body {
+      background: #fff;
+      color: #333;
+      font-size: 1em;
+    }
+
+    #wrap {
+      width: 1024px;
+      height: 768px;
+      background: #ccc;
+      position: relative;
+    }
+    
+    #left, #right {
+      width: 512px;
+      height: 768px;
+      position: absolute;
+    }
+    
+    #left {
+      left: 0;
+      background: #cfc;
+      top: 0;
+    }
+    
+    #right {
+      right: 0;
+      background: #cff;
+      top: 0;
+    }
+    
+    #head, 
+    div.enemy,
+    div.own_monster {
+      height: 96px;
+      width: 512px;
+    }
+    
+    div.enemy,
+    div.own_monster {
+      border-top: 1px solid black;
+      height: 95px;
+    }
+    
+    div.own_monster {
+      /*TODO*/
+      position: absolute;
+      top: 672px;
+    }
+    
+    #log {
+      background: #fcc;
+      width: 512px;
+      height: 192px;
+      overflow-y: scroll;
+    }
+    
+    #log p {
+      font-size: 0.9em;
+      margin: 0;
+    }
+    
+    img.enemy,
+    img.own_monster {
+      margin: 3px 0 0 3px;
+      float: left;
+    }
+    
+    h1.enemy,
+    h1.own_monster {
+      ffloat: left;
+      font-size: 1.4em;
+      margin: 0;
+      background: green;
+    }
+    
+    .own_monster_data,
+    .enemy_data {
+      float: left;
+      background: yellow;
+      width: 110px;
+    }
+    
+    .own_monster_stats,
+    .enemy_stats {
+      background: blue;
+    }
+    
+    .own_monster_stats th,
+    .own_monster_stats td,
+    .enemy_stats th,
+    .enemy_stats td {
+      font-size: 1.4em;
+      padding: 0 0px 0 0;
+    }
+    
+    #cards {
+      width: 488px; /* 512 - 24 */
+      background: #ccf;
+      height: 178px;
+      position: absolute;
+      top: 384px;
+      padding-left: 24px;
+      padding-top: 14px;
+    }
+    
+    #dice {
+      width: 512px;
+      height: 96px;
+      background: yellow;
+      position: absolute;
+      top: 576px;
+    }
+    
+    .die,
+    .roll {
+      font-size: 1.6em;
+      float: left;
+      height: 50px;
+      width: 50px;
+      background: red;
+      margin-left: 5px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+    #dice .roll {
+      height: 25px;
+      margin-top: 33px;
+      font-size: 0.8em;
+    }
+    
+    #map {
+      height: 384px;
+      width: 512px;
+      background-image: url(map.png);
+    }
+    
+    .map_square {
+      float: left;
+      height: 128px;
+      width: 128px;
+      background-image: url(square.png);
+    }
+    
+    .map_square_empty {
+      height: 128px;
+      width: 128px;
+    }
+    
+  </style>
+  
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+</head>
+<body>
+  <div id="wrap">
+    <div id="left">
+      <div id="head"></div>
+      
+      <div id="m1" class="enemy">
+        <img class="enemy" src="gorilla90.jpg"/>
+        
+        <div class="enemy_data">
+          <h1 class="enemy">KONG</h1>
+          
+          <table class="enemy_stats">
+            <thead>
+              <tr>
+                <th>H</th>
+                <th>V</th>
+                <th>E</th>
+              </tr>
+            <thead>
+            <tbody>
+              <tr>
+                <td>10</td>
+                <td>0</td>
+                <td>0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <table class="enemy_cards">
+          <tbody>
+            <tr>
+              <td><img src="extra_head.jpg" /></td>
+              <td><img src="extra_head.jpg" /></td>
+              <td><img src="extra_head.jpg" /></td>
+              <td><img src="extra_head.jpg" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div id="m2" class="enemy">
+      <img class="enemy" src="rabbot.png"/>
+        
+        <div class="enemy_data">
+          <h1 class="enemy">RABBOT</h1>
+          
+          <table class="enemy_stats">
+            <thead>
+              <tr>
+                <th>H</th>
+                <th>V</th>
+                <th>E</th>
+              </tr>
+            <thead>
+            <tbody>
+              <tr>
+                <td>8</td>
+                <td>2</td>
+                <td>1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div id="m3" class="enemy"></div>
+      
+      <div id="m4" class="enemy"></div>
+      
+      <div id="m5" class="enemy"></div>
+      
+      <div id="log">
+        <p>Kong rolls 1, 2, 3, 1, P, E</p>
+        <p>Kong uses background dweller to re-roll a 3</p>
+        <p>Kong rolls (1), (2),  1 , (1), (P), (E)</p>
+        <p>Kong rolls  P ,  1 ,  2 ,  E , (P), (E)</p>
+        <p>Kong rolls (P),  2 ,  E , (E), (P), (E)</p>
+        <p>Kong's final dice are P, 2, E, E, P, E</p>
+        <p>Kong gains 3E</p>
+        <p>Kong attacks Squid for 2 damage</p>
+        <p>Kong buys nothing</p>
+        <p>Squid rolls  P ,  P ,  1 ,  1 ,  2 ,  2 </p>
+        <p>Squid rolls (P), (P),  E ,  3 ,  1 ,  1 </p>
+        <p>Squid rolls (P), (P), (E),  1 ,  P ,  2 </p>
+        <p>Squid's final dice are P, P, E, 1, P, 2 </p>
+      </div>
+    </div>
+    
+    <div id="right">
+      <div id="map">
+        <div class="map_square_empty"></div>
+        <div class="map_square"></div>
+        <div class="map_square"></div>
+        <div class="map_square_empty"></div>
+      </div>
+    
+      <div id="cards">
+        <img src="extra_head.jpg" width="112" height="162"/>
+        <img src="extra_head.jpg" width="112" height="162"/>
+        <img src="extra_head.jpg" width="112" height="162"/>
+        <img src="extra_head.jpg" width="112" height="162"/>
+      </div>
+    
+      <div id="dice">
+        <div class="die">_</div>
+        <div class="die">1</div>
+        <div class="die">2</div>
+        <div class="die">3</div>
+        <div class="die">P</div>
+        <div class="die">E</div>
+        <div class="die">H</div>
+        <div class="die">_</div>
+        <div class="roll">Roll</div>
+      </div>
+    
+      <div id="m6" class="own_monster">
+        <img class="own_monster" src="squid90.jpg"/>
+          
+        <div class="own_monster_data">
+          <h1 class="own_monster">SQUID</h1>
+          
+          <table class="own_monster_stats">
+            <thead>
+              <tr>
+                <th>H</th>
+                <th>VP</th>
+                <th>E</th>
+              </tr>
+            <thead>
+            <tbody>
+              <tr>
+                <td>8</td>
+                <td>2</td>
+                <td>1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body></html>
