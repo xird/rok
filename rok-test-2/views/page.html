@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ROK test 2</title>
+<style type="text/css"> 
+
+#lobby {
+  position: relative;
+}
+
+#game {
+  position: relative;
+  display: none;
+}
+
+#lobby_messages,
+#game_messages {
+  position: absolute;
+  top: 30px;
+  border: 1px solid #444;
+  background: #ccc;
+  padding: 5px;
+  width: 500px;
+  display: none;
+}
+
+table.grid {
+  border-collapse: collapse;
+}
+
+table.grid th,
+table.grid td {
+  border: 1px solid #888;
+}
+
+th {
+  vertical-align: top;
+}
+
+table.monster {
+  font-size: 0.9em;
+}
+
+#game #data table {
+  font-size: 0.9em;
+}
+
+tr.users {
+  display: none;
+}
+
+td.die {
+  width: 20px;
+}
+
+td.die_status_i {
+  background: #888;
+}
+
+td.die_status_r {
+  background: #cfc;
+}
+
+</style>
+
+<!-- TODO make the server dynamic -->
+<script src="//localhost:8080/jquery-2.1.0.min.js"></script>
+<script src="//localhost:8080/utils.js"></script>
+<script src="//localhost:8080/jquery.json2html.js"></script>
+<script src="//localhost:8080/json2html.js"></script>
+
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script type="text/javascript">
+/** 
+ * See tutorial at
+ * http://krasimirtsonev.com/blog/article/Real-time-chat-with-NodeJS-Socketio-and-ExpressJS
+ */
+
+// TODO: Keyboard shortcuts for all possible actions
+ 
+$(document).ready(function() {
+  // Connect to the socket.
+  var socket = io.connect('http://localhost:3250');
+  
+ 
+  // DEBUG  
+  log_game_state.onclick = function() {
+    socket.emit("log_game_state");
+  }
+  log_users_state.onclick = function() {
+    socket.emit("log_users_state");
+  }
+  // End debug
+
+  // Make sure the client doesn't try to keep playing with a server that's been
+  // reset.
+  socket.on('server_has_gone_away', function () {
+    $('body').html('<p>The server has gone away. Try reloading the page.</p>');
+  });
+  
+  /**
+   * Lobby functionality.
+   */
+  
+  // Welcomes a new user.
+  socket.on('welcome', function (data) {
+    console.log(data);
+    welcome.innerHTML = "Welcome to the ROK, <strong>" + data.name + "</strong>";
+  });
+  
+  // Lobby message
+  socket.on('lobby_message', function (data) {
+    console.log('lobby message received');
+    console.log(data);
+    $('#lobby_messages').html(data).show().delay(1500).fadeOut(1000);
+  });
+  
+  // Lobby state update
+  socket.on('update_lobby', function (data) {
+    console.log("updating lobby");
+    
+    var transform = [
+      {tag: 'tr', children: [
+	{tag: 'td', html: "${name}"},
+	{tag: 'td', html: "${mode}"},
+	{tag: 'td', html: "${game_id}"},
+	{tag: 'td', children: [
+	  {tag: 'input', type: "button", class: "player_invite_button", value: "Invite", 'data-socket_id': "${socket_id}"}
+	]},
+      ]}
+    ];
+    
+    $('#users').html('<table><thead><tr><th>Name</th><th>Mode</th><th>Game</th></tr></thead><tbody></tbody></table>');
+    $('#users table tbody').json2html(data.users, transform);
+  });
+  
+  // Start game
+  socket.on('start_game', function (data) {
+    console.log('start_game');
+    $('#lobby').hide();
+    $('#game').show();
+  });
+  
+  // Creates a new game, making the user the host for this game.
+  $('#new_game').on("click", function(){
+    console.log('new_game');
+    socket.emit("new_game");
+  });
+  
+  // Invite.
+  $('#users').on("click", ".player_invite_button", function(){
+    console.log('invite');
+    socket.emit("invite", {socket_id: $(this).data("socket_id")});
+  });
+  
+  // Confirm invited users and start a new game.
+  $('#confirm_game').on("click", function(){
+    console.log('confirm_game');
+    socket.emit("confirm_game");
+  });
+  
+  /**
+   * Game functionality.
+   */
+
+  // Game state update
+  socket.on('update_game', function (data) {
+    console.log("updating game");
+    console.log(data);
+    var transforms = {
+      'main': [
+        {tag: 'tr', children: [
+          {tag: "th", html: "Host: Id"},
+          {tag: "td", html: "${host}: ${id}"}
+        ]},
+        {tag: 'tr', children: [
+          {tag: "th", html: "Game state"},
+          {tag: "td", html: "${game_state}"}
+        ]},
+        {tag: 'tr', children: [
+          {tag: "th", html: "Turn phase"},
+          {tag: "td", html: "${turn_phase}"}
+        ]},
+        {tag: 'tr', children: [
+          {tag: "th", html: "Next input from user (?)"},
+          {tag: "td", html: "${next_input_from_user}"}
+        ]},
+        {tag: 'tr', class: "users", children: [
+          {tag: "th", html: "Users"},
+          {tag: "td", children: [
+            {tag: "table", children: function(){
+              return(json2html.transform(this.formatted_users,transforms.users));
+            }}
+          ]}
+        ]},
+        {tag: 'tr', class: "dice", children: [
+          {tag: "th", html: "Dice"},
+          {tag: "td", children: [
+            {tag: "table", children: [
+              {tag: "tr", children: function(){
+                console.log(this.dice);
+                return(json2html.transform(this.dice, transforms.dice));
+              }}
+            ]},
+            {tag: 'input', type: "button", id: "roll_dice_button", value: "Roll"}
+          ]},
+        ]},
+        {tag: 'tr', children: [
+          {tag: "th", html: "Monsters"},
+          {tag: "td", children: [
+            {tag: "table", children: [
+              {tag: "tr", children: function(){
+                return(json2html.transform(this.formatted_monsters,transforms.monsters));
+              }}
+            ]}
+          ]}
+        ]},
+      ],
+      'users': [
+        {tag: "tr", children: [
+          {tag: "td", html: "${socket}"}
+        ]}
+      ],
+      'dice': [
+          {tag: "td", class: "die die_status_${state}", html: "${value}"},
+      ],
+      'monsters': [
+        
+          {tag: "td", children: [
+            {tag: "table", class: "monster", children: [
+              {tag: "tr", children: [
+                {tag: "th", html: "Name"},
+                {tag: "td", html: "${name}"}
+              ]},
+              {tag: "tr", children: [
+                {tag: "th", html: "User"},
+                {tag: "td", html: "${user}"}
+              ]},
+              {tag: "tr", children: [
+                {tag: "th", html: "Health"},
+                {tag: "td", html: "${health}"}
+              ]},
+              {tag: "tr", children: [
+                {tag: "th", html: "Victory points"},
+                {tag: "td", html: "${victory_points}"}
+              ]},
+              {tag: "tr", children: [
+                {tag: "th", html: "Energy"},
+                {tag: "td", html: "${energy}"}
+              ]},
+              {tag: "tr", children: [
+                {tag: "th", html: "ITC"},
+                {tag: "td", html: "${in_tokyo_city}"}
+              ]},
+              {tag: "tr", children: [
+                {tag: "th", html: "ITB"},
+                {tag: "td", html: "${in_tokyo_bay}"}
+              ]},
+              {tag: "tr", children: [
+                {tag: "th", html: "Select"},
+                {tag: "td", children: [
+                  {tag: 'input', type: "button", class: "monster_select_button", value: "Select", 'data-monster_id': "${id}"}
+                ]}
+              ]},
+            ]}
+          ]}
+        
+      ],
+    };
+    
+    $('#game #data').html('<table class="grid"><tbody></tbody></table>');
+    $('#game #data table tbody').json2html(data, transforms.main);
+    // end update_game socket event handler
+  });
+  
+  // Select a monster to play with
+  $('#game #data').on("click", ".monster_select_button", function(){
+    console.log('select monster '+$(this).data('monster_id'));
+    socket.emit("select_monster", {monster_id: $(this).data('monster_id')});
+  });
+  
+  // Game message
+  socket.on('game_message', function (data) {
+    console.log('game message received');
+    console.log(data);
+    $('#game_messages').html(data).show().delay(1500).fadeOut(1000);
+  });
+  
+  // Roll dice.
+  $('#game #data').on("click", "#roll_dice_button", function(){
+    console.log('roll_dice');
+    // TODO: Define dice to keep
+    socket.emit("roll_dice", {keep_dice_ids: []});
+  });
+  
+});
+</script>
+</head>
+<body>
+<div id="debug">
+  <h4>Debug</h4>
+  <input id="log_game_state" type="button" value="Log game state"/>
+  <input id="log_users_state" type="button" value="Log users state"/>
+  <hr/>
+</div>
+
+<div id="lobby">
+  <h2>Lobby</h2>
+  
+  <div id="lobby_messages"></div>
+  
+  <div id="welcome"></div>
+  <div id="users"></div>
+  <input id="new_game" type="button" value="New game"/>
+  <input id="confirm_game" type="button" value="Start game"/>
+</div>
+
+<div id="game">
+  <h2>Game</h2>
+  
+  <div id="game_messages"></div>
+  
+  <div id="data"></div>
+</div>
+</body>
+</html>
