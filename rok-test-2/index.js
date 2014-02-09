@@ -1,17 +1,19 @@
 /**
  * TODO: Don't send the session ids to the clients!
  *
- * TODO: Clean up updateGame so that there's no need to pass the game reference.
+ *
  * TODO: Create a "Quick game" button for development, that:
  *   - Creates a game
- *   - Invites another user
+ *   - Invites another player
  *   - Confirms the game
- *   - [Selects the monsters for the users]
- * TODO: Randomize the order of monsters on selection
+ *   - [Selects the monsters for the players]
+ *
  * TODO: Randomize the player order on game confirmation
- * TODO: Clean up user stats when resetting. Game users appear to get stuck?
+ * TODO: Game attribute turn_player for which player's turn it is. NOTE: This is not the same as next_input_from_player
+ *
+ * TODO: Clean up player stats when resetting. Game players appear to get stuck?
           /home/erno/Documents/version_control/rok/rok-test-1/index.js:458
-            if (games[user.game_id].game_state == "select_monsters") {
+            if (games[player.game_id].game_state == "select_monsters") {
                                   ^
           TypeError: Cannot read property 'game_state' of undefined
               at selectMonster (/home/erno/Documents/version_control/rok/rok-test-1/index.js:458:26)
@@ -65,16 +67,14 @@
  *     - Resolve poison counters
  *       - TODO: Check if this is done on the poisened monster's turn or the poisoning monster's turn
  *     - game state to "start"
- *     - next_input_from_user set to the next user in user_order
- * TODO: Game attribute turn_user for which user's turn it is. NOTE: This is not the same as next_input_from_user
- * TODO: When initializing the game, randomize user order into user_order
+ *     - next_input_from_player set to the next player in player_order
  * 
  * TODO: Add new game state variable: roll number
  * 
  * TODO: Design a way to pass currently available actions to front end:
  *   - One object, keys contain all existing actions
- *   - values contain users that can currently take the actions
- *   - Front end needs to know this user's id
+ *   - values contain players that can currently take the actions
+ *   - Front end needs to know this player's id
  *     - 
  */
 
@@ -86,6 +86,8 @@ var http = require('http')
 
 var Moniker = require('moniker');
 var uuid = require('node-uuid');
+
+var ROKUtils = require('./rok_utils.js');
 
 var cookieParser = express.cookieParser('your secret sauce')
   , sessionStore = new connect.middleware.session.MemoryStore();
@@ -119,13 +121,15 @@ app.get('/', function(req, res) {
   else {
     var sessid = "";
   }
-  console.log('page - SESSION ID: ' + sessid);
+  console.log('  page - SESSION ID: ' + sessid);
+  //console.log('  socket: ' + req.socket.id);
   res.render('page.html');
 });
 
 // Defining ROK variables
 var games = [];
-var users = {};
+var players = {};
+var current_socket = {};
 
 server.listen(3250);
 
@@ -160,7 +164,7 @@ process.on('SIGINT', function () {
 });*/
 
 /**
- * Event handler for the "connection" event. This is triggered when a new user
+ * Event handler for the "connection" event. This is triggered when a new player
  * enters the game.
  * 
  * All other event handlers are defined inside this function.
@@ -168,6 +172,9 @@ process.on('SIGINT', function () {
  */
 //io.sockets.on('connection', function (socket) {
 sessionSockets.on('connection', function (err, socket, session) {
+  // Make the socket available everywhere
+  current_socket = socket;
+  
   if (typeof session != "undefined") {
     var sessid = session.id;
   }
@@ -180,9 +187,23 @@ sessionSockets.on('connection', function (err, socket, session) {
     return;
   }
 
-  // Create a new user.
-  var user = addUser(socket, sessid);
-  updateLobby();
+  // Create a new player (returns an existing player if one exists for this
+  // session).
+  var player = addPlayer(socket, sessid);
+  
+  if (player.game_id) {
+    console.log('Game state: ' + games[player.game_id].game_state);
+    if (games[player.game_id].game_state != 'lobby') {
+      updateGame();
+    }
+    else {
+      updateLobby();
+    }
+  }
+  else {
+    updateLobby();  
+  }
+
   
   
   // Define event handlers:
@@ -193,14 +214,48 @@ sessionSockets.on('connection', function (err, socket, session) {
   
   // Debug game
   socket.on("log_game_state", function(args) {
-    console.log(dump(games));
-    updateGame(user.game_id);
+    console.log(ROKUtils.dump(games));
+    updateGame();
   });
   
-  // Debug users
-  socket.on("log_users_state", function(args) {
-    console.log(dump(users));
+  // Debug players
+  socket.on("log_players_state", function(args) {
+    console.log(ROKUtils.dump(players));
     updateLobby();
+  });
+  
+  // Quickly create a game for testing purposes.
+  socket.on("quick_game", function(args) {
+    console.log("Initializing quick game");
+    if (Object.keys(players).length < 2) {
+      console.log('Two players required');
+      socket.emit('lobby_message', "Two players required");
+      return;
+    }
+    
+    // Create new game
+    var game = newGame(player);
+    
+    // Invite one other user
+    console.log(players);
+    for (var p in players) {
+      if (players[p].session_id != player.session_id) {
+        invitePlayer(player, players[p].socket_id);
+        break;
+      }
+    }
+    
+    // Confirm game
+    confirmGame(socket);
+    
+    // Select monsters
+    var i = 2;
+    for (var p in game.players) {
+      console.log('game plr ' + p);
+      selectMonster(players[p], i);
+      i++;
+    }
+    
   });
 
 
@@ -208,25 +263,25 @@ sessionSockets.on('connection', function (err, socket, session) {
    * Lobby
    */
   
-  // Sends the welcome message to a new user.
-  socket.emit("welcome", user);
+  // Sends the welcome message to a new player.
+  socket.emit("welcome", player);
   
-  // Handles users leaving the game.
+  // Handles players leaving the game.
   socket.on('disconnect', function () {
-    removeUser(user);
+    removePlayer(player);
   });
   
-  // Creates a new game and sets the user who created the game as a host.
+  // Creates a new game and sets the player who created the game as a host.
   socket.on("new_game", function(args) {
     console.log('new_game');
-    var game = newGame(user);
+    var game = newGame(player);
   });
   
-  // Game host inviting a user to the game.
+  // Game host inviting a player to the game.
   socket.on("invite", function(args) {
     console.log("invite-handler");
     console.log(args);
-    inviteUser(user, args.socket_id);
+    invitePlayer(player, args.socket_id);
   });
   
   // Game host confirming invited players and starting the game.
@@ -242,14 +297,14 @@ sessionSockets.on('connection', function (err, socket, session) {
    * Player selecting a monster to play with.
    */
   socket.on("select_monster", function(args) {
-    selectMonster(user, args.monster_id);
+    selectMonster(player, args.monster_id);
   });
   
   /**
    * Player rolling dice.
    */
   socket.on("roll_dice", function(args) {
-    rollDice(user, args.keep_dice_ids);
+    rollDice(player, args.keep_dice_ids);
   });
 
   // dice_roll(keep_dice_ids)
@@ -263,20 +318,21 @@ sessionSockets.on('connection', function (err, socket, session) {
 
 
 /**
- * Generates a new random username and appends it to the global "users" array.
- * Unless the current session already has a user, in which that user is
+ * Generates a new random playername and appends it to the global "players" array.
+ * Unless the current session already has a player, in which case that player is
  * returned.
  * 
- * @param socket Object The io socket of the current user.
+ * @param socket Object The io socket of the current player.
  */
-var addUser = function(socket, sessid) {
-  console.log("addUser");
+var addPlayer = function(socket, sessid) {
+  console.log("addPlayer");
   
-  if (typeof users[sessid] != "undefined") {
-    return users[sessid];
+  if (typeof players[sessid] != "undefined") {
+    players[sessid].socket_id = socket.id;
+    return players[sessid];
   }
 
-  var user = {
+  var player = {
     name: Moniker.choose(),
     monster_id: 0,
     socket_id: socket.id,
@@ -285,36 +341,49 @@ var addUser = function(socket, sessid) {
     mode: ""
   }
 
-  users[sessid] = user;
+  players[sessid] = player;
 
-  return user;
+  return player;
 }
 
 /**
- * Starts a new game
+ * Starts a new game. Game attributes are as follows:
+ *   - id
+ *   - host
+ *   - host_name
+ *   - game_state: Tracks the progress of the preparation of the game.
+ *   - turn_phase: Tracks the progress of a single turn taken by a player.
+ *   - turn_player: The player whose turn it is at the moment.
+ *   - next_input_from_player: Sometimes a player needs to give input outside of
+ *     the player's turn. For example, plr A is attacking plr B, and plr B wants
+ *     to spend money on rapid healing.
  * 
- * @param user Object The user creating the new game.
+ * @param player Object The player creating the new game.
  * 
  * @return Object A new game object
  * 
  */
-var newGame = function(user) {
+var newGame = function(player) {
+  console.log("newGame");
   var game_id = uuid.v4();
-  user.game_id = game_id;
-  user.mode = "host";
+  player.game_id = game_id;
+  player.mode = "host";
   
-  var game_users = {};
-  game_users[user.session_id] = user.session_id;
+  var game_players = {};
+  game_players[player.session_id] = player.session_id;
   
   // TODO: randomize initial values for dice
   // TODO: Prepare for extra dice
+  // TODO: Make sure the host's session id doesn't leak to client
   var game = {
     id: game_id,
-    host: user.name,
+    host: player.session_id,
+    host_name: player.name,
     game_state: "lobby",
     turn_phase: "",
-    next_input_from_user: 0,
-    users: game_users,
+    turn_player: "",
+    next_input_from_player: "",
+    players: game_players,
     monsters: [],
     dice: [
       {
@@ -346,16 +415,16 @@ var newGame = function(user) {
     monster_to_yield_tokyo_bay: 0, // ?
   }
   
-  // Generate monsters and save them in the game object. Note index starting
-  // from 1 since we don't want a monster with an id of 0.
-  for (var i = 1; i <= 6; i++) {
-    var monster = new Monster(i);
+  // Generate monsters and save them in the game object.
+  for (var i = 0; i < 6; i++) {
+    var monster = new Monster(i + 1);
     game.monsters[i] = monster;
   }
   
+  game.monsters = ROKUtils.shuffleArray(game.monsters);
+  
   games[game_id] = game;
   updateLobby();
-  //console.log( dump(games) );
   return game;
 }
 
@@ -368,8 +437,8 @@ var newGame = function(user) {
  * 
  */
 function Monster(id) {
-  // The user controlling this monster.
-  this.user = 0;
+  // The player controlling this monster.
+  this.player = 0;
   this.health = 10;
   this.victory_points = 0;
   this.energy = 0;
@@ -391,23 +460,23 @@ function Monster(id) {
 
 
 /**
- * Removes a user from the global users array.
+ * Removes a player from the global players array.
  */
-var removeUser = function(user) {
+var removePlayer = function(player) {
   /*
-  console.log('removeUser');
-  var game_id = user.game_id;
-  var keys = Object.keys(users);
+  console.log('removePlayer');
+  var game_id = player.game_id;
+  var keys = Object.keys(players);
   for(var i = 0; i < keys.length; i++) {
-    var user = users[keys[i]];
-    // TODO idenfify by id, not username
-    // TODO: Clean up also from the game object, in game.users and game.monsters
-    if(user.name === users[keys[i]].name) {
-      delete users[keys[i]];
+    var player = players[keys[i]];
+    // TODO idenfify by id, not playername
+    // TODO: Clean up also from the game object, in game.players and game.monsters
+    if(player.name === players[keys[i]].name) {
+      delete players[keys[i]];
       updateLobby();
-      // If the user was a part of a game, update that game.
+      // If the player was a part of a game, update that game.
       if (game_id) {
-        updateGame(game_id);        
+        updateGame();
       }
       return;
     }
@@ -417,116 +486,123 @@ var removeUser = function(user) {
 
 
 /**
- * Invites a user to join a game.
+ * Invites a player to join a game.
  * 
  * NOTE: The current implementation doesn't just invite, it automatically adds
- * the user to the game.
- * TODO: Allow the invited user to accept or reject the invite.
+ * the player to the game.
+ * TODO: Allow the invited player to accept or reject the invite.
  * 
- * @param user Object The user doing the invite.
- * @param socket_id String The socket id of the user being invited.
+ * @param player Object The player doing the invite.
+ * @param socket_id String The socket id of the player being invited.
  */
-var inviteUser = function (user, socket_id) {
-  console.log("inviteUser");
+var invitePlayer = function (player, socket_id) {
+  console.log("invitePlayer");
   
-  // Check that the current user has created a new game.
-  if (user.game_id) {
+  // Check that the current player has created a new game.
+  if (player.game_id) {
     console.log("socket_id: " + socket_id);
-    // Get game id from current user
-    var game_id = user.game_id;
+    // Get game id from current player
+    var game_id = player.game_id;
     console.log("game_id: " + game_id);
-    // Update game id of invited user
-    // TODO make sure the user still exists(?)
-    var invitedUser = getUserBySocketId(socket_id);
-    console.log(invitedUser);
-    invitedUser.game_id = game_id;
-    invitedUser.mode = "client";
+    // Update game id of invited player
+    // TODO make sure the player still exists(?)
+    var invitedPlayer = getPlayerBySocketId(socket_id);
+    console.log(invitedPlayer);
+    invitedPlayer.game_id = game_id;
+    invitedPlayer.mode = "client";
     
-    // Add the user ids in the game object.
-    games[user.game_id].users[invitedUser.session_id] = invitedUser.session_id;
+    // Add the player ids in the game object.
+    games[player.game_id].players[invitedPlayer.session_id] = invitedPlayer.session_id;
     
     updateLobby();   
   }
   else {
     console.log('no game error');
-    // Notify the user that he needs a game.
-    var msg = "Please create a new game before inviting users.";
-    console.log(user);
-    io.sockets.socket(user.socket_id).emit("lobby_message", msg);
+    // Notify the player that he needs a game.
+    var msg = "Please create a new game before inviting players.";
+    console.log(player);
+    io.sockets.socket(player.socket_id).emit("lobby_message", msg);
   }
 }
 
 
 /**
- * @param socket_id int The socket id of the user.
+ * @param socket_id int The socket id of the player.
  *
- * @return Object The user object whose socket was given.
+ * @return Object The player object whose socket was given.
  */
-var getUserBySocketId = function(socket_id) {
-  console.log("getUserBySocketId");
-  console.log(users);
-  var keys = Object.keys(users);
+var getPlayerBySocketId = function(socket_id) {
+  console.log("getPlayerBySocketId");
+  console.log("  " + socket_id);
+  console.log(players);
+  var keys = Object.keys(players);
   for (var i = 0; i < keys.length; i++) {
-    if (users[keys[i]].socket_id == socket_id) {
-      return users[keys[i]];
+    if (players[keys[i]].socket_id == socket_id) {
+      return players[keys[i]];
     }
   }
   return false;
 }
 
 /**
- * Updates data on users in the lobby. 
+ * Updates data on players in the lobby. 
  */
 var updateLobby = function() {
   console.log("updateLobby");
   
   arr = [];
-  for(var i in users) {
-    // TODO: Only push users that are not in a confirmed game.
-    arr.push(users[i]);
+  for(var i in players) {
+    // TODO: Only push players that are not in a confirmed game.
+    arr.push(players[i]);
   }
   
-  io.sockets.emit("update_lobby", { users: arr });
+  io.sockets.emit("update_lobby", { players: arr });
 }
 
 
 /**
- * Starts the game with the invited users
+ * Starts the game with the invited players
  * 
- * @param socket Object The socket for the host user.
+ * @param socket Object The socket for the host player.
  */
 var confirmGame = function(socket) {
   console.log("confirmGame");
-  // console.log(users[socket.id].mode);
 
-  var current_user = getUserBySocketId(socket.id);
+  var current_player = getPlayerBySocketId(socket.id);
+  console.log(current_player);
   
-  // Check that the user running this is a host.
-  if (current_user.mode == 'host') {
-    // Check that there are at least two users in the game
-    console.log(games[current_user.game_id]);
+  // Check that the player running this is a host.
+  if (current_player.mode == 'host') {
+    // Check that there are at least two players in the game
+    console.log(games[current_player.game_id]);
     
-    if (Object.keys(games[current_user.game_id].users).length >= 2) {
-      games[current_user.game_id].game_state = 'select_monsters';
-      // TODO: Update the users list to remove the playing users from the list.
+    if (Object.keys(games[current_player.game_id].players).length >= 2) {
+      games[current_player.game_id].game_state = 'select_monsters';
+      
+      // Randomize player order
+      games[current_player.game_id].players = ROKUtils.shuffleArray(games[current_player.game_id].players);
+      
+      
+      // TODO: Update the players list to remove the playing players from the list.
       updateLobby();
+      
       // Start the game
-      startGame(current_user.game_id);
-      // Emit event "update_game" to users in this game     
-      updateGame(current_user.game_id);
+      startGame(current_player.game_id);
+      // Emit event "update_game" to players in this game     
+      updateGame();
     }
     else {
-      console.log('not enough users error');
-      // Notify the user.
+      console.log('not enough players error');
+      // Notify the player.
       var msg = "At least two players are needed to play.";
-      io.sockets.socket(current_user.socket_id).emit("lobby_message", msg);     
+      io.sockets.socket(current_player.socket_id).emit("lobby_message", msg);     
     }
   }
   else {
     console.log('not a host error');
-    // Notify the user that he needs to be a host to confirm a game.
+    // Notify the player that he needs to be a host to confirm a game.
     var msg = "Only the host can confirm a game.";
-    io.sockets.socket(current_user.socket_id).emit("lobby_message", msg);
+    io.sockets.socket(current_player.socket_id).emit("lobby_message", msg);
   }
 }
 
@@ -539,71 +615,76 @@ var confirmGame = function(socket) {
  * 
  */ 
 var startGame = function(game_id) {
-  // Loop through all users in this game.
-  for (var game_user_sessid in games[game_id].users) {
-    var target_socket = io.sockets.socket(users[game_user_sessid].socket_id);
+  // Loop through all players in this game.
+  for (var game_player_sessid in games[game_id].players) {
+    var target_socket = io.sockets.socket(players[game_player_sessid].socket_id);
     target_socket.emit("start_game");
   }
 }
 
 /**
- * Sends the game state to the users belonging to the game.
+ * Sends the game state to the players belonging to the game.
  * 
  */ 
-var updateGame = function(game_id) {
+var updateGame = function() {
+  // Get the current game id from the current player's data.
+  var current_player = getPlayerBySocketId(current_socket.id);
+  var game_id = current_player.game_id;
   console.log("updateGame " + game_id);
-  
+  console.log("Current player:");
+  console.log(current_player);
+    
   var current_game = games[game_id];
   
-  // Re-format game users for easier handling on the front end.
-  var new_users = [];
-  for (var u in current_game.users) {
-    var user_object = users[u];
-    var new_user = {};
-    new_user.socket = user_object.socket_id;
-    new_users.push(new_user);
+  // Re-format game players for easier handling on the front end.
+  var new_players = [];
+  for (var u in current_game.players) {
+    var player_object = players[u];
+    var new_player = {};
+    new_player.socket = player_object.socket_id;
+    new_players.push(new_player);
   }
-  current_game.formatted_users = new_users;
+  current_game.formatted_players = new_players;
   
-  // Drop the empty zero monster, it's not needed on the front end.
   // TODO: If the game is confirmed, drop any monsters not in play.
   var new_monsters = [];
-  for (var i = 1; i <= current_game.monsters.length - 1; i++) {
-    if (typeof current_game.monsters[i] != undefined) {
-      var new_monster = JSON.parse(JSON.stringify(current_game.monsters[i]));
-      new_monsters.push(new_monster);
-    }
+  for (var i = 0; i < current_game.monsters.length; i++) {
+    var new_monster = JSON.parse(JSON.stringify(current_game.monsters[i]));
+    new_monsters.push(new_monster);
   }
   current_game.formatted_monsters = new_monsters;
   
-  // Loop through all users in this game and send them the data.
-  for (var game_user in games[game_id].users) {
-    current_game.this_user = game_user;
-    var user_object = users[game_user];
-    var target_socket = io.sockets.socket(user_object.socket_id);
+  // Loop through all players in this game and send them the data.
+  for (var game_player in games[game_id].players) {
+    current_game.this_player = game_player;
+    var player_object = players[game_player];
+    var target_socket = io.sockets.socket(player_object.socket_id);
     target_socket.emit("update_game", current_game);
   }
 }
 
 /**
- * Assigns a monster to a user
+ * Assigns a monster to a player
+ *
+ * @param player Object A player object.
  */
-var selectMonster = function (user, monster_id) {
+var selectMonster = function (player, monster_id) {
   // TODO: Make sure the monster isn't selected already
   console.log("selectMonster");
-  console.log("user.game_id: " + user.game_id);
-  if (games[user.game_id].game_state == "select_monsters") {
-    // Check that the user hasn't already selected a monster.
-    if (user.monster_id == 0) {
-      user.monster_id = monster_id;
-      games[user.game_id].monsters[monster_id].user = user.socket_id;
+  console.log("player.game_id: " + player.game_id);
+  if (games[player.game_id].game_state == "select_monsters") {
+    // Check that the player hasn't already selected a monster.
+    if (player.monster_id == 0) {
+      player.monster_id = monster_id;
+      
+      setMonsterToPlayer(player.game_id, monster_id, player.session_id);
       
       // If this was the last player to select a monster, advance the game state.
-      var game_users = games[user.game_id].users;
-      //console.log(game_users);
+      var game_players = games[player.game_id].players;
+      //console.log(game_players);
       var ready = 1;
-      for (var game_user in game_users) {
-        if (users[game_user].monster_id == 0) {
+      for (var game_player in game_players) {
+        if (players[game_player].monster_id == 0) {
           ready = 0;
         }
       }
@@ -611,25 +692,35 @@ var selectMonster = function (user, monster_id) {
       if (ready) {
         console.log(games);
         // TODO: Select the player order randomly.
-        games[user.game_id].game_state = 1;
-        games[user.game_id].turn_phase = 'r1';
-        games[user.game_id].next_input_from_user = 1; // TODO: Do we need this?
+        games[player.game_id].game_state = 1;
+        games[player.game_id].turn_phase = 'r1';
+        games[player.game_id].next_input_from_player = 1; // TODO: Do we need this?
       }
       
-      updateGame(user.game_id);
+      updateGame();
     }
     else {
       console.log('already selected error');
       var msg = "You have already selected a monster.";
-      io.sockets.socket(user.socket_id).emit("game_message", msg);
+      io.sockets.socket(player.socket_id).emit("game_message", msg);
     }  
   }
   else {
     console.log('not in monster_selection error');
     var msg = "This is not the time to select a monster.";
-    io.sockets.socket(user.socket_id).emit("game_message", msg);   
+    io.sockets.socket(player.socket_id).emit("game_message", msg);   
   }
 }
+
+
+var setMonsterToPlayer = function(game_id, monster_id, session_id) {
+  for (var i = 0; i < games[game_id].monsters.length; i++) {
+    if (games[game_id].monsters[i].id == monster_id) {
+      games[game_id].monsters[i].player = session_id;
+    }
+  }
+}
+
 
 /**
  * Player rolling dice.
@@ -637,11 +728,11 @@ var selectMonster = function (user, monster_id) {
  * @param keep_dice_ids array The ids of the dice that are not to be
  * re-rolled.
  */
-var rollDice = function (user, keep_dice_ids) {
+var rollDice = function (player, keep_dice_ids) {
   console.log('rollDice');
 
   
-  // TODO fix user references versus game_state "1"
+  // TODO fix player references versus game_state "1"
   
   
   
@@ -657,15 +748,15 @@ var rollDice = function (user, keep_dice_ids) {
     'E'
   ];
   // TODO only roll the not-kept dice.
-  if (games[user.game_id].turn_phase == 'r1') {
+  if (games[player.game_id].turn_phase == 'r1') {
     console.log('state r1');
     // TODO: take into account possible extra dice
     for (var i = 0; i < 6; i++) {
-      var r = getRandomInt(0, 5);
-      games[user.game_id].dice[i].value = faces[r];
-      if (games[user.game_id].dice[i].state = 'i') {
+      var r = ROKUtils.getRandomInt(0, 5);
+      games[player.game_id].dice[i].value = faces[r];
+      if (games[player.game_id].dice[i].state = 'i') {
         // TODO: If there are more re-rolls, set dice states to r.
-        games[user.game_id].dice[i].state = 'r';
+        games[player.game_id].dice[i].state = 'r';
       }
     }
   }
@@ -675,54 +766,8 @@ var rollDice = function (user, keep_dice_ids) {
   
   // TODO increment game_state
   
-  updateGame(user.game_id);
+  updateGame();
 }
 
-
-
-// UTILS
-
-/**
- * Function : dump()
- * Arguments: The data - array,hash(associative array),object
- *    The level - OPTIONAL
- * Returns  : The textual representation of the array.
- * This function was inspired by the print_r function of PHP.
- * This will accept some data as the argument and return a
- * text that will be a more readable version of the
- * array/hash/object that is given.
- * Docs: http://www.openjs.com/scripts/others/dump_function_php_print_r.php
- */
-function dump(arr,level) {
-	var dumped_text = "";
-	if(!level) level = 1;
-	
-	//The padding given at the beginning of the line.
-	var level_padding = "";
-	for(var j=0;j<level+1;j++) level_padding += "    ";
-	
-	if(typeof(arr) == 'object') { //Array/Hashes/Objects 
-		for(var item in arr) {
-			var value = arr[item];
-			
-			if(typeof(value) == 'object') { //If it is an array,
-				dumped_text += level_padding + "'" + item + "' ...\n";
-				dumped_text += dump(value,level+1);
-			} else {
-				dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
-			}
-		}
-	} else { //Stings/Chars/Numbers etc.
-		dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
-	}
-	return dumped_text;
-}
-
-/**
- * TODO find the node.js way of doing this.
- */
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
 
 

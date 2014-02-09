@@ -45,11 +45,12 @@ table.monster {
   font-size: 0.9em;
 }
 
-tr.users {
+tr.players {
   display: none;
 }
 
 td.die {
+  height: 20px;
   width: 20px;
 }
 
@@ -89,8 +90,11 @@ $(document).ready(function() {
   log_game_state.onclick = function() {
     socket.emit("log_game_state");
   }
-  log_users_state.onclick = function() {
-    socket.emit("log_users_state");
+  log_players_state.onclick = function() {
+    socket.emit("log_players_state");
+  }
+  quick_game.onclick = function() {
+    socket.emit("quick_game");
   }
   // End debug
 
@@ -104,7 +108,7 @@ $(document).ready(function() {
    * Lobby functionality.
    */
   
-  // Welcomes a new user.
+  // Welcomes a new player.
   socket.on('welcome', function (data) {
     console.log(data);
     welcome.innerHTML = "Welcome to the ROK, <strong>" + data.name + "</strong>";
@@ -121,19 +125,22 @@ $(document).ready(function() {
   socket.on('update_lobby', function (data) {
     console.log("updating lobby");
     
+    $('#lobby').show();
+    $('#game').hide();
+    
     var transform = [
       {tag: 'tr', children: [
-	{tag: 'td', html: "${name}"},
-	{tag: 'td', html: "${mode}"},
-	{tag: 'td', html: "${game_id}"},
-	{tag: 'td', children: [
-	  {tag: 'input', type: "button", class: "player_invite_button", value: "Invite", 'data-socket_id': "${socket_id}"}
-	]},
+    	{tag: 'td', html: "${name}"},
+      {tag: 'td', html: "${mode}"},
+      {tag: 'td', html: "${game_id}"},
+      {tag: 'td', children: [
+    	  {tag: 'input', type: "button", class: "player_invite_button", value: "Invite", 'data-socket_id': "${socket_id}"}
+	      ]},
       ]}
     ];
     
-    $('#users').html('<table><thead><tr><th>Name</th><th>Mode</th><th>Game</th></tr></thead><tbody></tbody></table>');
-    $('#users table tbody').json2html(data.users, transform);
+    $('#players').html('<table><thead><tr><th>Name</th><th>Mode</th><th>Game</th></tr></thead><tbody></tbody></table>');
+    $('#players table tbody').json2html(data.players, transform);
   });
   
   // Start game
@@ -143,19 +150,19 @@ $(document).ready(function() {
     $('#game').show();
   });
   
-  // Creates a new game, making the user the host for this game.
+  // Creates a new game, making the player the host for this game.
   $('#new_game').on("click", function(){
     console.log('new_game');
     socket.emit("new_game");
   });
   
   // Invite.
-  $('#users').on("click", ".player_invite_button", function(){
+  $('#players').on("click", ".player_invite_button", function(){
     console.log('invite');
     socket.emit("invite", {socket_id: $(this).data("socket_id")});
   });
   
-  // Confirm invited users and start a new game.
+  // Confirm invited players and start a new game.
   $('#confirm_game').on("click", function(){
     console.log('confirm_game');
     socket.emit("confirm_game");
@@ -169,6 +176,10 @@ $(document).ready(function() {
   socket.on('update_game', function (data) {
     console.log("updating game");
     console.log(data);
+    
+    $('#lobby').hide();
+    $('#game').show();
+    
     var transforms = {
       'main': [
         {tag: 'tr', children: [
@@ -184,14 +195,14 @@ $(document).ready(function() {
           {tag: "td", html: "${turn_phase}"}
         ]},
         {tag: 'tr', children: [
-          {tag: "th", html: "Next input from user (?)"},
-          {tag: "td", html: "${next_input_from_user}"}
+          {tag: "th", html: "NIFP"},
+          {tag: "td", html: "${next_input_from_player}"}
         ]},
-        {tag: 'tr', class: "users", children: [
-          {tag: "th", html: "Users"},
+        {tag: 'tr', class: "players", children: [
+          {tag: "th", html: "Players"},
           {tag: "td", children: [
             {tag: "table", children: function(){
-              return(json2html.transform(this.formatted_users,transforms.users));
+              return(json2html.transform(this.formatted_players,transforms.players));
             }}
           ]}
         ]},
@@ -218,7 +229,7 @@ $(document).ready(function() {
           ]}
         ]},
       ],
-      'users': [
+      'players': [
         {tag: "tr", children: [
           {tag: "td", html: "${socket}"}
         ]}
@@ -232,11 +243,11 @@ $(document).ready(function() {
             {tag: "table", class: "monster", children: [
               {tag: "tr", children: [
                 {tag: "th", html: "Name"},
-                {tag: "td", html: "${name}"}
+                {tag: "td", html: "${name} (${id})"}
               ]},
               {tag: "tr", children: [
-                {tag: "th", html: "User"},
-                {tag: "td", html: "${user}"}
+                {tag: "th", html: "Player"},
+                {tag: "td", html: "${player}"}
               ]},
               {tag: "tr", children: [
                 {tag: "th", html: "Health"},
@@ -302,7 +313,8 @@ $(document).ready(function() {
 <div id="debug">
   <h4>Debug</h4>
   <input id="log_game_state" type="button" value="Log game state"/>
-  <input id="log_users_state" type="button" value="Log users state"/>
+  <input id="log_players_state" type="button" value="Log players state"/>
+  <input id="quick_game" type="button" value="Quick game"/>
   <hr/>
 </div>
 
@@ -312,7 +324,7 @@ $(document).ready(function() {
   <div id="lobby_messages"></div>
   
   <div id="welcome"></div>
-  <div id="users"></div>
+  <div id="players"></div>
   <input id="new_game" type="button" value="New game"/>
   <input id="confirm_game" type="button" value="Start game"/>
 </div>
