@@ -83,10 +83,6 @@ td.die_status_k {
 <script src="/socket.io/socket.io.js"></script>
 
 <script type="text/javascript">
-/** 
- * See tutorial at
- * http://krasimirtsonev.com/blog/article/Real-time-chat-with-NodeJS-Socketio-and-ExpressJS
- */
 
 // TODO: Keyboard shortcuts for all possible actions
  
@@ -143,7 +139,7 @@ $(document).ready(function() {
       {tag: 'td', html: "${mode}"},
       {tag: 'td', html: "${game_id}"},
       {tag: 'td', children: [
-    	  {tag: 'input', type: "button", class: "player_invite_button", value: "Invite", 'data-socket_id': "${socket_id}"}
+    	  {tag: 'input', type: "button", class: "player_invite_button", value: "Invite", 'data-player_id': "${id}"}
 	      ]},
       ]}
     ];
@@ -168,7 +164,7 @@ $(document).ready(function() {
   // Invite.
   $('#players').on("click", ".player_invite_button", function(){
     console.log('invite');
-    socket.emit("invite", {socket_id: $(this).data("socket_id")});
+    socket.emit("invite", {player_id: $(this).data("player_id")});
   });
   
   // Confirm invited players and start a new game.
