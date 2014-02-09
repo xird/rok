@@ -52,6 +52,7 @@ tr.players {
 td.die {
   height: 20px;
   width: 20px;
+  text-align: center;
 }
 
 td.die_status_i {
@@ -60,6 +61,14 @@ td.die_status_i {
 
 td.die_status_r {
   background: #cfc;
+}
+
+td.die_status_f {
+  background: #ccf;
+}
+
+td.die_status_k {
+  background: #fcc;
 }
 
 </style>
@@ -110,7 +119,7 @@ $(document).ready(function() {
   
   // Welcomes a new player.
   socket.on('welcome', function (data) {
-    console.log(data);
+    //console.log(data);
     welcome.innerHTML = "Welcome to the ROK, <strong>" + data.name + "</strong>";
   });
   
@@ -167,6 +176,7 @@ $(document).ready(function() {
     console.log('confirm_game');
     socket.emit("confirm_game");
   });
+
   
   /**
    * Game functionality.
@@ -183,24 +193,38 @@ $(document).ready(function() {
     var transforms = {
       'main': [
         {tag: 'tr', children: [
-          {tag: "th", html: "Host: Id"},
-          {tag: "td", html: "${host}: ${id}"}
+          {tag: "th", html: "This player:"},
+          {tag: "td", colspan: 5, html: "${this_player}"}
+        ]},
+        {tag: 'tr', children: [
+          {tag: "th", html: "Host: Game id"},
+          {tag: "td", colspan: 5,  html: "${host_name}: ${id}"}
         ]},
         {tag: 'tr', children: [
           {tag: "th", html: "Game state"},
-          {tag: "td", html: "${game_state}"}
+          {tag: "td", html: "${game_state}"},
+          {tag: "th", html: "Turn phase"},
+          {tag: "td", html: "${turn_phase}"},
+          {tag: "th", html: "Roll number"},
+          {tag: "td", html: "${roll_number}"}
         ]},
         {tag: 'tr', children: [
-          {tag: "th", html: "Turn phase"},
-          {tag: "td", html: "${turn_phase}"}
+
+        ]},
+        {tag: 'tr', children: [
+          {tag: "th", html: "Turn player"},
+          {tag: "td", colspan: 5,  html: "${turn_player}"}
         ]},
         {tag: 'tr', children: [
           {tag: "th", html: "NIFP"},
-          {tag: "td", html: "${next_input_from_player}"}
+          {tag: "td", colspan: 5,  html: "${next_input_from_player}"}
+        ]},
+        {tag: 'tr', children: [
+
         ]},
         {tag: 'tr', class: "players", children: [
           {tag: "th", html: "Players"},
-          {tag: "td", children: [
+          {tag: "td", colspan: 5,  children: [
             {tag: "table", children: function(){
               return(json2html.transform(this.formatted_players,transforms.players));
             }}
@@ -208,19 +232,21 @@ $(document).ready(function() {
         ]},
         {tag: 'tr', class: "dice", children: [
           {tag: "th", html: "Dice"},
-          {tag: "td", children: [
+          {tag: "td", colspan: 2,  children: [
             {tag: "table", children: [
               {tag: "tr", children: function(){
-                console.log(this.dice);
+                //console.log(this.dice);
                 return(json2html.transform(this.dice, transforms.dice));
               }}
             ]},
             {tag: 'input', type: "button", id: "roll_dice_button", value: "Roll"}
           ]},
+          {tag: "th", html: "Misc actions"},
+          {tag: "td", colspan: 2, html: '<input type="button" value="Done buying" id="done_buying" />'},
         ]},
         {tag: 'tr', children: [
           {tag: "th", html: "Monsters"},
-          {tag: "td", children: [
+          {tag: "td", colspan: 5,  children: [
             {tag: "table", children: [
               {tag: "tr", children: function(){
                 return(json2html.transform(this.formatted_monsters,transforms.monsters));
@@ -295,7 +321,7 @@ $(document).ready(function() {
   // Game message
   socket.on('game_message', function (data) {
     console.log('game message received');
-    console.log(data);
+    //console.log(data);
     $('#game_messages').html(data).show().delay(1500).fadeOut(1000);
   });
   
@@ -304,6 +330,12 @@ $(document).ready(function() {
     console.log('roll_dice');
     // TODO: Define dice to keep
     socket.emit("roll_dice", {keep_dice_ids: []});
+  });
+  
+  // Finish buying cards.
+  $('#game #data').on("click", "#done_buying", function(){
+    console.log('done buying');
+    socket.emit("done_buying");
   });
   
 });
