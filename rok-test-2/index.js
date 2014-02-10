@@ -1,21 +1,14 @@
 /**
- * TODO: Create a "Quick game" button for development, that:
- *   - Creates a game
- *   - Invites another player
- *   - Confirms the game
- *   - [Selects the monsters for the players]
  *
- * TODO: Game states:
- *   - init DONE
- *   - select DONE
- *   - play DONE
- *   - over TODO
+ * TODO: Game state: "over", i.e. win checks
  * 
  * TODO: Design a way to pass currently available actions to front end:
  *   - One object, keys contain all existing actions
  *   - values contain players that can currently take the actions
- *   - Front end needs to know this player's id
- *     - 
+ *
+ * TODO: Design a way to transmit all state _changes_ to the front end, to allow
+ *       animating the changes in the client instead of just snapping the new
+ *       game state in place. This will also allow the creation of the game log.
  */
 
 var http = require('http')
@@ -335,6 +328,18 @@ var addPlayer = function(socket, sessid) {
  *   - next_input_from_player: Sometimes a player needs to give input outside of
  *     the player's turn. For example, plr A is attacking plr B, and plr B wants
  *     to spend money on rapid healing.
+ *   - updates: A data array describing the changes to the game state since the 
+ *     previous update. This is used to update the game log in the client, and
+ *     to allow animating the changes in the client instead of just snapping the
+ *     new game state in place, which would make it difficult for the players to
+ *     see all the things that changed.
+ *       "updates" is an array containing N objects, each of which has two 
+ *     attributes: "changes" and "log". "changes" defines any number of state
+ *     changes that need to be shown in the UI, such as "monster 2 health
+ *     decreased by 2 points". These are formatted in a way that refers to the 
+ *     structure of the game object. 
+ *     TODO define in greater detail
+ *     "log" contains human-readable log entries related to the changes.
  * 
  * @param player Object The "current" object.
  * 
@@ -391,6 +396,7 @@ var newGame = function(current) {
           state: "i"
       },
     ],
+    updates: [],
     monster_to_yield_tokyo_city: 0, // ?
     monster_to_yield_tokyo_bay: 0, // ?
   }
@@ -429,12 +435,12 @@ function Monster(id) {
   
   // The name of the monster.
   var monster_names = [
-    "Alienoid",
-    "Cyber Bunny",
-    "Giga Zaur",
-    "Kraken",
-    "Meka Dragon",
-    "The King"
+    "Alien",
+    "Rabbot",
+    "Rex",
+    "Squid",
+    "Dragon",
+    "Kong"
   ];
   this.name = monster_names[id - 1];
 }
@@ -596,7 +602,7 @@ var confirmGame = function(current) {
  * Starts the game.
  * 
  */ 
-var beginGame = function(game_id) {
+var beginGame = function(current, game_id) {
   console.log('beginGame ' + game_id);
   var game = games[game_id];
   game.game_state = 'play';
@@ -605,6 +611,14 @@ var beginGame = function(game_id) {
   game.turn_phase = 'roll';
   game.turn_player = game.player_order[0];
   game.next_input_from_player = game.player_order[0];
+  
+  // Generate updates
+  var monster_id = players[game.turn_player].monster_id;
+  console.log();
+  game.updates.push({
+    changes: {},
+    log: getMonster(current, monster_id).name + " prepares to roll.",
+  });
   
   // Loop through all players in this game.
   for (var game_player_id in games[game_id].players) {
@@ -661,6 +675,9 @@ var updateGame = function(current) {
     var target_socket = io.sockets.socket(player_object.socket_id);
     target_socket.emit("update_game", current_game);
   }
+  
+  // Clean up the change log, as all the changes have now been transmitted.
+  current_game.updates = [];
 }
 
 /**
@@ -692,7 +709,7 @@ var selectMonster = function (current, monster_id) {
       
       if (ready) {
         // Start the game
-        beginGame(getPlayerBySocketId(current.socket.id).game_id);
+        beginGame(current, getPlayerBySocketId(current.socket.id).game_id);
       }
       
       updateGame(current);
@@ -882,13 +899,26 @@ var buyCards = function(current) {
  * User has chosen not to buy any cards or has no money to buy anything.
  */
 var doneBuying = function(current) {
-  // TODO check that it's this player's turn
-  endTurn(current);
-  updateGame(current);
+  // Check that it's this player's turn
+  var game = getCurrentGame(current);
+  if (game.turn_phase == 'buy') {
+    if (game.turn_player == current.player.id) {
+      endTurn(current);
+      updateGame(current);  
+    }
+    else {
+      console.log('Not this user\'s turn');
+      current.socket.emit('game_message', "It's not your turn."); 
+    }  
+  }
+  else {
+    console.log('Not buying phase');
+    current.socket.emit('game_message', "It's not the buying phase.");
+  }
 }
 
 /**
- *
+ * Move to the final phase of a user's turn.
  */
 var endTurn = function(current) {
   console.log('endTurn');

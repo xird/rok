@@ -179,9 +179,10 @@ $(document).ready(function() {
    */
 
   // Game state update
-  socket.on('update_game', function (data) {
+  socket.on('update_game', function gameUpdate(data) {
     console.log("updating game");
     console.log(data);
+    console.log(dump(data.updates));
     
     $('#lobby').hide();
     $('#game').show();

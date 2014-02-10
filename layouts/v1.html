@@ -66,12 +66,6 @@
       margin: 0;
     }
     
-    img.enemy,
-    img.own_monster {
-      margin: 3px 0 0 3px;
-      float: left;
-    }
-    
     h1.enemy,
     h1.own_monster {
       ffloat: left;
@@ -154,6 +148,18 @@
       width: 128px;
     }
     
+    .icon-bg-gray {
+      background: url('icon-bg-gray.png');
+      background-repeat: no-repeat;
+    }
+    
+    div.own-monster-icon,
+    div.enemy-monster-icon {
+      float: left;
+      width: 90px;
+      height: 90px;
+    }
+    
   </style>
   
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -165,7 +171,9 @@
       <div id="head"></div>
       
       <div id="m1" class="enemy">
-        <img class="enemy" src="gorilla90.jpg"/>
+        <div class="enemy-monster-icon icon-bg-gray">
+          <img class="monster-icon" src="kong90.png"/>
+        </div>
         
         <div class="enemy_data">
           <h1 class="enemy">KONG</h1>
@@ -201,7 +209,9 @@
       </div>
       
       <div id="m2" class="enemy">
-      <img class="enemy" src="rabbot.png"/>
+        <div class="enemy-monster-icon icon-bg-gray">
+          <img class="monster-icon" src="rabbot90.png"/>
+        </div>
         
         <div class="enemy_data">
           <h1 class="enemy">RABBOT</h1>
@@ -225,11 +235,87 @@
         </div>
       </div>
       
-      <div id="m3" class="enemy"></div>
+      <div id="m3" class="enemy">
+        <div class="enemy-monster-icon icon-bg-gray">
+          <img class="monster-icon" src="rex90.png"/>
+        </div>
+    
+        <div class="enemy_data">
+          <h1 class="enemy">REX</h1>
+          
+          <table class="enemy_stats">
+            <thead>
+              <tr>
+                <th>H</th>
+                <th>V</th>
+                <th>E</th>
+              </tr>
+            <thead>
+            <tbody>
+              <tr>
+                <td>8</td>
+                <td>2</td>
+                <td>1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
       
-      <div id="m4" class="enemy"></div>
+      <div id="m4" class="enemy">
+        <div class="enemy-monster-icon icon-bg-gray">
+          <img class="monster-icon" src="squid90.png"/>
+        </div>
+
+        <div class="enemy_data">
+          <h1 class="enemy">SQUID</h1>
+          
+          <table class="enemy_stats">
+            <thead>
+              <tr>
+                <th>H</th>
+                <th>V</th>
+                <th>E</th>
+              </tr>
+            <thead>
+            <tbody>
+              <tr>
+                <td>8</td>
+                <td>2</td>
+                <td>1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
       
-      <div id="m5" class="enemy"></div>
+      <div id="m5" class="enemy">
+        <div class="enemy-monster-icon icon-bg-gray">
+          <img class="monster-icon" src="dragon90.png"/>
+        </div>
+
+  
+        <div class="enemy_data">
+          <h1 class="enemy">DRAGON</h1>
+          
+          <table class="enemy_stats">
+            <thead>
+              <tr>
+                <th>H</th>
+                <th>V</th>
+                <th>E</th>
+              </tr>
+            <thead>
+            <tbody>
+              <tr>
+                <td>8</td>
+                <td>2</td>
+                <td>1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
       
       <div id="log">
         <p>Kong rolls 1, 2, 3, 1, P, E</p>
@@ -276,10 +362,12 @@
       </div>
     
       <div id="m6" class="own_monster">
-        <img class="own_monster" src="squid90.jpg"/>
+        <div class="own-monster-icon icon-bg-gray">
+          <img class="monster-icon" src="alien90.png"/>
+        </div>
           
         <div class="own_monster_data">
-          <h1 class="own_monster">SQUID</h1>
+          <h1 class="own_monster">ALIEN</h1>
           
           <table class="own_monster_stats">
             <thead>
