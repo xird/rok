@@ -340,6 +340,18 @@ var addPlayer = function(socket, sessid) {
  *     structure of the game object. 
  *     TODO define in greater detail
  *     "log" contains human-readable log entries related to the changes.
+ *     TODO save JS object and event references, create matching objects on
+ *     client side.
+ *     TODO Create a Game object on the client side as well, with an update
+ *     method that either updates the given game attribute directly, or triggers
+ *     a handler for it, if one exists.
+ *     TODO Clean up the server-side game object code so that the same game
+ *     object can be used client side
+ *     TODO Create a game.init() method that can be used on the server side,
+ *     leaving the client sidde to deal with an empty but correctly formed game
+ *     object
+ *     TODO Make sure the game.init() method doesn't get confused with
+ *     game.state "init"
  * 
  * @param player Object The "current" object.
  * 
@@ -397,8 +409,6 @@ var newGame = function(current) {
       },
     ],
     updates: [],
-    monster_to_yield_tokyo_city: 0, // ?
-    monster_to_yield_tokyo_bay: 0, // ?
   }
   
   // Generate monsters and save them in the game object.
@@ -633,12 +643,14 @@ var beginGame = function(current, game_id) {
  */ 
 var updateGame = function(current) {
   console.log("updateGame");
+  console.log(getCurrentGame(current));
   var current_player = current.player;
   var current_game = getCurrentGame(current);
   var game_id = current_game.id;
 
 
   // Re-format game players for easier handling on the front end.
+  /*
   var new_players = [];
   for (var u in current_game.players) {
     var player_object = players[u];
@@ -647,6 +659,7 @@ var updateGame = function(current) {
     new_players.push(new_player);
   }
   current_game.formatted_players = new_players;
+  */
   
   // If the game is in progress, drop any monsters not in play.
   var played_monsters = [];
