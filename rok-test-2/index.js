@@ -1,4 +1,10 @@
 /**
+ * TODO NEXT:
+ * - Create new client with dedicated DOM elements for each game state
+ *   attribute. To start with, on a new page with a copy of the current client.
+ * - Add elements in the updates array on the serverside
+ * - Add calls to the handler for each element on the client side.
+ *
  *
  * TODO: Game state: "over", i.e. win checks
  * 
@@ -21,6 +27,7 @@ var Moniker = require('moniker');
 var uuid = require('node-uuid');
 
 var ROKUtils = require('./rok_utils.js');
+var ROKGame = require('./public/rok_game.js');
 
 var cookieParser = express.cookieParser('your secret sauce')
   , sessionStore = new connect.middleware.session.MemoryStore();
@@ -360,57 +367,23 @@ var addPlayer = function(socket, sessid) {
  */
 var newGame = function(current) {
   console.log("newGame");
+  var game = new ROKGame();
   var game_id = uuid.v4();
+  game.id = game_id;
   current.player.game_id = game_id;
+  game.host = current.player.id;
   current.player.mode = "host";
+  game.host_name = current.player.name;
+
+  game.players[current.player.id] = current.player.id;
   
-  var game_players = {};
-  game_players[current.player.id] = current.player.id;
-  
-  // TODO: randomize initial values for dice
-  // TODO: Prepare for extra dice
-  // TODO: Make sure the host's session id doesn't leak to client
-  var game = {
-    id: game_id,
-    host: current.player.session_id,
-    host_name: current.player.name,
-    game_state: "lobby",
-    turn_phase: "",
-    turn_player: "",
-    next_input_from_player: "",
-    roll_number: 1,
-    players: game_players,
-    player_order: [],
-    monsters: [],
-    dice: [
-      {
-          value: dieRoll(),
-          state: "i"
-      },
-      {
-          value: dieRoll(),
-          state: "i"
-      },
-      {
-          value: dieRoll(),
-          state: "i"
-      },
-      {
-          value: dieRoll(),
-          state: "i"
-      },
-      {
-          value: dieRoll(),
-          state: "i"
-      },
-      {
-          value: dieRoll(),
-          state: "i"
-      },
-    ],
-    updates: [],
+  for (var i = 0; i < 8; i++) {
+    game.dice[i].value = dieRoll();
   }
   
+  game.game_state = "lobby";
+  game.roll_number = 1;
+
   // Generate monsters and save them in the game object.
   for (var i = 0; i < 6; i++) {
     var monster = new Monster(i + 1);
