@@ -1,0 +1,67 @@
+
+#dev1 .lobby {
+  position: relative;
+}
+
+#dev1 .game {
+  position: relative;
+  display: none;
+}
+
+#dev1 .lobby_messages,
+#dev1 .game_messages {
+  position: absolute;
+  top: 30px;
+  border: 1px solid #444;
+  background: #ccc;
+  padding: 5px;
+  width: 500px;
+  display: none;
+}
+
+#dev1 table.grid {
+  border-collapse: collapse;
+}
+
+#dev1 table.grid th,
+#dev1 table.grid td {
+  border: 1px solid #888;
+}
+
+#dev1 th {
+  vertical-align: top;
+}
+
+#dev1 table.monster {
+  font-size: 0.9em;
+}
+
+#dev1 .game .data table {
+  font-size: 0.9em;
+}
+
+#dev1 tr.players {
+  display: none;
+}
+
+#dev1 td.die {
+  height: 20px;
+  width: 20px;
+  text-align: center;
+}
+
+#dev1 td.die_status_i {
+  background: #888;
+}
+
+#dev1 td.die_status_r {
+  background: #cfc;
+}
+
+#dev1 td.die_status_f {
+  background: #ccf;
+}
+
+#dev1 td.die_status_k {
+  background: #fcc;
+}

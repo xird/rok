@@ -1,10 +1,12 @@
 /**
  * TODO NEXT:
- * - Create new client with dedicated DOM elements for each game state
- *   attribute. To start with, on a new page with a copy of the current client.
+ *   - List monsters in monster_order, starting from the monster following the
+ *     current monster.
  * - Add elements in the updates array on the serverside
  * - Add calls to the handler for each element on the client side.
  *
+ * TODO: Handle leaving players by keeping their sessions for a while and then
+ *       periodically cleaning up idle sessions.
  *
  * TODO: Game state: "over", i.e. win checks
  * 
@@ -12,9 +14,6 @@
  *   - One object, keys contain all existing actions
  *   - values contain players that can currently take the actions
  *
- * TODO: Design a way to transmit all state _changes_ to the front end, to allow
- *       animating the changes in the client instead of just snapping the new
- *       game state in place. This will also allow the creation of the game log.
  */
 
 var http = require('http')
@@ -63,6 +62,17 @@ app.get('/dev1', function getHandler(req, res) {
   }
   console.log('  page - SESSION ID: ' + sessid);
   res.render('page.html');
+});
+app.get('/dev2', function getHandler(req, res) {
+  console.log("Page 2 load");
+  if (typeof req.session != undefined) {
+    var sessid = req.session.id;
+  }
+  else {
+    var sessid = "";
+  }
+  console.log('  page 2 - SESSION ID: ' + sessid);
+  res.render('page2.html');
 });
 
 var games = [];

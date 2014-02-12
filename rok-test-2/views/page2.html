@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ROK test 2 - dev client 2</title>
+
+<link rel="stylesheet" href="//localhost:8080/dev1.css" type="text/css" media="all" />
+<link rel="stylesheet" href="//localhost:8080/dev2.css" type="text/css" media="all" />
+
+<!-- TODO make the server dynamic -->
+<script src="//localhost:8080/jquery-2.1.0.min.js"></script>
+<script src="//localhost:8080/utils.js"></script>
+<script src="//localhost:8080/jquery.json2html.js"></script>
+<script src="//localhost:8080/json2html.js"></script>
+<script src="//localhost:8080/rok_game.js"></script>
+<script src="//localhost:8080/rok_game_client.js"></script>
+<script src="//localhost:8080/dev_client_1.js"></script>
+<script src="//localhost:8080/dev_client_2_lobby.js"></script>
+<script src="//localhost:8080/dev_client_2_game.js"></script>
+
+<script src="/socket.io/socket.io.js"></script>
+
+
+<script type="text/javascript">
+
+// TODO: Keyboard shortcuts for all possible actions
+ 
+$(document).ready(function() {
+  // Connect to the socket.
+  var socket = io.connect('http://localhost:3250');
+  
+  // Initialize the original development client
+  dev_client_1_init(socket);
+
+  // Initialize the lobby of dev client v2.
+  dev_client_2_lobby_init(socket);
+  
+  // Initialize the game of dev client v2.
+  dev_client_2_game_init(socket);
+
+  // DEBUG  
+  $('#log_game_state').click(function() {
+    socket.emit("log_game_state");
+  });
+  $('#log_players_state').click(function() {
+    socket.emit("log_players_state");
+  });
+  $('#quick_game').click(function() {
+    socket.emit("quick_game");
+  });
+  // End debug
+});
+</script>
+</head>
+<body>
+<div class="debug">
+  <h4>Debug</h4>
+  <input id="log_game_state" type="button" value="Log game state"/>
+  <input id="log_players_state" type="button" value="Log players state"/>
+  <input id="quick_game" type="button" value="Quick game"/>
+  <hr/>
+</div>
+
+<div id="dev1">
+  <div class="lobby">
+    <h2>Lobby</h2>
+  
+    <div class="lobby_messages"></div>
+  
+    <div class="welcome"></div>
+    <div class="players"></div>
+    <input class="new_game" type="button" value="New game"/>
+    <input class="confirm_game" type="button" value="Start game"/>
+  </div>
+
+  <div class="game">
+    <h2>Game</h2>
+  
+    <div class="game_messages"></div>
+  
+    <div class="data"></div>
+  </div>
+</div>
+
+<div id="dev2">
+  <div class="messages"></div>
+    
+  <div class="lobby">
+    <h2>Lobby</h2>
+    <div class="welcome"></div>
+    <div class="players"></div>
+    <input class="new_game" type="button" value="New game"/>
+    <input class="confirm_game" type="button" value="Start game"/>
+  </div>
+  
+  <div class="game">
+    <table>
+      <tr>
+        <th>game_state</th>
+        <td></td>
+      </tr>
+      <tr>
+        <th>turn_phase</th>
+        <td></td>
+      </tr>
+      <tr>
+        <th>turn_monster</th>
+        <td></td>
+      </tr>
+      <tr>
+        <th>next_input_from_monster</th>
+        <td></td>
+      </tr>
+      <tr>
+        <th>roll_number</th>
+        <td></td>
+      </tr>
+      <tr>
+        <th>monster_order</th>
+        <td></td>
+      </tr>
+    </table>
+    
+    <table>
+      <tr>
+        <th></th>
+        <th>health</th>
+        <th>victory_points</th>
+        <th>energy</th>
+        <th>in_tokyo_city</th>
+        <th>in_tokyo_bay</th>
+        <th>name</th>
+      </tr>
+      <tr>
+        <th>Monster 1</th>
+        <td id="monster__1__health"></td>
+        <td id="monster__1__victory_points"></td>
+        <td id="monster__1__energy"></td>
+        <td id="monster__1__in_tokyo_city"></td>
+        <td id="monster__1__in_tokyo_bay"></td>
+        <td id="monster__1__name"></td>
+      </tr>
+      <tr>
+        <th>Monster 2</th>
+        <td id="monster__2__health"></td>
+        <td id="monster__2__victory_points"></td>
+        <td id="monster__2__energy"></td>
+        <td id="monster__2__in_tokyo_city"></td>
+        <td id="monster__2__in_tokyo_bay"></td>
+        <td id="monster__2__name"></td>
+      </tr>
+      <tr>
+        <th>Monster 1</th>
+        <td id="monster__3__health"></td>
+        <td id="monster__3__victory_points"></td>
+        <td id="monster__3__energy"></td>
+        <td id="monster__3__in_tokyo_city"></td>
+        <td id="monster__3__in_tokyo_bay"></td>
+        <td id="monster__3__name"></td>
+      </tr>
+      <tr>
+        <th>Monster 1</th>
+        <td id="monster__4__health"></td>
+        <td id="monster__4__victory_points"></td>
+        <td id="monster__4__energy"></td>
+        <td id="monster__4__in_tokyo_city"></td>
+        <td id="monster__4__in_tokyo_bay"></td>
+        <td id="monster__4__name"></td>
+      </tr>
+      <tr>
+        <th>Monster 1</th>
+        <td id="monster__5__health"></td>
+        <td id="monster__5__victory_points"></td>
+        <td id="monster__5__energy"></td>
+        <td id="monster__5__in_tokyo_city"></td>
+        <td id="monster__5__in_tokyo_bay"></td>
+        <td id="monster__5__name"></td>
+      </tr>
+      <tr>
+        <th>Monster 1</th>
+        <td id="monster__6__health"></td>
+        <td id="monster__6__victory_points"></td>
+        <td id="monster__6__energy"></td>
+        <td id="monster__6__in_tokyo_city"></td>
+        <td id="monster__6__in_tokyo_bay"></td>
+        <td id="monster__6__name"></td>
+      </tr>
+    </table>
+    
+    <table>
+      <tr>
+        <th></th>
+        <th>value</th>
+        <th>state</th>
+      </tr>
+      <tr>
+        <th>Die 1</th>
+        <td id="dice__1__value"></td>
+        <td id="dice__1__state"></td>
+      </tr>
+        <th>Die 2</th>
+        <td id="dice__2__value"></td>
+        <td id="dice__2__state"></td>
+      </tr>
+        <th>Die 3</th>
+        <td id="dice__3__value"></td>
+        <td id="dice__3__state"></td>
+      </tr>
+        <th>Die 4</th>
+        <td id="dice__4__value"></td>
+        <td id="dice__4__state"></td>
+      </tr>
+        <th>Die 5</th>
+        <td id="dice__5__value"></td>
+        <td id="dice__5__state"></td>
+      </tr>
+        <th>Die 6</th>
+        <td id="dice__6__value"></td>
+        <td id="dice__6__state"></td>
+      </tr>
+
+    </table>
+  </div>
+</div>
+</body>
+</html>
