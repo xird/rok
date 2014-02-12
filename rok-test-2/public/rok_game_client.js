@@ -1,31 +1,41 @@
 /**
  * Client side functions for the game class.
  */
- 
+
+
 /**
  * Main game data update handler.
  *
- * @param attribute String 
- *   The game attribute to be updated. For example "turn_phase" or
- *   "monster__health". Note that the hierarchy in the data structure is
- *    represented by double underscores in the labels.
- * @param new_value Mixed
- *   The new value for the given attribute
- * @param Optional id Integer 
- *   If there are multiples of the given attribute, the id parameter defines
- *   which one to update.
+ * @param Array updates
+ *   This array contains a number of "update" objects.
+ *
+ *   Each "update" object contains four fields:
+ *   - element: The id of the DOM element that should receive the new value.
+ *   - value: The new value of the element.
+ *   - handler: If a function by this name exists, that should be called instead
+ *     of updating the DOM directly.
+ *   - id: In case there are multiple elements of the same type (monsters, 
+ *     dice), this id defines which one we're updating.
+ *   - log: A log message to be shown to users.
+ *     
  */
-ROKGame.prototype.handleUpdate = function(attribute, new_value, id) {
-  var handler_name = "handle_" + attribute;
-  if (typeof ROKGame[handler_name] == "function") {
-    ROKGame[handler_name].call(new_value, id);
-  }
-  else {
-    if (id) {
-      $("#" + attribute + "__" + id).html(new_value);
+ROKGame.prototype.handleUpdates = function(updates) {
+  for (var i = 0; i < updates.length; i++) {
+    var update = updates[i];
+    
+    if (update.log) {
+      this.addToLog(update.log);    
     }
-    else {
-      $("#" + attribute).html(new_value);
+
+    if (typeof this[update.handler] == "function") {
+      this[update.handler].call(update.value, update.id);
+    }
+    else if (update.element) {
+      $("#" + update.element).html(update.value);
     }
   }
+}
+
+ROKGame.prototype.addToLog = function(str) {
+  // TODO
 }

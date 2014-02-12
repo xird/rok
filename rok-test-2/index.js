@@ -1,9 +1,14 @@
 /**
  * TODO NEXT:
- *   - List monsters in monster_order, starting from the monster following the
- *     current monster.
- * - Add elements in the updates array on the serverside
- * - Add calls to the handler for each element on the client side.
+ * - game.sendStateChanges(); to everywhere there's updateGame
+ * - Add elements in the updates array on the serverside for all updates
+ * - Make monster selection work in dev client 2
+ * - Make dc2 work as well as dc1
+ * - Create a new test directory before deleting any functionality related to dev client 1
+ *
+ * TODO: List monsters in monster_order, starting from the monster following the
+ *       current player's monster. This leaves the player's monster last, so it
+ *       can be rendered separately at the bottom of the screen.
  *
  * TODO: Handle leaving players by keeping their sessions for a while and then
  *       periodically cleaning up idle sessions.
@@ -13,6 +18,7 @@
  * TODO: Design a way to pass currently available actions to front end:
  *   - One object, keys contain all existing actions
  *   - values contain players that can currently take the actions
+ *   ..or the actions can be enabled and disabled by the change handler functions.
  *
  */
 
@@ -26,7 +32,7 @@ var Moniker = require('moniker');
 var uuid = require('node-uuid');
 
 var ROKUtils = require('./rok_utils.js');
-var ROKGame = require('./public/rok_game.js');
+var ROKServerGame = require('./rok_server_game.js');
 
 var cookieParser = express.cookieParser('your secret sauce')
   , sessionStore = new connect.middleware.session.MemoryStore();
@@ -44,6 +50,10 @@ app.configure(function () {
 
 var server = http.createServer(app)
   , io = require('socket.io').listen(server, { log: false });
+
+// The ROKServerGame class needs the sockets so it can send data to the clients.
+// This should probably be cleaned up somehow.
+global.io = io;
 
 var SessionSockets = require('session.socket.io')
   , sessionSockets = new SessionSockets(io, sessionStore, cookieParser);
@@ -216,7 +226,7 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
     
     // Select monsters
     var i = 2;
-    for (var p in game.players) {
+    for (var p in game.player_ids) {
       // Note: We're manually creating the "current" object, which is hacky, but
       // that's ok since this is for debugging only; normally the players select
       // their own monsters.
@@ -343,15 +353,21 @@ var addPlayer = function(socket, sessid) {
  */
 var newGame = function(current) {
   console.log("newGame");
-  var game = new ROKGame();
+
+  var game = new ROKServerGame();
+  
   var game_id = uuid.v4();
+  
   game.id = game_id;
+  game.updateState("id", game_id, "Game id was set to " + game_id);
+  
   current.player.game_id = game_id;
   game.host = current.player.id;
   current.player.mode = "host";
   game.host_name = current.player.name;
 
-  game.players[current.player.id] = current.player.id;
+  game.players[current.player.id] = current.player;
+  game.player_ids[current.player.id] = current.player.id;
   
   for (var i = 0; i < 8; i++) {
     game.dice[i].value = dieRoll();
@@ -455,7 +471,8 @@ var invitePlayer = function (current, player_id) {
     invitedPlayer.mode = "client";
     
     // Add the player ids in the game object.
-    games[player.game_id].players[invitedPlayer.id] = invitedPlayer.id;
+    games[player.game_id].player_ids[invitedPlayer.id] = invitedPlayer.id;
+    games[player.game_id].players[invitedPlayer.id] = invitedPlayer;
     
     updateLobby();   
   }
@@ -505,7 +522,7 @@ var updateLobby = function() {
     arr.push(players[i]);
   }
   
-  io.sockets.emit("update_lobby", { players: arr });
+  io.sockets.emit("update_lobby", { player_ids: arr });
 }
 
 
@@ -557,10 +574,24 @@ var beginGame = function(current, game_id) {
   console.log('beginGame ' + game_id);
   var game = games[game_id];
   game.game_state = 'play';
+
+  // Drop any monsters not in play.
+  var played_monsters = [];
+  for (var p in game.player_ids) {
+    played_monsters.push(players[p].monster_id);
+  }
+  console.log(played_monsters);
+  var new_monsters = [];
+  for (var i = 0; i < game.monsters.length; i++) {
+    if (played_monsters.indexOf(game.monsters[i].id) != -1) {
+      new_monsters.push(game.monsters[i]);
+    }
+  }
+  game.monsters = new_monsters;
   
   // Randomize monster order
   var monster_order = [];
-  for (var player_id in games[current.player.game_id].players) {
+  for (var player_id in games[current.player.game_id].player_ids) {
     monster_order.push(players[player_id].monster_id);
   }
   monster_order = ROKUtils.shuffleArray(monster_order);
@@ -572,15 +603,8 @@ var beginGame = function(current, game_id) {
   game.turn_monster = game.monster_order[0];
   game.next_input_from_monster = game.monster_order[0];
   
-  // Generate updates
-  var monster_id = game.turn_monster;
-  game.updates.push({
-    changes: {},
-    log: getMonster(current, monster_id).name + " prepares to roll.",
-  });
-  
   // Loop through all players in this game.
-  for (var game_player_id in games[game_id].players) {
+  for (var game_player_id in games[game_id].player_ids) {
     var target_socket = io.sockets.socket(players[game_player_id].socket_id);
     target_socket.emit("start_game");
   }
@@ -588,50 +612,21 @@ var beginGame = function(current, game_id) {
 
 /**
  * Sends the game state to the players belonging to the game.
+ *
+ * This is the original function used to send the data to dev client 1. Dev 
+ * client 2 uses two separate methods: game.snapState() and 
+ * game.sendStateChanges()
  * 
  */ 
 var updateGame = function(current) {
   console.log("updateGame");
-  console.log(getCurrentGame(current));
+  //console.log(getCurrentGame(current));
   var current_player = current.player;
   var current_game = getCurrentGame(current);
-  var game_id = current_game.id;
-
-
-  // Re-format game players for easier handling on the front end.
-  /*
-  var new_players = [];
-  for (var u in current_game.players) {
-    var player_object = players[u];
-    var new_player = {};
-    new_player.socket = player_object.socket_id;
-    new_players.push(new_player);
-  }
-  current_game.formatted_players = new_players;
-  */
-  
-  // If the game is in progress, drop any monsters not in play.
-  var played_monsters = [];
-  for (var p in current_game.players) {
-    played_monsters.push(players[p].monster_id);
-  }
-  var new_monsters = [];
-  for (var i = 0; i < current_game.monsters.length; i++) {
-    var new_monster = JSON.parse(JSON.stringify(current_game.monsters[i]));
-    // TODO Drop the player's session id
-    if (current_game.game_state == 'play') {
-      if (played_monsters.indexOf(new_monster.id) != -1) {
-        new_monsters.push(new_monster);      
-      }
-    }
-    else {
-      new_monsters.push(new_monster);
-    }
-  }
-  current_game.formatted_monsters = new_monsters;
+  var game_id = current_game.id;  
   
   // Loop through all players in this game and send them the data.
-  for (var game_player_id in games[game_id].players) {
+  for (var game_player_id in games[game_id].player_ids) {
     current_game.this_monster = players[game_player_id].monster_id;
     var player_object = players[game_player_id];
     var target_socket = io.sockets.socket(player_object.socket_id);
@@ -661,10 +656,10 @@ var selectMonster = function (current, monster_id) {
       setMonsterToPlayer(player.game_id, monster_id, player.id);
       
       // If this was the last player to select a monster, advance the game state.
-      var game_players = games[player.game_id].players;
+      var game_player_ids = games[player.game_id].player_ids;
       var ready = 1;
-      for (var game_player in game_players) {
-        if (players[game_player].monster_id == 0) {
+      for (var game_player_id in game_player_ids) {
+        if (players[game_player_id].monster_id == 0) {
           ready = 0;
         }
       }
@@ -675,6 +670,11 @@ var selectMonster = function (current, monster_id) {
       }
       
       updateGame(current);
+      
+      // TODO this currently gets run every time a player selects a monster, but
+      // it should only run when the last player selects. This now snaps into
+      // place all monsters, even those not in play.
+      games[player.game_id].snapState();
     }
     else {
       console.log('already selected error');
@@ -730,7 +730,9 @@ var rollDice = function (current, keep_dice_ids) {
           console.log('      monster has rolls');
           // TODO: take into account possible extra dice
           for (var i = 0; i < 6; i++) {
-            game.dice[i].value = dieRoll();
+            var roll = dieRoll();
+            game.updateState("dice__" + i + "__value", roll, "Die " + i + " was rolled to " + roll);
+            game.dice[i].value = roll;
             // If there are no more re-rolls, set dice states to f.
             if (game.roll_number == monster.number_of_rolls) {
               game.dice[i].state = 'f';
@@ -739,6 +741,7 @@ var rollDice = function (current, keep_dice_ids) {
               // If there are more rerolls, set dice to "r", except for kept
               // dice, which should be kept as "k".
               if (game.dice[i].state != 'k') {
+                game.updateState("dice__" + i + "__state", "r");
                 game.dice[i].state = 'r';
               }
             }
@@ -772,7 +775,9 @@ var rollDice = function (current, keep_dice_ids) {
   else {
     current.socket.emit('game_message', "Game not being played.");
   }
-    
+  
+
+  game.sendStateChanges();
   updateGame(current);
 }
 

@@ -67,7 +67,7 @@ $(document).ready(function() {
     <div class="lobby_messages"></div>
   
     <div class="welcome"></div>
-    <div class="players"></div>
+    <div class="player_ids"></div>
     <input class="new_game" type="button" value="New game"/>
     <input class="confirm_game" type="button" value="Start game"/>
   </div>
@@ -87,7 +87,7 @@ $(document).ready(function() {
   <div class="lobby">
     <h2>Lobby</h2>
     <div class="welcome"></div>
-    <div class="players"></div>
+    <div class="player_ids"></div>
     <input class="new_game" type="button" value="New game"/>
     <input class="confirm_game" type="button" value="Start game"/>
   </div>
@@ -96,27 +96,31 @@ $(document).ready(function() {
     <table>
       <tr>
         <th>game_state</th>
-        <td></td>
+        <td id="game_state"></td>
       </tr>
       <tr>
         <th>turn_phase</th>
-        <td></td>
+        <td id="turn_phase"></td>
       </tr>
       <tr>
         <th>turn_monster</th>
-        <td></td>
+        <td id="turn_monster"></td>
       </tr>
       <tr>
         <th>next_input_from_monster</th>
-        <td></td>
+        <td id="next_input_from_monster"></td>
       </tr>
       <tr>
         <th>roll_number</th>
-        <td></td>
+        <td id="roll_number"></td>
       </tr>
       <tr>
         <th>monster_order</th>
-        <td></td>
+        <td id="monster_order"></td>
+      </tr>
+      <tr>
+        <th>this_monster</th>
+        <td id="this_monster"></td>
       </tr>
     </table>
     
@@ -193,31 +197,35 @@ $(document).ready(function() {
         <th>state</th>
       </tr>
       <tr>
+        <th>Die 0</th>
+        <td id="dice__0__value"></td>
+        <td id="dice__0__state"></td>
+      </tr>
+      <tr>
         <th>Die 1</th>
         <td id="dice__1__value"></td>
         <td id="dice__1__state"></td>
       </tr>
+      <tr>
         <th>Die 2</th>
         <td id="dice__2__value"></td>
         <td id="dice__2__state"></td>
       </tr>
+      <tr>
         <th>Die 3</th>
         <td id="dice__3__value"></td>
         <td id="dice__3__state"></td>
       </tr>
+      <tr>
         <th>Die 4</th>
         <td id="dice__4__value"></td>
         <td id="dice__4__state"></td>
       </tr>
+      <tr>
         <th>Die 5</th>
         <td id="dice__5__value"></td>
         <td id="dice__5__state"></td>
       </tr>
-        <th>Die 6</th>
-        <td id="dice__6__value"></td>
-        <td id="dice__6__state"></td>
-      </tr>
-
     </table>
   </div>
 </div>

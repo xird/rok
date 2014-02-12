@@ -20,15 +20,12 @@
  *     new game state in place, which would make it difficult for the players to
  *     see all the things that changed.
  *       "updates" is an array containing N objects, each of which has two 
- *     attributes: "changes" and "log". "changes" defines any number of state
- *     changes that need to be shown in the UI, such as "monster 2 health
+ *     attributes: "change" and "log". "change" defines a state
+ *     change that needs to be shown in the UI, such as "monster 2 health
  *     decreased by 2 points". These are formatted in a way that refers to the 
- *     structure of the game object. 
- *     *** TODO define in greater detail ***
- *     "log" contains human-readable log entries related to the changes.
- *     TODO Create a Game object on the client side as well, with an update
- *     method that either updates the given game attribute directly, or triggers
- *     a handler for it, if one exists.
+ *     structure of the game object, and a similar structure should be found in
+ *     DOM tree on the client side. The "log" attribute contains an optional
+ *     human-readable log entry related to the change.
  *
  */
 function ROKGame() {
@@ -41,6 +38,7 @@ function ROKGame() {
   this.next_input_from_monster = "";
   this.roll_number = 0;
   this.players = {};
+  this.player_ids = {};
   this.monster_order = [];
   this.monsters = [];
     

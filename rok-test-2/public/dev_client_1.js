@@ -24,6 +24,7 @@ var dev_client_1_init = function(socket) {
   // Lobby state update
   socket.on('update_lobby', function (data) {
     console.log("dev1 updating lobby");
+    console.log(data);
     
     $('#dev1 .lobby').show();
     $('#dev1 .game').hide();
@@ -39,8 +40,8 @@ var dev_client_1_init = function(socket) {
       ]}
     ];
     
-    $('#dev1 .players').html('<table><thead><tr><th>Name</th><th>Mode</th><th>Game</th></tr></thead><tbody></tbody></table>');
-    $('#dev1 .players table tbody').json2html(data.players, transform);
+    $('#dev1 .player_ids').html('<table><thead><tr><th>Name</th><th>Mode</th><th>Game</th></tr></thead><tbody></tbody></table>');
+    $('#dev1 .player_ids table tbody').json2html(data.player_ids, transform);
   });
   
   // Start game
@@ -57,7 +58,7 @@ var dev_client_1_init = function(socket) {
   });
   
   // Invite.
-  $('#dev1 .players').on("click", ".player_invite_button", function(){
+  $('#dev1 .player_ids').on("click", ".player_invite_button", function(){
     console.log('dev1 invite');
     socket.emit("invite", {player_id: $(this).data("player_id")});
   });
@@ -76,8 +77,6 @@ var dev_client_1_init = function(socket) {
   // Game state update
   socket.on('update_game', function gameUpdate(data) {
     console.log("dev1 updating game");
-    console.log(data);
-    console.log(dump(data.updates));
     
     $('#dev1 .lobby').hide();
     $('#dev1 .game').show();
@@ -121,13 +120,13 @@ var dev_client_1_init = function(socket) {
           {tag: "td", colspan: 5,  children: [
             {tag: "table", children: [
               {tag: "tr", children: function(){
-                return(json2html.transform(this.formatted_monsters,transforms.monsters));
+                return(json2html.transform(this.monsters,transforms.monsters));
               }}
             ]}
           ]}
         ]},
       ],
-      'players': [
+      'player_ids': [
         {tag: "tr", children: [
           {tag: "td", html: "${socket}"}
         ]}
