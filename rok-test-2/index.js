@@ -53,8 +53,8 @@ var SessionSockets = require('session.socket.io')
  * Main page handler. This is run first, the loaded page then creates the
  * socket connection.
  */
-app.get('/', function getHandler(req, res) {
-  console.log("Page load");
+app.get('/dev1', function getHandler(req, res) {
+  console.log("Page 1 load");
   if (typeof req.session != undefined) {
     var sessid = req.session.id;
   }
@@ -62,7 +62,6 @@ app.get('/', function getHandler(req, res) {
     var sessid = "";
   }
   console.log('  page - SESSION ID: ' + sessid);
-  //console.log('  socket: ' + req.socket.id);
   res.render('page.html');
 });
 
@@ -325,40 +324,7 @@ var addPlayer = function(socket, sessid) {
 }
 
 /**
- * Starts a new game. Game attributes are as follows:
- *   - id
- *   - host
- *   - host_name
- *   - game_state: Tracks the progress of the preparation of the game.
- *   - turn_phase: Tracks the progress of a single turn taken by a player.
- *   - turn_player: The player whose turn it is at the moment.
- *   - next_input_from_player: Sometimes a player needs to give input outside of
- *     the player's turn. For example, plr A is attacking plr B, and plr B wants
- *     to spend money on rapid healing.
- *   - updates: A data array describing the changes to the game state since the 
- *     previous update. This is used to update the game log in the client, and
- *     to allow animating the changes in the client instead of just snapping the
- *     new game state in place, which would make it difficult for the players to
- *     see all the things that changed.
- *       "updates" is an array containing N objects, each of which has two 
- *     attributes: "changes" and "log". "changes" defines any number of state
- *     changes that need to be shown in the UI, such as "monster 2 health
- *     decreased by 2 points". These are formatted in a way that refers to the 
- *     structure of the game object. 
- *     TODO define in greater detail
- *     "log" contains human-readable log entries related to the changes.
- *     TODO save JS object and event references, create matching objects on
- *     client side.
- *     TODO Create a Game object on the client side as well, with an update
- *     method that either updates the given game attribute directly, or triggers
- *     a handler for it, if one exists.
- *     TODO Clean up the server-side game object code so that the same game
- *     object can be used client side
- *     TODO Create a game.init() method that can be used on the server side,
- *     leaving the client sidde to deal with an empty but correctly formed game
- *     object
- *     TODO Make sure the game.init() method doesn't get confused with
- *     game.state "init"
+ * Starts a new game. 
  * 
  * @param player Object The "current" object.
  * 
@@ -547,14 +513,6 @@ var confirmGame = function(current) {
     // Check that there are at least two players in the game    
     if (Object.keys(games[current_player.game_id].players).length >= 2) {
       games[current_player.game_id].game_state = 'select_monsters';
-      
-      // Randomize player order
-      var player_order = [];
-      for (var player_id in games[current_player.game_id].players) {
-        player_order.push(player_id);
-      }
-      player_order = ROKUtils.shuffleArray(player_order);
-      games[current_player.game_id].player_order = player_order;
             
       // TODO: Update the players list to remove the playing players from the list.
       updateLobby();
@@ -589,15 +547,23 @@ var beginGame = function(current, game_id) {
   console.log('beginGame ' + game_id);
   var game = games[game_id];
   game.game_state = 'play';
+  
+  // Randomize monster order
+  var monster_order = [];
+  for (var player_id in games[current.player.game_id].players) {
+    monster_order.push(players[player_id].monster_id);
+  }
+  monster_order = ROKUtils.shuffleArray(monster_order);
+  game.monster_order = monster_order;
+  
   // Note: We skip the "start" phase of the turn, since there's nothing to do
   // in the beginning of the turn at the start of the game.
   game.turn_phase = 'roll';
-  game.turn_player = game.player_order[0];
-  game.next_input_from_player = game.player_order[0];
+  game.turn_monster = game.monster_order[0];
+  game.next_input_from_monster = game.monster_order[0];
   
   // Generate updates
-  var monster_id = players[game.turn_player].monster_id;
-  console.log();
+  var monster_id = game.turn_monster;
   game.updates.push({
     changes: {},
     log: getMonster(current, monster_id).name + " prepares to roll.",
@@ -656,7 +622,7 @@ var updateGame = function(current) {
   
   // Loop through all players in this game and send them the data.
   for (var game_player_id in games[game_id].players) {
-    current_game.this_player = game_player_id;
+    current_game.this_monster = players[game_player_id].monster_id;
     var player_object = players[game_player_id];
     var target_socket = io.sockets.socket(player_object.socket_id);
     target_socket.emit("update_game", current_game);
@@ -748,7 +714,7 @@ var rollDice = function (current, keep_dice_ids) {
     console.log('  state play');
     if (game.turn_phase == 'roll') {
       console.log('    phase roll');
-      if (game.turn_player == player.id) {
+      if (game.turn_monster == player.monster_id) {
         console.log("It's this monster's turn");
         if (game.roll_number <= monster.number_of_rolls) {
           console.log('      monster has rolls');
@@ -888,7 +854,7 @@ var doneBuying = function(current) {
   // Check that it's this player's turn
   var game = getCurrentGame(current);
   if (game.turn_phase == 'buy') {
-    if (game.turn_player == current.player.id) {
+    if (game.turn_monster == current.player.monster_id) {
       endTurn(current);
       updateGame(current);  
     }
@@ -920,14 +886,14 @@ var endTurn = function(current) {
   // Advance to the next player's turn.
   game.turn_phase = 'start';
   
-  var current_player_index = game.player_order.indexOf(game.turn_player);
-  var next_player_index = current_player_index + 1;
-  if (typeof game.player_order[next_player_index] == 'undefined') {
-    next_player_index = 0;
+  var current_monster_index = game.monster_order.indexOf(game.turn_monster);
+  var next_monster_index = current_monster_index + 1;
+  if (typeof game.monster_order[next_monster_index] == 'undefined') {
+    next_monster_index = 0;
   }
   
-  game.turn_player = game.player_order[next_player_index];
-  game.next_input_from_player = game.player_order[next_player_index];
+  game.turn_monster = game.monster_order[next_monster_index];
+  game.next_input_from_monster = game.monster_order[next_monster_index];
   
   // TODO resolve all start-of-turn things
   /**
@@ -958,6 +924,7 @@ var getCurrentGame = function(current) {
  *
  */
 var getMonster = function(current, monster_id) {
+  console.log('getMonster ' + monster_id);
   var p = getPlayerBySocketId(current.socket.id);
   for(var m in games[p.game_id].monsters) {
     if (games[p.game_id].monsters[m].id == monster_id) {
