@@ -42,23 +42,18 @@ ROKServerGame.prototype.updateState = function(field, value, log) {
   // hierarchical structure; The string needs to be sliced down to parts so
   // we can update the correct attribute.
   var parts = field.split("__");
-  // Generate a reference to a game object attribute by starting with a 
-  // reference to the game...
-  var field_reference = this;
-  // .. and then looping our field parts, always adding one more level to the
-  // reference:
-  for (var i = 0; i < parts.length; i++) {
-    field_reference =  field_reference[parts[i]];
-  }
-  // If "field" was "monsters__2__health", "field_reference" now contains a 
-  // a reference to the game object's monsters array's second object's health
-  // attribute.
-  //
-  // I'm not sure if this is neat or confusing or both.
-  console.log(parts);
-  console.log(field_reference);
-  this[field_reference] = value;
   
+  if (parts.length == 1) {
+    this[parts[0]] = value;
+  }
+  else if (parts.length == 3) {
+    this[parts[0]][parts[1]][parts[2]] = value;
+  }
+  else {
+    console.log("WTF? Field:");
+    console.log(field);
+    exit();
+  }
   
   // Then, we generate an update object so we can pass information about this
   // state change to the front end. This could be done in the above loop, but
@@ -136,12 +131,19 @@ ROKServerGame.prototype.snapState = function() {
  * the client. This is used when the game is in progress.
  */
 ROKServerGame.prototype.sendStateChanges = function() {
+  console.log("ROKServerGame.prototype.sendStateChanges");
   // Loop through all players in this game and send them the data.
   for (var game_player_id in this.players) {
     var this_monster = this.players[game_player_id].monster_id;
     var player_object = this.players[game_player_id];
     var target_socket = io.sockets.socket(player_object.socket_id);
-    target_socket.emit("state_changes", {updates: this.updates, this_monster: this_monster});
+    
+    var send_object = {
+      updates: this.updates,
+      this_monster: this_monster
+    };
+
+    target_socket.emit("state_changes", send_object);
   }
   
   // Clean up the change log, as all the changes have now been transmitted.

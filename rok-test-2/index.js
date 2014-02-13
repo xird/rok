@@ -1,11 +1,10 @@
 /**
  * TODO NEXT:
- * - game.sendStateChanges(); to everywhere there's updateGame
- * - Add elements in the updates array on the serverside for all updates
- * - Make monster selection work in dev client 2
- * - Make dc2 work as well as dc1
  * - Create a new test directory before deleting any functionality related to dev client 1
+ * - Move all possible functions to ROKServerGame
  *
+ * - Create a lobbySnap(?) function for dev client 2
+ * 
  * TODO: List monsters in monster_order, starting from the monster following the
  *       current player's monster. This leaves the player's monster last, so it
  *       can be rendered separately at the bottom of the screen.
@@ -163,14 +162,18 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
   // Depending on the user's status, either update the lobby or the game.
   if (player.game_id) {
     console.log('Game state: ' + games[player.game_id].game_state);
-    if (games[player.game_id].game_state != 'lobby') {
-      updateGame(current);
+    if (games[player.game_id].game_state == 'lobby') {
+      // TODO dc2
+      updateLobby();    
     }
     else {
-      updateLobby();
+      // The game must be in progress, so dump all the game data.
+      games[player.game_id].snapState();
+      updateGame(current);
     }
   }
   else {
+    // TODO dc2
     updateLobby();  
   }
 
@@ -186,13 +189,11 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
   // Debug game
   socket.on("log_game_state", function debugGameState(args) {
     console.log(ROKUtils.dump(games));
-    updateGame(current);
   });
   
   // Debug players
   socket.on("log_players_state", function debugPlayerState(args) {
     console.log(ROKUtils.dump(players));
-    updateLobby();
   });
   
   // Quickly create a game for testing purposes.
@@ -359,7 +360,6 @@ var newGame = function(current) {
   var game_id = uuid.v4();
   
   game.id = game_id;
-  game.updateState("id", game_id, "Game id was set to " + game_id);
   
   current.player.game_id = game_id;
   game.host = current.player.id;
@@ -385,9 +385,11 @@ var newGame = function(current) {
   game.monsters = ROKUtils.shuffleArray(game.monsters);
   
   games[game_id] = game;
+  // TODO dc2
   updateLobby();
   return game;
 }
+
 
 /**
  * Class definition for a Monster object
@@ -398,8 +400,8 @@ var newGame = function(current) {
  * 
  */
 function Monster(id) {
-  // The player controlling this monster.
-  this.player = 0;
+  // The id of the player controlling this monster.
+  this.player_id = 0;
   this.health = 10;
   this.victory_points = 0;
   this.energy = 0;
@@ -411,11 +413,11 @@ function Monster(id) {
   // The name of the monster.
   var monster_names = [
     "Alien",
+    "Dragon",
+    "Kong",
     "Rabbot",
     "Rex",
-    "Squid",
-    "Dragon",
-    "Kong"
+    "Squid"
   ];
   this.name = monster_names[id - 1];
 }
@@ -474,6 +476,7 @@ var invitePlayer = function (current, player_id) {
     games[player.game_id].player_ids[invitedPlayer.id] = invitedPlayer.id;
     games[player.game_id].players[invitedPlayer.id] = invitedPlayer;
     
+    // TODO dc2
     updateLobby();   
   }
   else {
@@ -491,7 +494,7 @@ var invitePlayer = function (current, player_id) {
  * @return Object The player object whose socket was given.
  */
 var getPlayerBySocketId = function(socket_id) {
-  console.log("getPlayerBySocketId " + socket_id);
+  //console.log("getPlayerBySocketId " + socket_id);
 
   var keys = Object.keys(players);
   for (var i = 0; i < keys.length; i++) {
@@ -501,6 +504,7 @@ var getPlayerBySocketId = function(socket_id) {
   }
   return false;
 }
+
 
 /**
  * @return Object The current player.
@@ -539,13 +543,16 @@ var confirmGame = function(current) {
   if (current_player.mode == 'host') {
     // Check that there are at least two players in the game    
     if (Object.keys(games[current_player.game_id].players).length >= 2) {
+      games[current_player.game_id].updateState("game_state", "select_monsters");
       games[current_player.game_id].game_state = 'select_monsters';
             
       // TODO: Update the players list to remove the playing players from the list.
+      // TODO dc2
       updateLobby();
       
-      // Emit event "update_game" to players in this game     
+      // Send the game status change
       updateGame(current);
+      games[current_player.game_id].sendStateChanges();
     }
     else {
       console.log('not enough players error');
@@ -611,6 +618,8 @@ var beginGame = function(current, game_id) {
 }
 
 /**
+ * Dev client 1
+ *
  * Sends the game state to the players belonging to the game.
  *
  * This is the original function used to send the data to dev client 1. Dev 
@@ -632,10 +641,8 @@ var updateGame = function(current) {
     var target_socket = io.sockets.socket(player_object.socket_id);
     target_socket.emit("update_game", current_game);
   }
-  
-  // Clean up the change log, as all the changes have now been transmitted.
-  current_game.updates = [];
 }
+
 
 /**
  * Assigns a monster to a player
@@ -667,14 +674,11 @@ var selectMonster = function (current, monster_id) {
       if (ready) {
         // Start the game
         beginGame(current, getPlayerBySocketId(current.socket.id).game_id);
+        games[player.game_id].snapState();
       }
       
       updateGame(current);
-      
-      // TODO this currently gets run every time a player selects a monster, but
-      // it should only run when the last player selects. This now snaps into
-      // place all monsters, even those not in play.
-      games[player.game_id].snapState();
+      games[player.game_id].sendStateChanges();
     }
     else {
       console.log('already selected error');
@@ -693,8 +697,7 @@ var selectMonster = function (current, monster_id) {
 var setMonsterToPlayer = function(game_id, monster_id, player_id) {
   for (var i = 0; i < games[game_id].monsters.length; i++) {
     if (games[game_id].monsters[i].id == monster_id) {
-      // TODO change "player" to "player_id"
-      games[game_id].monsters[i].player = player_id;
+      games[game_id].monsters[i].player_id = player_id;
     }
   }
 }
@@ -730,11 +733,13 @@ var rollDice = function (current, keep_dice_ids) {
           console.log('      monster has rolls');
           // TODO: take into account possible extra dice
           for (var i = 0; i < 6; i++) {
+            console.log('Rolling');
             var roll = dieRoll();
             game.updateState("dice__" + i + "__value", roll, "Die " + i + " was rolled to " + roll);
             game.dice[i].value = roll;
             // If there are no more re-rolls, set dice states to f.
             if (game.roll_number == monster.number_of_rolls) {
+              game.updateState("dice__" + i + "__state", 'f');
               game.dice[i].state = 'f';
             }
             else {
@@ -747,13 +752,18 @@ var rollDice = function (current, keep_dice_ids) {
             }
           }
           if (game.roll_number < monster.number_of_rolls) {
-            game.roll_number++;
+            // TODO testing if the direct edits are needed anymore
+            //game.roll_number++;
+            var new_roll_number = game.roll_number + 1;
+            console.log('new: ' + new_roll_number);
+            game.updateState("roll_number", new_roll_number);
             console.log('      incremented roll number to ' + game.roll_number);
           }
           else {
             // Advance to next turn phase: resolve
             console.log('      calling resolveDice');
             updateGame(current);
+            game.sendStateChanges();
             resolveDice(current);
           }
 
@@ -776,10 +786,12 @@ var rollDice = function (current, keep_dice_ids) {
     current.socket.emit('game_message', "Game not being played.");
   }
   
-
-  game.sendStateChanges();
   updateGame(current);
+  
+  console.log('sending changes end of func');
+  game.sendStateChanges();
 }
+
 
 /**
  * Resolves the results of the dice rolls after all the rerolls are done.
@@ -788,8 +800,12 @@ var rollDice = function (current, keep_dice_ids) {
 var resolveDice = function(current) {
   console.log('resolveDice');
   var game = getCurrentGame(current);
-  game.turn_phase = 'resolve';
-  game.roll_number = 1;
+  
+  // TODO testing if needed
+  //game.turn_phase = 'resolve';
+  //game.roll_number = 1;
+  game.updateState("turn_phase", 'resolve');
+  game.updateState("roll_number", 1);
   
   // TODO resolve money dice
   //     - increment money
@@ -837,10 +853,12 @@ var resolveDice = function(current) {
   
   // Reset dice states
   for (var i = 0; i < 6; i++) {
+    game.updateState("dice__" + i + "__state", 'i');
     game.dice[i].state = "i";
   }
   
   updateGame(current);
+  game.sendStateChanges();
   
   // TODO probably can't call this directly
   buyCards(current);
@@ -859,8 +877,11 @@ var resolveDice = function(current) {
 var buyCards = function(current) {
   var game = getCurrentGame(current);
   game.turn_phase = 'buy';
+  game.updateState("turn_phase", 'buy');
   updateGame(current);
+  game.sendStateChanges();
 }
+
 
 /**
  * User has chosen not to buy any cards or has no money to buy anything.
@@ -871,7 +892,8 @@ var doneBuying = function(current) {
   if (game.turn_phase == 'buy') {
     if (game.turn_monster == current.player.monster_id) {
       endTurn(current);
-      updateGame(current);  
+      updateGame(current);
+      game.sendStateChanges();
     }
     else {
       console.log('Not this user\'s turn');
@@ -884,6 +906,7 @@ var doneBuying = function(current) {
   }
 }
 
+
 /**
  * Move to the final phase of a user's turn.
  */
@@ -891,7 +914,8 @@ var endTurn = function(current) {
   console.log('endTurn');
   var game = getCurrentGame(current);
   game.turn_phase = 'end';
-  
+  game.updateState("turn_phase", 'end');
+    
   // TODO Do all the turn-end related processing.
   /**
    *     - Resolve poison counters
@@ -900,6 +924,7 @@ var endTurn = function(current) {
   
   // Advance to the next player's turn.
   game.turn_phase = 'start';
+  game.updateState("turn_phase", 'start');
   
   var current_monster_index = game.monster_order.indexOf(game.turn_monster);
   var next_monster_index = current_monster_index + 1;
@@ -909,7 +934,9 @@ var endTurn = function(current) {
   
   game.turn_monster = game.monster_order[next_monster_index];
   game.next_input_from_monster = game.monster_order[next_monster_index];
-  
+  game.updateState("turn_monster", game.monster_order[next_monster_index]);
+  game.updateState("next_input_from_monster", game.monster_order[next_monster_index]);
+    
   // TODO resolve all start-of-turn things
   /**
    *     - Beginning of a player's turn
@@ -918,16 +945,22 @@ var endTurn = function(current) {
    *       - Urbavore
    */
   updateGame(current);
+  game.sendStateChanges();
+  
+  // Note that we want to separately send turn start changes, then advance to
+  // "roll" phase, and send changes again.
   
   game.turn_phase = 'roll';
+  game.updateState("turn_phase", 'roll');
   updateGame(current);
+  game.sendStateChanges();
 }
 
 /**
  * Returns the currently played game object
  */
 var getCurrentGame = function(current) {
-  console.log('getCurrentGame with socket ' + current.socket.id);
+  //console.log('getCurrentGame with socket ' + current.socket.id);
   var player = getPlayerBySocketId(current.socket.id);
   return games[player.game_id];
 }

@@ -14,6 +14,7 @@
 
 #dev2 .game {
   border: 1px solid blue;
+  /*display: none; ?*/
 }
 
 #dev2 .game table {
@@ -22,4 +23,8 @@
 
 #dev2 .game table td {
   border: 1px solid #ccc;
+}
+
+#dev2 .monster_selection {
+  display: none;
 }

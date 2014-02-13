@@ -92,6 +92,16 @@ $(document).ready(function() {
     <input class="confirm_game" type="button" value="Start game"/>
   </div>
   
+  <div class="monster_selection">
+    <h2>Select monster</h2>
+    <input type="button" class="monster_select_button" data-monster_id="1" value="Select 1"/>
+    <input type="button" class="monster_select_button" data-monster_id="2" value="Select 2"/>
+    <input type="button" class="monster_select_button" data-monster_id="3" value="Select 3"/>
+    <input type="button" class="monster_select_button" data-monster_id="4" value="Select 4"/>
+    <input type="button" class="monster_select_button" data-monster_id="5" value="Select 5"/>
+    <input type="button" class="monster_select_button" data-monster_id="6" value="Select 6"/>
+  </div>
+  
   <div class="game">
     <table>
       <tr>
@@ -153,7 +163,7 @@ $(document).ready(function() {
         <td id="monster__2__name"></td>
       </tr>
       <tr>
-        <th>Monster 1</th>
+        <th>Monster 3</th>
         <td id="monster__3__health"></td>
         <td id="monster__3__victory_points"></td>
         <td id="monster__3__energy"></td>
@@ -162,7 +172,7 @@ $(document).ready(function() {
         <td id="monster__3__name"></td>
       </tr>
       <tr>
-        <th>Monster 1</th>
+        <th>Monster 4</th>
         <td id="monster__4__health"></td>
         <td id="monster__4__victory_points"></td>
         <td id="monster__4__energy"></td>
@@ -171,7 +181,7 @@ $(document).ready(function() {
         <td id="monster__4__name"></td>
       </tr>
       <tr>
-        <th>Monster 1</th>
+        <th>Monster 5</th>
         <td id="monster__5__health"></td>
         <td id="monster__5__victory_points"></td>
         <td id="monster__5__energy"></td>
@@ -180,7 +190,7 @@ $(document).ready(function() {
         <td id="monster__5__name"></td>
       </tr>
       <tr>
-        <th>Monster 1</th>
+        <th>Monster 6</th>
         <td id="monster__6__health"></td>
         <td id="monster__6__victory_points"></td>
         <td id="monster__6__energy"></td>
@@ -193,40 +203,42 @@ $(document).ready(function() {
     <table>
       <tr>
         <th></th>
-        <th>value</th>
-        <th>state</th>
-      </tr>
-      <tr>
         <th>Die 0</th>
-        <td id="dice__0__value"></td>
-        <td id="dice__0__state"></td>
-      </tr>
-      <tr>
         <th>Die 1</th>
-        <td id="dice__1__value"></td>
-        <td id="dice__1__state"></td>
-      </tr>
-      <tr>
         <th>Die 2</th>
-        <td id="dice__2__value"></td>
-        <td id="dice__2__state"></td>
-      </tr>
-      <tr>
         <th>Die 3</th>
-        <td id="dice__3__value"></td>
-        <td id="dice__3__state"></td>
-      </tr>
-      <tr>
         <th>Die 4</th>
-        <td id="dice__4__value"></td>
-        <td id="dice__4__state"></td>
+        <th>Die 5</th>
+        <th>Die 6</th>
+        <th>Die 7</th>
       </tr>
       <tr>
-        <th>Die 5</th>
-        <td id="dice__5__value"></td>
+        <th>State</th>
+        <td id="dice__0__state"></td>
+        <td id="dice__1__state"></td>
+        <td id="dice__2__state"></td>
+        <td id="dice__3__state"></td>
+        <td id="dice__4__state"></td>
         <td id="dice__5__state"></td>
+        <td id="dice__6__state"></td>
+        <td id="dice__7__state"></td>
+      </tr>
+      <tr>
+        <th>Value</th>
+        <td id="dice__0__value"></td>
+        <td id="dice__1__value"></td>
+        <td id="dice__2__value"></td>
+        <td id="dice__3__value"></td>
+        <td id="dice__4__value"></td>
+        <td id="dice__5__value"></td>
+        <td id="dice__6__value"></td>
+        <td id="dice__7__value"></td>
       </tr>
     </table>
+    
+    <input type="button" value="Roll" class="roll_dice_button" />
+    
+    <input type="button" value="Done buying" class="done_buying_button" />    
   </div>
 </div>
 </body>

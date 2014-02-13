@@ -143,8 +143,8 @@ var dev_client_1_init = function(socket) {
                 {tag: "td", html: "${name} (${id})"}
               ]},
               {tag: "tr", children: [
-                {tag: "th", html: "Player"},
-                {tag: "td", html: "${player}"}
+                {tag: "th", html: "Player id"},
+                {tag: "td", html: "${player_id}"}
               ]},
               {tag: "tr", children: [
                 {tag: "th", html: "Health"},

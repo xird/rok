@@ -20,15 +20,18 @@
  *     
  */
 ROKGame.prototype.handleUpdates = function(updates) {
+  console.log("Handle updates");
+  console.log(dump(updates));
   for (var i = 0; i < updates.length; i++) {
     var update = updates[i];
     
     if (update.log) {
       this.addToLog(update.log);    
     }
-
+    console.log("update");    
+    console.log(update);
     if (typeof this[update.handler] == "function") {
-      this[update.handler].call(update.value, update.id);
+      this[update.handler](update.value, update.id);
     }
     else if (update.element) {
       $("#" + update.element).html(update.value);
@@ -38,4 +41,21 @@ ROKGame.prototype.handleUpdates = function(updates) {
 
 ROKGame.prototype.addToLog = function(str) {
   // TODO
+}
+
+/**
+ * TODO Monster selection HTML needs to be randomly generated on state change.
+ */
+ROKGame.prototype.handle__game_state = function(new_state) {
+  console.log("ROKGame.prototype.handle__game_state to " + new_state);
+  switch (new_state) {
+    case "select_monsters":
+      $("#dev2 .lobby").hide();
+      $("#dev2 .monster_selection").show();
+      break;
+    case "play":
+      $("#dev2 .monster_selection").hide();
+      $("#dev2 .game").show();
+      break;
+  }
 }
