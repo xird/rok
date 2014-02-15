@@ -262,6 +262,27 @@ ROKServerGame.prototype.getMonster = function(monster_id) {
  */
 ROKServerGame.prototype.buyCards = function() {
   this.updateState("turn_phase", 'buy');
+  
+  
+  // TODO this needs to be done further down the line.
+  // Reset dice states
+  this.updateState("roll_number", 1);
+  for (var i = 0; i < 8; i++) {
+    if (i < 6) {
+      this.updateState("dice__" + i + "__state", 'i');
+    }
+    else {
+      // CARDS if the next monster has extra dice, enable them
+      if (false) {
+        this.updateState("dice__" + i + "__state", 'i');
+      }
+      else {
+        this.updateState("dice__" + i + "__state", 'n');
+      }
+    }
+  }
+  
+  
   this.sendStateChanges();
 }
 
@@ -427,8 +448,112 @@ ROKServerGame.prototype.resolveDice = function(player) {
   console.log('ROKServerGame.prototype.resolveDice');
   
   this.updateState("turn_phase", 'resolve');
-  this.updateState("roll_number", 1);
   
+  this.resolveEnergyDice(player);
+  this.resolveVPDice(player);
+  this.resolveAttackDice(player);
+}
+
+
+/**
+ * Resolve attack dice
+ */
+ROKServerGame.prototype.resolveAttackDice = function(player) {
+  console.log("ROKServerGame.prototype.resolveAttackDice");
+  // Calculate damage.
+  // CARDS: Take into account extra damage cards.
+  var damage = 0;
+  for (var i = 0; i < 8; i++) {
+    if (this.dice[i].state == 'f' && this.dice[i].value == "p") {
+      damage++;
+    }
+  }
+  console.log('damage: ' + damage);
+  
+  // If the attacking monster is in Kyoto, target all monsters outside Kyoto.
+  // If the attacking monster is not in Kyoto, target all monsters in Kyoto.
+  var target_monsters = [];
+  if (this.monsters[player.monster_id].in_tokyo_city ||
+      this.monsters[player.monster_id].in_tokyo_bay) {
+    var attacker_in_kyoto = true;
+  }
+  else {
+    var attacker_in_kyoto = false;  
+  }
+  
+  for (var mid in this.monsters) {
+    if (attacker_in_kyoto) {
+      if (this.monsters[mid].in_tokyo_city ||
+          this.monsters[mid].in_tokyo_bay) {
+        // Attacker in Kyoto, target in Kyoto
+      }
+      else {
+        // Attacker in Kyoto, target NOT in Kyoto
+        target_monsters.push(mid);
+      }
+    }
+    else {
+      if (this.monsters[mid].in_tokyo_city ||
+          this.monsters[mid].in_tokyo_bay) {
+        // Attacker NOT in Kyoto, target in Kyoto
+        target_monsters.push(mid);
+      }
+      else {
+        // Attacker NOT in Kyoto, target NOT in Kyoto      
+      }    
+    }
+  }
+  
+  console.log("Target monsters: " + utils.dump(target_monsters));
+  
+  // Check if there are any target monsters. There's only one stage in the game
+  // when that can be true; At the beginning of the game when no one has yet
+  // entered Kyoto.
+  if (target_monsters.length) {
+    console.log('  got target monsters');
+    // Targets monsters are now defined in an array, loop through and:
+    for (var i = 0; i < target_monsters.length; i++) {
+      var old_health = this.monsters[target_monsters[i]].health;
+      // CARDS: 
+      // - cards with damage reactions, like "lightning armor"
+      // - cards that reduce damage, like "armor plating"
+      this.updateState("monsters__" + target_monsters[i] + '__health', old_health - damage);
+
+      
+      // TODO:
+      //     - check if anyone died
+      //       - check win
+      //       - check any cards that react to deaths
+      //     - damaged monster in Kyoto?
+      //       - Yield input
+      //         - Increment VP
+      //       - Figure out card "Jets" - decrement health and then restore, or don't decrement
+      //         - Must do the latter, otherwise death might be triggered  
+    }
+    
+    // TODO if monster(s) in Kyoto damaged, move game to "yield" state (?)
+    // Otherwise:
+    this.sendStateChanges();
+    this.buyCards();     
+  }
+  else {
+    console.log('  no target monsters');
+    // No target monsters, so no-one takes damage and the playing monster enters
+    // Kyoto.
+    this.updateState("monsters__" + player.monster_id + "__in_tokyo_city", 1);
+    var old_victory_points = this.monsters[player.monster_id].victory_points;
+    this.updateState("monsters__" + player.monster_id + "__victory_points", old_victory_points + 1);
+    
+    this.sendStateChanges();
+    this.buyCards();
+  }
+}
+
+
+/**
+ * Resolve energy dice.
+ */
+ROKServerGame.prototype.resolveEnergyDice = function(player) {
   // CARDS: take cards into account: "Friend of children", etc.
   var new_energy = 0;
   console.log(this.dice);
@@ -441,66 +566,18 @@ ROKServerGame.prototype.resolveDice = function(player) {
   console.log('new_energy: '+new_energy);
   var old_energy = this.monsters[player.monster_id].energy;
   this.updateState("monsters__" + player.monster_id + "__energy", old_energy + new_energy);
-  
-  // Resolve attack dice.
-  var damage = 0;
-  // TODO take into account extra dice ("Extra head" card)
-  for (var i = 0; i < 6; i++) {
-    // TODO check dice attr format
-    if (this.dice[i] == "p") {
-      damage++;
-    }
-  }
-  
-  var target_monsters = [];
-  if (true) {
-    // If the attacking monster is in Kyoto, target all monsters outside Kyoto.
-  }
-  else {
-    // If the attacking monster is not in Kyoto, target all monsters in Kyoto.  
-  }
-  // TODO targets defined in an array, loop through and:
-  for (var i = 0; i < target_monsters.length; i++) {
-    //     - decrement target health
-    //       - not forgetting cards
-    //         - extra damage cards
-    //         - cards with damage reactions "lightning armor"
-    //     - check if anyone died
-    //       - check win
-    //       - check any cards that react to deaths
-    //     - damaged monster in Kyoto?
-    //       - Yield input
-    //         - Increment VP
-    //       - Figure out card "Jets" - decrement health and then restore, or don't decrement
-    //         - Must do the latter, otherwise death might be triggered  
-  }
+}
 
-  
+
+
+/**
+ * Resolve VP dice.
+ */
+ROKServerGame.prototype.resolveVPDice = function(player) {
   // TODO: Resolve VP dice
   //     - Add rolled numbers to VPs
   //       - Take number roll modifier cards into account
   //     - TODO: players should be allowed to resolve dice in any order
-  
-  // Reset dice states
-  for (var i = 0; i < 8; i++) {
-    if (i < 6) {
-      this.updateState("dice__" + i + "__state", 'i');
-    }
-    else {
-      // TODO if the next monster has extra dice, enable them
-      if (false) {
-        this.updateState("dice__" + i + "__state", 'i');
-      }
-      else {
-        this.updateState("dice__" + i + "__state", 'n');
-      }
-    }
-  }
-  
-  this.sendStateChanges();
-  
-  // TODO probably can't call this directly
-  this.buyCards();
 }
 
 
