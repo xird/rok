@@ -448,6 +448,7 @@ ROKServerGame.prototype.resolveDice = function(player) {
   this.updateState("turn_phase", 'resolve');
   
   this.resolveEnergyDice(player);
+  this.resolveHealthDice(player);
   this.resolveVPDice(player);
   this.resolveAttackDice(player);
 }
@@ -554,17 +555,44 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
 ROKServerGame.prototype.resolveEnergyDice = function(player) {
   console.log("ROKServerGame.prototype.resolveEnergyDice");
   // CARDS: take cards into account: "Friend of children", etc.
-  var new_energy = 0;
+  var additional_energy = 0;
   for (var i = 0; i < this.dice.length; i++) {
     if (this.dice[i].state == 'f' && this.dice[i].value == 'e') {
-      new_energy++;
+      additional_energy++;
     }
   }
-  console.log('new_energy: '+new_energy);
+  console.log('additional_energy: ' + additional_energy);
   var old_energy = this.monsters[player.monster_id].energy;
-  this.updateState("monsters__" + player.monster_id + "__energy", old_energy + new_energy);
+  var new_energy = old_energy + additional_energy;
+  if (old_energy != new_energy) {
+    this.updateState("monsters__" + player.monster_id + "__energy", old_energy + new_energy);  
+  }
 }
 
+
+/**
+ * Resolve health dice.
+ */
+ROKServerGame.prototype.resolveHealthDice = function(player) {
+  console.log("ROKServerGame.prototype.resolveHealthDice");
+  // TODO: If in Kyoto, don't heal
+  var additional_health = 0;
+  for (var i = 0; i < this.dice.length; i++) {
+    if (this.dice[i].state == 'f' && this.dice[i].value == 'h') {
+      additional_health++;
+    }
+  }
+  console.log('additional_health: ' + additional_health);
+  var old_health = this.monsters[player.monster_id].health;
+  var new_health = old_health + additional_health;
+  if (new_health > 10) {
+    // CARDS: If max health is over 10, allow going over 10.
+    new_health = 10;
+  }
+  if (new_health != old_health) {
+    this.updateState("monsters__" + player.monster_id + "__health", new_health);  
+  }
+}
 
 
 /**

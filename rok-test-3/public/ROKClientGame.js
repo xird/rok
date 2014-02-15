@@ -276,3 +276,31 @@ ROKGame.prototype.handle__monsters__victory_points = function(updates) {
     game.handleUpdates(updates);
   });
 }
+
+ROKGame.prototype.handle__monsters__energy = function(updates) {
+  var update = updates.shift();
+  game.monsters[update.id].energy = update.value;
+  var elid = "#monsters__" + update.id + "__energy";
+  
+  $(elid).css('backgroundColor', "green").html(update.value).animate({backgroundColor: "white"}, 500, function() {
+    game.handleUpdates(updates);
+  });
+}
+
+ROKGame.prototype.handle__monsters__health = function(updates) {
+  var update = updates.shift();
+  var old_health = game.monsters[update.id].health;
+  game.monsters[update.id].health = update.value;
+  var elid = "#monsters__" + update.id + "__health";
+  
+  if (old_health > update.value) {
+    var color = "red";
+  }
+  else {
+    var color = "blue";
+  }
+  
+  $(elid).css('backgroundColor', color).html(update.value).animate({backgroundColor: "white"}, 700, function() {
+    game.handleUpdates(updates);
+  });
+}
