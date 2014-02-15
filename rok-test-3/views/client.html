@@ -76,9 +76,9 @@ $(document).ready(function() {
 </div>
 
 <div id="dev2">
-  <div class="messages"></div>
+  <div id="messages"></div>
     
-  <div class="lobby">
+  <div id="lobby">
     <h2>Lobby</h2>
     <div class="welcome"></div>
     <div class="players"></div>
@@ -86,17 +86,12 @@ $(document).ready(function() {
     <input class="confirm_game" type="button" value="Start game"/>
   </div>
   
-  <div class="monster_selection">
+  <div id="monster_selection">
     <h2>Select monster</h2>
-    <input type="button" id="monster_select_button_1" class="monster_select_button" data-monster_id="1" value="Select 1"/>
-    <input type="button" id="monster_select_button_2" class="monster_select_button" data-monster_id="2" value="Select 2"/>
-    <input type="button" id="monster_select_button_3" class="monster_select_button" data-monster_id="3" value="Select 3"/>
-    <input type="button" id="monster_select_button_4" class="monster_select_button" data-monster_id="4" value="Select 4"/>
-    <input type="button" id="monster_select_button_5" class="monster_select_button" data-monster_id="5" value="Select 5"/>
-    <input type="button" id="monster_select_button_6" class="monster_select_button" data-monster_id="6" value="Select 6"/>
+    <div id="monster_select_buttons"></div>
   </div>
   
-  <div class="game">
+  <div id="game">
     <h2>Game</h2>
     <table>
       <tr>
@@ -152,72 +147,6 @@ $(document).ready(function() {
         <th>name</th>
       </tr>
     </table>
-    
-    <!--table>
-      <tr>
-        <th></th>
-        <th>health</th>
-        <th>victory_points</th>
-        <th>energy</th>
-        <th>in_tokyo_city</th>
-        <th>in_tokyo_bay</th>
-        <th>name</th>
-      </tr>
-      <tr>
-        <th>Monster 1</th>
-        <td id="monster__1__health"></td>
-        <td id="monster__1__victory_points"></td>
-        <td id="monster__1__energy"></td>
-        <td id="monster__1__in_tokyo_city"></td>
-        <td id="monster__1__in_tokyo_bay"></td>
-        <td id="monster__1__name"></td>
-      </tr>
-      <tr>
-        <th>Monster 2</th>
-        <td id="monster__2__health"></td>
-        <td id="monster__2__victory_points"></td>
-        <td id="monster__2__energy"></td>
-        <td id="monster__2__in_tokyo_city"></td>
-        <td id="monster__2__in_tokyo_bay"></td>
-        <td id="monster__2__name"></td>
-      </tr>
-      <tr>
-        <th>Monster 3</th>
-        <td id="monster__3__health"></td>
-        <td id="monster__3__victory_points"></td>
-        <td id="monster__3__energy"></td>
-        <td id="monster__3__in_tokyo_city"></td>
-        <td id="monster__3__in_tokyo_bay"></td>
-        <td id="monster__3__name"></td>
-      </tr>
-      <tr>
-        <th>Monster 4</th>
-        <td id="monster__4__health"></td>
-        <td id="monster__4__victory_points"></td>
-        <td id="monster__4__energy"></td>
-        <td id="monster__4__in_tokyo_city"></td>
-        <td id="monster__4__in_tokyo_bay"></td>
-        <td id="monster__4__name"></td>
-      </tr>
-      <tr>
-        <th>Monster 5</th>
-        <td id="monster__5__health"></td>
-        <td id="monster__5__victory_points"></td>
-        <td id="monster__5__energy"></td>
-        <td id="monster__5__in_tokyo_city"></td>
-        <td id="monster__5__in_tokyo_bay"></td>
-        <td id="monster__5__name"></td>
-      </tr>
-      <tr>
-        <th>Monster 6</th>
-        <td id="monster__6__health"></td>
-        <td id="monster__6__victory_points"></td>
-        <td id="monster__6__energy"></td>
-        <td id="monster__6__in_tokyo_city"></td>
-        <td id="monster__6__in_tokyo_bay"></td>
-        <td id="monster__6__name"></td>
-      </tr>
-    </table-->
     
     <table>
       <tr id="dice">

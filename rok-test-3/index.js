@@ -1,11 +1,6 @@
 /**
- * 
- * TODO: List monsters in monster_order, starting from the monster following the
- *       current player's monster. This leaves the player's monster last, so it
- *       can be rendered separately at the bottom of the screen.
  *
- * TODO: Handle leaving players by keeping their sessions for a while and then
- *       periodically cleaning up idle sessions.
+ * TODO: Cleanup disconnected players who haven't been seen for a while.
  *
  * TODO: Terminate game-button
  *       - Delete the game object
@@ -124,7 +119,9 @@ process.on('uncaughtException', function(e) {
  * All other event handlers are defined inside this function.
  * 
  */
-sessionSockets.on('connection', function defineEventHandlers(err, socket, session) {  
+sessionSockets.on('connection', function onConnection(err, socket, session) {
+  console.log('onConnection');
+
   if (typeof session != "undefined") {
     var sessid = session.id;
   }
@@ -140,6 +137,7 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
   // Create a new player (returns an existing player if one exists for this
   // session).
   var player = addPlayer(socket, sessid);
+  player.status = "connected";
 
   // Depending on the user's status, either update the lobby or the game.
   if (player.game_id) {
@@ -258,8 +256,14 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
    * Game host confirming invited players and starting the game.
    */
   socket.on("confirm_game", function lobbyConfirmGame() {
+    console.log("lobbyConfirmGame");
     if (games[player.game_id].confirmGame(player)) {
       games[player.game_id].snapState();
+      // Remove playing players from the lobby.
+      for (var p in games[player.game_id].players) {
+        console.log('removing player ' + p + ' from lobby');
+        lobby.removePlayer(p);
+      }
     }
   });
 
@@ -321,6 +325,7 @@ var addPlayer = function(socket, sessid) {
   if (typeof player != "undefined") {
     // Existing player, update the socket reference.
     player.socket_id = socket.id;
+    player.last_seen = Date.now();
     return player;
   }
   else {
@@ -340,13 +345,13 @@ var addPlayer = function(socket, sessid) {
       mode: "",
       getGame: function() {
         return games[this.game_id]
-      }
+      },
+      last_seen: Date.now(),
+      status: "connected",
     }
     
     // Add the new player to the global players array.
     players[player.id] = player;
-    
-    console.log(players);
     
     // Add the new player to the lobby:
     lobby.addPlayer(player);
@@ -360,23 +365,5 @@ var addPlayer = function(socket, sessid) {
  * Removes a player from the global players array.
  */
 var removePlayer = function(player) {
-  /*
-  console.log('removePlayer');
-  var game_id = player.game_id;
-  var keys = Object.keys(players);
-  for(var i = 0; i < keys.length; i++) {
-    var player = players[keys[i]];
-    // TODO idenfify by id, not playername
-    // TODO: Clean up also from the game object, in game.players and game.monsters
-    if(player.name === players[keys[i]].name) {
-      delete players[keys[i]];
-      updateLobby();
-      // If the player was a part of a game, update that game.
-      if (game_id) {
-        //updateGame(current);
-      }
-      return;
-    }
-  }
-  */
+  player.status = "disconnected";
 }

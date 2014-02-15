@@ -33,6 +33,33 @@ ROKServerLobby.prototype.addPlayer = function (player) {
 
 
 /**
+ * Remove player from lobby, either because they started a game or because they
+ * haven't been seen for a while and were cleaned up because of that.
+ *
+ * @param Integer player_id The id of the player being removed.
+ *
+ */
+ROKServerLobby.prototype.removePlayer = function (player_id) {
+  console.log('ROKServerLobby.prototype.removePlayer');
+  
+  var index = this.player_ids.indexOf(player_id);
+  if (index > -1) {
+    this.player_ids.splice(index, 1);
+  }
+  
+  var index = -1;
+  for (var i = 0; i < this.players.length; i++) {
+    if (this.players[i].id == player_id) {
+      index = i;
+    }
+  }
+  if (index > -1) {
+    this.players.splice(index, 1);
+  }
+}
+
+
+/**
  *
  */
 ROKServerLobby.prototype.snapState = function () {

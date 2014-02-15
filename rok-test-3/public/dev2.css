@@ -2,7 +2,7 @@
   position: relative;
 }
 
-#dev2 .messages {
+#messages {
   position: absolute;
   top: 30px;
   border: 1px solid #444;
@@ -12,20 +12,20 @@
   display: none;
 }
 
-#dev2 .game {
+#game {
   border: 1px solid blue;
-  /*display: none; ?*/
+  display: none;
 }
 
-#dev2 .game table {
+#game table {
   border-collapse: collapse;
 }
 
-#dev2 .game table td {
+#game table td {
   border: 1px solid #ccc;
 }
 
-#dev2 .monster_selection {
+#monster_selection {
   display: none;
 }
 

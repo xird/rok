@@ -54,12 +54,6 @@ ROKServerGame.prototype.init = function(player) {
     this.monsters[i] = monster;
   }
   
-  // Shuffling the playing order.
-  // TODO this should be shuffling the monster order in the selection phase,
-  // but we can't do it since the monsters are in an object now. Anyway, it's
-  // probably best done clientside.
-  //this.monsters = utils.shuffleArray(this.monsters);
-  
   //console.log(this);
   console.log("init done");
   

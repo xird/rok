@@ -27,19 +27,40 @@ ROKGame.prototype.initClient = function() {
     game.this_monster = data.this_monster;
     
     if (data.game_state == "lobby") {
-      $('#dev2 .lobby').show();
-      $('#dev2 .monster_selection').hide();    
-      $('#dev2 .game').hide();
+      $('#lobby').show();
+      $('#monster_selection').hide();    
+      $('#game').hide();
     }
     else if (data.game_state == "select_monsters") {
-      $('#dev2 .lobby').hide();
-      $('#dev2 .monster_selection').show();
-      $('#dev2 .game').hide();
+      $('#lobby').hide();
+      $('#monster_selection').show();
+      $('#game').hide();
+      
+      // Randomize the order of the monster select buttons.
+      var monster_select_buttons = JSON.stringify(utils.shuffleArray([{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, ]));
+      
+      var transforms = {
+        'monster_select_buttons': [
+          {tag: "input", type: "button", id: "monster_select_button_${id}", class: "monster_select_button", "data-monster_id": "${id}", value: "Select ${id}"}
+        ],
+      }
+     
+      $('#monster_select_buttons').json2html(monster_select_buttons, transforms.monster_select_buttons);
+      
+      /*
+
+    <input type="button" id="monster_select_button_1" class="monster_select_button" data-monster_id="1" value="Select 1"/>
+    <input type="button" id="monster_select_button_2" class="monster_select_button" data-monster_id="2" value="Select 2"/>
+    <input type="button" id="monster_select_button_3" class="monster_select_button" data-monster_id="3" value="Select 3"/>
+    <input type="button" id="monster_select_button_4" class="monster_select_button" data-monster_id="4" value="Select 4"/>
+    <input type="button" id="monster_select_button_5" class="monster_select_button" data-monster_id="5" value="Select 5"/>
+    <input type="button" id="monster_select_button_6" class="monster_select_button" data-monster_id="6" value="Select 6"/>
+      */
     }
     else {
-      $('#dev2 .lobby').hide();
-      $('#dev2 .monster_selection').hide();
-      $('#dev2 .game').show();
+      $('#lobby').hide();
+      $('#monster_selection').hide();
+      $('#game').show();
     
       // Write initial values to all UI elements.
       $('#this_monster').html(data.this_monster);
@@ -122,21 +143,21 @@ ROKGame.prototype.initClient = function() {
    */
   socket.on('game_message', function (data) {
     console.log('dev2 game message received');
-    $('#dev2 .messages').html(data).show().delay(1500).fadeOut(1000);
+    $('#messages').html(data).show().delay(1500).fadeOut(1000);
   });
 
 
   // UI event handlers
   
   // Monster selection
-  $(".monster_select_button").on("click", function() {
+  $("#monster_selection").on("click", ".monster_select_button", function() {
     console.log('dev2 select monster ' + $(this).data('monster_id'));
     socket.emit("select_monster", $(this).data('monster_id'));
   });
 
 
   // Roll dice.
-  $('#dev2 .game').on("click", ".roll_dice_button", function(){
+  $('#game').on("click", ".roll_dice_button", function(){
     console.log('dev2 roll_dice');
     // TODO: Define dice to keep
     socket.emit("roll_dice", {keep_dice_ids: []});
@@ -144,7 +165,7 @@ ROKGame.prototype.initClient = function() {
 
 
   // Finish buying cards.
-  $('#dev2 .game').on("click", ".done_buying_button", function(){
+  $('#game').on("click", ".done_buying_button", function(){
     console.log('dev2 done buying');
     socket.emit("done_buying");
   });
@@ -200,12 +221,12 @@ ROKGame.prototype.handle__game_state = function(new_state) {
   console.log("ROKGame.prototype.handle__game_state to " + new_state);
   switch (new_state) {
     case "select_monsters":
-      $("#dev2 .lobby").hide();
-      $("#dev2 .monster_selection").show();
+      $("#lobby").hide();
+      $("#monster_selection").show();
       break;
     case "play":
-      $("#dev2 .monster_selection").hide();
-      $("#dev2 .game").show();
+      $("#monster_selection").hide();
+      $("#game").show();
       break;
   }
 }
