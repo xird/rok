@@ -142,14 +142,6 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
   // session).
   var player = addPlayer(socket, sessid);
 
-
-  
-  
-  var current = {
-    player: player,
-    socket: socket
-  };
-
   // Depending on the user's status, either update the lobby or the game.
   if (player.game_id) {
     console.log('Game state: ' + games[player.game_id].game_state);
@@ -198,26 +190,26 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
       return;
     }
     
-    if (current.player.game_id) {
+    if (player.game_id) {
       console.log('You already have a game');
       socket.emit('game_message', "You already have a game");
       return;
     }
     
     // Create new game
-    var game = new ROKServerGame(current.player);
+    var game = new ROKServerGame(player);
     games[game.id] = game;
 
     // Invite one other user
     for (var p in players) {
       if (players[p].id != player.id) {
-        lobby.invitePlayer(current.player, players[p]);
+        lobby.invitePlayer(player, players[p]);
         break;
       }
     }
     
     // Confirm game
-    game.confirmGame(current.player);
+    game.confirmGame(player);
     
     // Select monsters
     var i = 2;
@@ -243,7 +235,7 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
   // Creates a new game and sets the player who created the game as a host.
   socket.on("new_game", function lobbyNewGame(args) {
     console.log('new_game');
-    var game = new ROKServerGame(current.player);
+    var game = new ROKServerGame(player);
     games[game.id] = game;
     lobby.snapState();
   });
@@ -257,7 +249,7 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
    */
   socket.on("invite", function lobbyInvite(invitee_id) {
     console.log("invite-handler");
-    lobby.invitePlayer(current.player, players[invitee_id]);
+    lobby.invitePlayer(player, players[invitee_id]);
     lobby.snapState();
   });
 
@@ -266,8 +258,8 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
    * Game host confirming invited players and starting the game.
    */
   socket.on("confirm_game", function lobbyConfirmGame() {
-    if (games[current.player.game_id].confirmGame(current.player)) {
-      games[current.player.game_id].snapState();
+    if (games[player.game_id].confirmGame(player)) {
+      games[player.game_id].snapState();
     }
   });
 
@@ -280,7 +272,7 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
    * Player selecting a monster to play with.
    */
   socket.on("select_monster", function gameSelectMonster(monster_id) {
-    games[current.player.game_id].selectMonster(current.player, monster_id);
+    games[player.game_id].selectMonster(player, monster_id);
   });
 
 
@@ -288,7 +280,7 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
    * Player rolling dice.
    */
   socket.on("roll_dice", function gameRollDice(args) {
-    games[current.player.game_id].rollDice(current, args.keep_dice_ids);
+    games[player.game_id].rollDice(player, args.keep_dice_ids);
   });
 
 
@@ -296,7 +288,7 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
    * Player is done buying cards.
    */
   socket.on("done_buying", function gameDoneBuying(args) {
-    games[current.player.game_id].doneBuying(current);
+    games[player.game_id].doneBuying(player);
   });
 
 
@@ -332,18 +324,21 @@ var addPlayer = function(socket, sessid) {
     return player;
   }
   else {
-    // This session doesn't have a player yet, so let's create one.
+    // This session doesn't have a player yet, so let's create one. Note the 
+    // getSocket() and getGame() functions, which are there instead of direct
+    // references to the objects, in order to avoid circular references.
     var player = {
       id: uuid.v4(),
       name: Moniker.choose(),
       monster_id: 0,
       socket_id: socket.id,
+      getSocket: function() {
+        return io.sockets.socket(this.socket_id);
+      },
       session_id: sessid,
       game_id: 0,
       mode: "",
       getGame: function() {
-        console.log('getGame');
-        console.log(this);
         return games[this.game_id]
       }
     }

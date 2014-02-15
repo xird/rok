@@ -275,21 +275,21 @@ ROKServerGame.prototype.buyCards = function() {
 /**
  * User has chosen not to buy any cards or has no money to buy anything.
  */
-ROKServerGame.prototype.doneBuying = function(current) {
+ROKServerGame.prototype.doneBuying = function(player) {
   // Check that it's this player's turn
   if (this.turn_phase == 'buy') {
-    if (this.turn_monster == current.player.monster_id) {
+    if (this.turn_monster == player.monster_id) {
       this.endTurn();
       this.sendStateChanges();
     }
     else {
       console.log('Not this user\'s turn');
-      current.socket.emit('game_message', "It's not your turn."); 
+      player.getSocket().emit('game_message', "It's not your turn."); 
     }  
   }
   else {
     console.log('Not buying phase');
-    current.socket.emit('game_message', "It's not the buying phase.");
+    player.getSocket().emit('game_message', "It's not the buying phase.");
   }
 }
 
@@ -349,10 +349,9 @@ ROKServerGame.prototype.endTurn = function() {
  * @param keep_dice_ids array The ids of the dice that are not to be
  * re-rolled.
  */
-ROKServerGame.prototype.rollDice = function (current, keep_dice_ids) {
+ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
   console.log('ROKServerGame.prototype.rollDice');
 
-  var player = current.player;
   var monster = this.getMonster(player.monster_id);
       
   // TODO only roll the not-kept dice.
@@ -391,7 +390,7 @@ ROKServerGame.prototype.rollDice = function (current, keep_dice_ids) {
             // Advance to next turn phase: resolve
             console.log('      calling resolveDice');
             this.sendStateChanges();
-            this.resolveDice(current);
+            this.resolveDice(player);
           }
 
         }
@@ -401,16 +400,16 @@ ROKServerGame.prototype.rollDice = function (current, keep_dice_ids) {
       }
       else {
         console.log("Not this monster's turn");
-        current.socket.emit("game_message", "It's not your turn to roll");
+        player.getSocket().emit("game_message", "It's not your turn to roll");
       }
     }
     else {
       console.log('    not roll phase');
-      current.socket.emit('game_message', "Not roll phase.");
+      player.getSocket().emit('game_message', "Not roll phase.");
     }
   }
   else {
-    current.socket.emit('game_message', "Game not being played.");
+    player.getSocket().emit('game_message', "Game not being played.");
   }
     
   this.sendStateChanges();
@@ -421,7 +420,7 @@ ROKServerGame.prototype.rollDice = function (current, keep_dice_ids) {
  * Resolves the results of the dice rolls after all the rerolls are done.
  *
  */
-ROKServerGame.prototype.resolveDice = function(current) {
+ROKServerGame.prototype.resolveDice = function(player) {
   console.log('ROKServerGame.prototype.resolveDice');
   
   this.updateState("turn_phase", 'resolve');
@@ -525,13 +524,13 @@ ROKServerGame.prototype.selectMonster = function (player, monster_id) {
     else {
       console.log('already selected error');
       var msg = "You have already selected a monster.";
-      io.sockets.socket(player.socket_id).emit("game_message", msg);
+      player.getSocket().emit("game_message", msg);
     }  
   }
   else {
     console.log('not in monster_selection error');
     var msg = "This is not the time to select a monster.";
-    io.sockets.socket(player.socket_id).emit("game_message", msg);   
+    player.getSocket().emit("game_message", msg);   
   }
 }
 
@@ -606,13 +605,12 @@ ROKServerGame.prototype.addPlayer = function(player) {
 /**
  * Starts the game with the invited players
  * 
- * @param current Object The "current" object.
  */
-ROKServerGame.prototype.confirmGame = function(current_player) {
+ROKServerGame.prototype.confirmGame = function(player) {
   console.log("ROKServerGame.prototype.confirmGame");
   
   // Check that the player running this is a host.
-  if (current_player.mode == 'host') {
+  if (player.mode == 'host') {
     // Check that there are at least two players in the game    
     if (Object.keys(this.players).length >= 2) {
       this.updateState("game_state", "select_monsters");
@@ -627,14 +625,14 @@ ROKServerGame.prototype.confirmGame = function(current_player) {
       console.log('not enough players error');
       // Notify the player.
       var msg = "At least two players are needed to play.";
-      io.sockets.socket(current_player.socket_id).emit("lobby_message", msg);     
+      player.getSocket().emit("lobby_message", msg);     
     }
   }
   else {
     console.log('not a host error');
     // Notify the player that he needs to be a host to confirm a game.
     var msg = "Only the host can confirm a game.";
-    io.sockets.socket(current_player.socket_id).emit("lobby_message", msg);
+    player.getSocket().emit("lobby_message", msg);
   }
 }
 

@@ -28,3 +28,7 @@
 #dev2 .monster_selection {
   display: none;
 }
+
+.debug h5 {
+  margin: 0;
+}
