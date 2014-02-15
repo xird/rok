@@ -59,3 +59,7 @@ tr#dice td.f {
 tr#dice td.k {
   background: #fcc;
 }
+
+tr#dice td.n {
+  background: #222;
+}

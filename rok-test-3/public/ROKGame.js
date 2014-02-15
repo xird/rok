@@ -36,10 +36,16 @@ function ROKGame(player) {
   this.monsters = {};
   this.dice = [];
   this.updates = [];
-  for (var i = 0; i < 8; i++) {
+  for (var i = 0; i < 6; i++) {
     this.dice.push({
       value: 0,
       state: "i"
+    });
+  }  
+  for (var i = 6; i < 8; i++) {
+    this.dice.push({
+      value: 0,
+      state: "n"
     });
   }  
   

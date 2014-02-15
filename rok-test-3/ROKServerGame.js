@@ -434,8 +434,7 @@ ROKServerGame.prototype.resolveDice = function(player) {
   console.log(this.dice);
   for (var i = 0; i < this.dice.length; i++) {
     console.log(this.dice[i]);
-    // TODO set state "n" for dice not in use
-    if (this.dice[i].value == 'e') {
+    if (this.dice[i].state == 'f' && this.dice[i].value == 'e') {
       new_energy++;
     }
   }
@@ -483,8 +482,19 @@ ROKServerGame.prototype.resolveDice = function(player) {
   //     - TODO: players should be allowed to resolve dice in any order
   
   // Reset dice states
-  for (var i = 0; i < 6; i++) {
-    this.updateState("dice__" + i + "__state", 'i');
+  for (var i = 0; i < 8; i++) {
+    if (i < 6) {
+      this.updateState("dice__" + i + "__state", 'i');
+    }
+    else {
+      // TODO if the next monster has extra dice, enable them
+      if (false) {
+        this.updateState("dice__" + i + "__state", 'i');
+      }
+      else {
+        this.updateState("dice__" + i + "__state", 'n');
+      }
+    }
   }
   
   this.sendStateChanges();
