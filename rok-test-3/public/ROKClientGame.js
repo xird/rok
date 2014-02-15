@@ -358,6 +358,15 @@ ROKGame.prototype.handle__monsters__energy = function(updates) {
   });
 }
 
+ROKGame.prototype.handle__monsters__player_id = function(updates) {
+  var update = updates.shift();
+  game.monsters[update.id].player_id = update.value;
+  var elid = "#monster_select_button_" + update.id;
+  
+  $(elid).addClass('selected');
+  game.handleUpdates(updates);
+}
+
 ROKGame.prototype.handle__monsters__health = function(updates) {
   var update = updates.shift();
   var old_health = game.monsters[update.id].health;

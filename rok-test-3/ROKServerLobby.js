@@ -97,7 +97,7 @@ ROKServerLobby.prototype.invitePlayer = function (inviter, invitee) {
     console.log('no game error');
     // Notify the player that he needs a game.
     var msg = "Please create a new game before inviting players.";
-    io.sockets.socket(player.socket_id).emit("lobby_message", msg);
+    io.sockets.socket(inviter.socket_id).emit("lobby_message", msg);
   }
 }
 

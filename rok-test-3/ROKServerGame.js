@@ -368,8 +368,7 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
   
   var monster = this.monsters[player.monster_id];
   var log_message = "";
-      
-  // TODO only roll the not-kept dice.
+
   if (this.game_state == 'play') {
     console.log('  state play');
     if (this.turn_phase == 'roll') {

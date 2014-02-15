@@ -18,7 +18,7 @@ ROKLobby.prototype.initClient = function() {
   
   // Welcomes a new player.
   socket.on('welcome', function (data) {
-    $('#dev2 .welcome').html("Welcome to the ROK, <strong>" + data.name + "</strong>");
+    $('#welcome').html("Welcome to the ROK, <strong>" + data.name + "</strong>");
   });
 
 
@@ -26,7 +26,7 @@ ROKLobby.prototype.initClient = function() {
   socket.on('lobby_message', function (data) {
     console.log('dev2 lobby message received');
 
-    $('#dev2 .messages').html(data).show().delay(1500).fadeOut(1000);
+    $('#messages').html(data).show().delay(1500).fadeOut(1000);
   });
   
   
@@ -39,8 +39,8 @@ ROKLobby.prototype.initClient = function() {
     lobby.players = data.players;
     lobby.player_ids = data.player_ids;
     
-    $('#dev2 .lobby').show();
-    $('#dev2 .game').hide();
+    $('#lobby').show();
+    $('#game').hide();
     
     var transform = [
       {tag: 'tr', children: [
@@ -53,8 +53,8 @@ ROKLobby.prototype.initClient = function() {
       ]}
     ];
     
-    $('#dev2 .players').html('<table><thead><tr><th>Name</th><th>Mode</th><th>Game</th></tr></thead><tbody></tbody></table>');
-    $('#dev2 .players table tbody').json2html(data.players, transform);
+    $('#players').html('<table><thead><tr><th>Name</th><th>Mode</th><th>Game</th></tr></thead><tbody></tbody></table>');
+    $('#players table tbody').json2html(data.players, transform);
   });
   
   // Start game
@@ -67,19 +67,19 @@ ROKLobby.prototype.initClient = function() {
   // UI event handlers.
   
   // Creates a new game, making the player the host for this game.
-  $('#dev2 .new_game').on("click", function(){
+  $('#new_game').on("click", function(){
     console.log('dev2 new_game clicked');
     socket.emit("new_game");
   });
   
   // Invite.
-  $('#dev2 .players').on("click", ".player_invite_button", function(){
+  $('#players').on("click", ".player_invite_button", function(){
     console.log('dev2 invite');
     socket.emit("invite", $(this).data("player_id"));
   });
   
   // Confirm invited players and start a new game.
-  $('#dev2 .confirm_game').on("click", function(){
+  $('#confirm_game').on("click", function(){
     console.log('dev2 confirm_game');
     socket.emit("confirm_game");
   });
