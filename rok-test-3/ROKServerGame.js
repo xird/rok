@@ -114,7 +114,7 @@ ROKServerGame.prototype.init = function(player) {
  * 
  */
 ROKServerGame.prototype.updateState = function(field, value, log) {
-  console.log("ROKServerGame.prototype.updateState");
+  console.log("ROKServerGame.prototype.updateState of " + field + " to " + value);
   
   var update = {
     element: "",
@@ -261,28 +261,8 @@ ROKServerGame.prototype.getMonster = function(monster_id) {
  *       - check win
  */
 ROKServerGame.prototype.buyCards = function() {
+  console.log("ROKServerGame.prototype.buyCards");
   this.updateState("turn_phase", 'buy');
-  
-  
-  // TODO this needs to be done further down the line.
-  // Reset dice states
-  this.updateState("roll_number", 1);
-  for (var i = 0; i < 8; i++) {
-    if (i < 6) {
-      this.updateState("dice__" + i + "__state", 'i');
-    }
-    else {
-      // CARDS if the next monster has extra dice, enable them
-      if (false) {
-        this.updateState("dice__" + i + "__state", 'i');
-      }
-      else {
-        this.updateState("dice__" + i + "__state", 'n');
-      }
-    }
-  }
-  
-  
   this.sendStateChanges();
 }
 
@@ -291,6 +271,7 @@ ROKServerGame.prototype.buyCards = function() {
  * User has chosen not to buy any cards or has no money to buy anything.
  */
 ROKServerGame.prototype.doneBuying = function(player) {
+  console.log("ROKServerGame.prototype.doneBuying");
   // Check that it's this player's turn
   if (this.turn_phase == 'buy') {
     if (this.turn_monster == player.monster_id) {
@@ -314,6 +295,22 @@ ROKServerGame.prototype.doneBuying = function(player) {
 ROKServerGame.prototype.endTurn = function() {
   console.log('ROKServerGame.prototype.endTurn');
 
+  // Reset dice
+  for (var i = 0; i < 8; i++) {
+    if (i < 6) {
+      this.updateState("dice__" + i + "__state", 'i');
+    }
+    else {
+      // CARDS if the next monster has extra dice, enable them
+      if (false) {
+        this.updateState("dice__" + i + "__state", 'i');
+      }
+      else {
+        this.updateState("dice__" + i + "__state", 'n');
+      }
+    }
+  }
+
   this.updateState("turn_phase", 'end');
     
   // TODO Do all the turn-end related processing.
@@ -324,6 +321,7 @@ ROKServerGame.prototype.endTurn = function() {
   
   // Advance to the next player's turn.
   this.updateState("turn_phase", 'start');
+  this.updateState("roll_number", 1);
   
   var current_monster_index = this.monster_order.indexOf(this.turn_monster);
   var next_monster_index = current_monster_index + 1;
@@ -408,12 +406,12 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
             var new_roll_number = this.roll_number + 1;
             console.log('new: ' + new_roll_number);
             this.updateState("roll_number", new_roll_number);
-            console.log('      incremented roll number to ' + this.roll_number);
           }
           else {
             // Advance to next turn phase: resolve
+            // Note that we're not sending state changes here, since there will
+            // be more changes after the rolls are resolved.
             console.log('      calling resolveDice');
-            this.sendStateChanges();
             this.resolveDice(player);
           }
 
@@ -533,7 +531,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     
     // TODO if monster(s) in Kyoto damaged, move game to "yield" state (?)
     // Otherwise:
-    this.sendStateChanges();
+    // Note that buyCards() will send state changes.
     this.buyCards();     
   }
   else {
@@ -544,7 +542,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     var old_victory_points = this.monsters[player.monster_id].victory_points;
     this.updateState("monsters__" + player.monster_id + "__victory_points", old_victory_points + 1);
     
-    this.sendStateChanges();
+    // Note that buyCards() will send state changes.
     this.buyCards();
   }
 }
@@ -554,11 +552,10 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
  * Resolve energy dice.
  */
 ROKServerGame.prototype.resolveEnergyDice = function(player) {
+  console.log("ROKServerGame.prototype.resolveEnergyDice");
   // CARDS: take cards into account: "Friend of children", etc.
   var new_energy = 0;
-  console.log(this.dice);
   for (var i = 0; i < this.dice.length; i++) {
-    console.log(this.dice[i]);
     if (this.dice[i].state == 'f' && this.dice[i].value == 'e') {
       new_energy++;
     }
@@ -574,6 +571,7 @@ ROKServerGame.prototype.resolveEnergyDice = function(player) {
  * Resolve VP dice.
  */
 ROKServerGame.prototype.resolveVPDice = function(player) {
+  console.log("ROKServerGame.prototype.resolveVPDice");
   // TODO: Resolve VP dice
   //     - Add rolled numbers to VPs
   //       - Take number roll modifier cards into account
@@ -690,6 +688,7 @@ ROKServerGame.prototype.beginGame = function() {
  *
  */
 ROKServerGame.prototype.addPlayer = function(player) {
+  console.log("ROKServerGame.prototype.addPlayer");
   // Check that the player isn't in the game already.
   if (this.player_ids.hasOwnProperty(player.id) == false) {
     // Update game id of invited player

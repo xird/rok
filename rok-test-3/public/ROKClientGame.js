@@ -200,25 +200,29 @@ ROKGame.prototype.initClient = function() {
  *
  */
 ROKGame.prototype.handleUpdates = function(updates) {
+  if (updates.length == 0) {
+    return false;
+  }
   console.log("Handle updates");
-  for (var i = 0; i < updates.length; i++) {
-    var update = updates[i];
-    
-    if (update.log) {
-      this.addToLog(update.log);    
-    }
-    //console.log(utils.dump(update));
-    console.log('Handler: ' + update.handler);
-    if (typeof this[update.handler] == "function") {
-      // TODO FIXME monsters!
-      // If we get an update with a multipart element, that means we _must_ have
-      // a handler function for it in order to update the game object.
-      this[update.handler](update.value, update.id);
-    }
-    else if (update.element) {
-      game[update.element] = update.value;
-      $("#" + update.element).html(update.value);
-    }
+
+  var update = updates[0];
+  
+  if (update.log) {
+    this.addToLog(update.log);    
+  }
+  
+  //console.log(utils.dump(update));
+  console.log('Handler: ' + update.handler);
+  
+  if (typeof this[update.handler] == "function") {
+    //this[update.handler](update.value, update.id);
+    this[update.handler](updates);
+  }
+  else if (update.element) {
+    game[update.element] = update.value;
+    $("#" + update.element).html(update.value);
+    updates.shift();
+    this.handleUpdates(updates);
   }
 }
 
@@ -227,11 +231,12 @@ ROKGame.prototype.addToLog = function(str) {
 }
 
 /**
- * TODO Monster selection HTML needs to be randomly generated on state change.
+ * Moves the game from the lobby to monster selection and to the actual game.
  */
-ROKGame.prototype.handle__game_state = function(new_state) {
+ROKGame.prototype.handle__game_state = function(updates) {
   console.log("ROKGame.prototype.handle__game_state to " + new_state);
-  switch (new_state) {
+  var update = updates.shift();
+  switch (update.value) {
     case "select_monsters":
       $("#lobby").hide();
       $("#monster_selection").show();
@@ -241,21 +246,33 @@ ROKGame.prototype.handle__game_state = function(new_state) {
       $("#game").show();
       break;
   }
+  this.handleUpdates(updates);
 }
 
-ROKGame.prototype.handle__dice__state = function(new_state, id) {
-  game.dice[id].state = new_state;
-  $("#dice__" + id + "__value").removeClass();
-  $("#dice__" + id + "__value").addClass(new_state);
+ROKGame.prototype.handle__dice__state = function(updates) {
+  var update = updates.shift();
+  game.dice[update.id].state = update.value;
+  $("#dice__" + update.id + "__value").removeClass();
+  $("#dice__" + update.id + "__value").addClass(update.value);
+  this.handleUpdates(updates);
 }
 
-ROKGame.prototype.handle__dice__value = function(new_value, id) {
-  game.dice[id].value = new_value;
-  $("#dice__" + id + "__value").html(new_value);
+ROKGame.prototype.handle__dice__value = function(updates) {
+  var update = updates.shift();
+  game.dice[update.id].value = update.value;
+  var elid = "#dice__" + update.id + "__value";
+  
+  $(elid).css('opacity', 0).html(update.value).animate({opacity: 1}, 300, function() {
+    game.handleUpdates(updates);
+  });
 }
 
-ROKGame.prototype.handle__monsters__player_id = function(new_player_id, id) {
-  console.log("ROKGame.prototype.handle__monsters__player_id");
-  game.monsters[id].player_id = new_player_id;
-  $("#monster_select_button_" + id).addClass('selected');
+ROKGame.prototype.handle__monsters__victory_points = function(updates) {
+  var update = updates.shift();
+  game.monsters[update.id].victory_points = update.value;
+  var elid = "#monsters__" + update.id + "__victory_points";
+  
+  $(elid).css('backgroundColor', "yellow").html(update.value).animate({backgroundColor: "white"}, 500, function() {
+    game.handleUpdates(updates);
+  });
 }
