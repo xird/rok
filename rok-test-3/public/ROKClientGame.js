@@ -14,7 +14,7 @@ ROKGame.prototype.initClient = function() {
    * Game state snap
    */
   socket.on('snap_state', function snapState(data) {
-    console.log("dev2 snapping game state");
+    console.log("snapping game state");
     
     game.game_state = data.game_state;
     game.turn_phase = data.turn_phase;
@@ -113,7 +113,13 @@ ROKGame.prototype.initClient = function() {
       for (var i = 0; i < data.dice.length; i++) {
         $('#dice__' + i + '__value').html(data.dice[i].value);
         $('#dice__' + i + '__value').addClass(data.dice[i].state);
-      }    
+      }
+      
+      // Enable the roll button if this is the current monster.
+
+      if (game.turn_monster == game.this_monster) {
+        $('#roll_dice_button').removeAttr('disabled');
+      }
     }
   });
   
@@ -122,7 +128,7 @@ ROKGame.prototype.initClient = function() {
    * Update game state changes to the UI.
    */
   socket.on('state_changes', function stateChanges(data) {
-    console.log("dev2 received game state changes");
+    console.log("received game state changes");
 
     game.handleUpdates(data.updates);
   });
@@ -147,7 +153,7 @@ ROKGame.prototype.initClient = function() {
 
 
   // Roll dice.
-  $('#game').on("click", ".roll_dice_button", function(){
+  $('#game').on("click", "#roll_dice_button", function(){
     console.log('dev2 roll_dice');
     
     var keep_dice_ids = [];
@@ -177,7 +183,7 @@ ROKGame.prototype.initClient = function() {
   
   
   // Finish buying cards.
-  $('#game').on("click", ".done_buying_button", function(){
+  $('#game').on("click", "#done_buying_button", function(){
     console.log('dev2 done buying');
     socket.emit("done_buying");
   });
@@ -211,7 +217,7 @@ ROKGame.prototype.handleUpdates = function(updates) {
     this.addToLog(update.log);    
   }
   
-  //console.log(utils.dump(update));
+  console.log(utils.dump(update));
   console.log('Handler: ' + update.handler);
   
   if (typeof this[update.handler] == "function") {
@@ -234,8 +240,8 @@ ROKGame.prototype.addToLog = function(str) {
  * Moves the game from the lobby to monster selection and to the actual game.
  */
 ROKGame.prototype.handle__game_state = function(updates) {
-  console.log("ROKGame.prototype.handle__game_state to " + new_state);
   var update = updates.shift();
+  console.log("ROKGame.prototype.handle__game_state to " + update.value);
   switch (update.value) {
     case "select_monsters":
       $("#lobby").hide();
@@ -247,6 +253,46 @@ ROKGame.prototype.handle__game_state = function(updates) {
       break;
   }
   this.handleUpdates(updates);
+}
+
+ROKGame.prototype.handle__turn_phase = function(updates) {
+  var update = updates.shift();
+  console.log("ROKGame.prototype.handle__turn_phase to " + update.value);
+  game.turn_phase = update.value;
+  var elid = "#turn_phase";
+  $(elid).html(update.value);
+  
+  // Note: "this_monster" needs to always be updated before turn_phase, or this
+  // will never remove the disabled-attribute.
+  
+  if (update.value == 'roll') {
+    if (game.turn_monster == game.this_monster) {
+      $('#roll_dice_button').removeAttr('disabled');
+    }
+    else {
+      $('#roll_dice_button').attr('disabled', true);
+    }
+  }
+  else {
+    $('#roll_dice_button').attr('disabled', true);    
+  }
+  
+  if (update.value == 'buy') {
+    if (game.turn_monster == game.this_monster) {
+      $('#done_buying_button').removeAttr('disabled');
+    }
+    else {
+      $('#done_buying_button').attr('disabled', true);
+    }
+  }
+  else {
+    $('#done_buying_button').attr('disabled', true);    
+  }
+  
+  
+  
+  game.handleUpdates(updates);
+  
 }
 
 ROKGame.prototype.handle__dice__state = function(updates) {
