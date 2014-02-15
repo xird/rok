@@ -33,7 +33,7 @@ function ROKGame(player) {
   this.players = {};
   this.player_ids = {};
   this.monster_order = [];
-  this.monsters = [];
+  this.monsters = {};
   this.dice = [];
   this.updates = [];
   for (var i = 0; i < 8; i++) {

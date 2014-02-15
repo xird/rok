@@ -25,9 +25,6 @@ ROKUtils.prototype.dump = function dump(arr,level) {
 	var level_padding = "";
 	for(var j=0;j<level+1;j++) level_padding += "    ";
 	
-	//console.log(level_padding + level);
-	//console.log(arr);
-	
 	if(typeof(arr) == 'object') { //Array/Hashes/Objects 
 		for(var item in arr) {
 			var value = arr[item];
@@ -37,7 +34,7 @@ ROKUtils.prototype.dump = function dump(arr,level) {
 				dumped_text += dump(value,level+1);
 			} 
       else if (typeof(value) == 'function') {
-        dumped_text += level_padding + "'" + item + "' FUNCTION";
+        dumped_text += level_padding + "'" + item + "' FUNCTION" + "\"\n";
       }
       else {
 				dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";

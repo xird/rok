@@ -1,5 +1,4 @@
 /**
- * TODO NEXT:
  * 
  * TODO: List monsters in monster_order, starting from the monster following the
  *       current player's monster. This leaves the player's monster last, so it
@@ -8,12 +7,12 @@
  * TODO: Handle leaving players by keeping their sessions for a while and then
  *       periodically cleaning up idle sessions.
  *
+ * TODO: Terminate game-button
+ *       - Delete the game object
+ *       - Reset players' game reference
+ *       - Add players to lobby
+ *
  * TODO: Game state: "over", i.e. win checks
- * 
- * TODO: Design a way to pass currently available actions to front end:
- *   - One object, keys contain all existing actions
- *   - values contain players that can currently take the actions
- *   ..or the actions can be enabled and disabled by the change handler functions.
  *
  */
 
@@ -177,7 +176,8 @@ sessionSockets.on('connection', function defineEventHandlers(err, socket, sessio
   });
   
   // Debug players
-  socket.on("log_players_state", function debugPlayerState(args) {
+  socket.on("log_players_state", function debugPlayerState() {
+    console.log("debugPlayerState");
     console.log(utils.dump(players));
   });
   
@@ -345,6 +345,8 @@ var addPlayer = function(socket, sessid) {
     
     // Add the new player to the global players array.
     players[player.id] = player;
+    
+    console.log(players);
     
     // Add the new player to the lobby:
     lobby.addPlayer(player);

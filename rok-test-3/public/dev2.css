@@ -32,3 +32,30 @@
 .debug h5 {
   margin: 0;
 }
+
+.monster_select_button.selected {
+  border: 1px solid red;
+}
+
+
+tr#dice td {
+  height: 20px;
+  width: 20px;
+  text-align: center;
+}
+
+tr#dice td.i {
+  background: #888;
+}
+
+tr#dice td.r {
+  background: #cfc;
+}
+
+tr#dice td.f {
+  background: #ccf;
+}
+
+tr#dice td.k {
+  background: #fcc;
+}

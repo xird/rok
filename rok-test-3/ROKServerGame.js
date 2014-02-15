@@ -49,13 +49,16 @@ ROKServerGame.prototype.init = function(player) {
   this.roll_number = 1;
 
   // Generate monsters and save them in the game object.
-  for (var i = 0; i < 6; i++) {
-    var monster = new Monster(i + 1);
+  for (var i = 1; i <= 6; i++) {
+    var monster = new Monster(i);
     this.monsters[i] = monster;
   }
   
   // Shuffling the playing order.
-  this.monsters = utils.shuffleArray(this.monsters);
+  // TODO this should be shuffling the monster order in the selection phase,
+  // but we can't do it since the monsters are in an object now. Anyway, it's
+  // probably best done clientside.
+  //this.monsters = utils.shuffleArray(this.monsters);
   
   //console.log(this);
   console.log("init done");
@@ -90,6 +93,8 @@ ROKServerGame.prototype.init = function(player) {
     ];
     this.name = monster_names[id - 1];
   }
+  
+  this.snapState();
 }
 
 
@@ -131,7 +136,7 @@ ROKServerGame.prototype.updateState = function(field, value, log) {
     // hierarchical structure; The string needs to be sliced down to parts so
     // we can update the correct attribute.
     var parts = field.split("__");
-  
+
     if (parts.length == 1) {
       this[parts[0]] = value;
     }
@@ -189,7 +194,6 @@ ROKServerGame.prototype.updateState = function(field, value, log) {
  */
 ROKServerGame.prototype.snapState = function() {
   console.log("ROKServerGame.prototype.snapState");
-  console.log(this);
   
   // Generate an object to be sent instead of "this", as the game object
   // contains data we don't want to send to the clients.
@@ -249,11 +253,7 @@ ROKServerGame.prototype.sendStateChanges = function() {
  */
 ROKServerGame.prototype.getMonster = function(monster_id) {
   console.log('ROKServerGame.prototype.getMonster ' + monster_id);
-  for(var m in this.monsters) {
-    if (this.monsters[m].id == monster_id) {
-      return this.monsters[m];
-    }
-  }
+  return this.monsters[monster_id];
 }
 
 
@@ -353,6 +353,7 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
   console.log('ROKServerGame.prototype.rollDice');
 
   var monster = this.getMonster(player.monster_id);
+  console.log(this.monsters);
       
   // TODO only roll the not-kept dice.
   if (this.game_state == 'play') {
@@ -489,43 +490,47 @@ ROKServerGame.prototype.resolveDice = function(player) {
  * @param monster_id Integer The id of the monster being selected
  *
  */
-ROKServerGame.prototype.selectMonster = function (player, monster_id) {
-  // TODO: Make sure the monster isn't selected already
-  console.log("ROKServerGame.prototype.selectMonster");
+ROKServerGame.prototype.selectMonster = function (player, selected_monster_id) {
+  console.log("ROKServerGame.prototype.selectMonster " + selected_monster_id);
   
   if (this.game_state == "select_monsters") {
-    // Check that the player hasn't already selected a monster.
-    if (player.monster_id == 0) {
-      player.monster_id = monster_id;
-      
-      // Set monster to player:
-      for (var i = 0; i < this.monsters.length; i++) {
-        if (this.monsters[i].id == monster_id) {
-          this.monsters[i].player_id = player.id;
+    // Check that the monster hasn't been selected already
+    if (this.monsters[selected_monster_id].player_id == 0) {
+      // Check that the player hasn't already selected a monster.
+      if (player.monster_id == 0) {
+        // Set monster to player:
+        player.monster_id = selected_monster_id;
+
+        // Set player to monster
+        this.updateState('monsters__' + selected_monster_id + '__player_id', player.id);
+
+        // If this was the last player to select a monster, advance the game state.
+        var ready = 1;
+        for (var game_player_id in this.player_ids) {
+          if (this.players[game_player_id].monster_id == 0) {
+            ready = 0;
+          }
         }
-      }
-      
-      // If this was the last player to select a monster, advance the game state.
-      var ready = 1;
-      for (var game_player_id in this.player_ids) {
-        if (this.players[game_player_id].monster_id == 0) {
-          ready = 0;
+    
+        if (ready) {
+          // Start the game
+          this.beginGame();
+          this.snapState();
         }
+    
+        this.sendStateChanges();
       }
-      
-      if (ready) {
-        // Start the game
-        this.beginGame();
-        this.snapState();
-      }
-      
-      this.sendStateChanges();
+      else {
+        console.log('already selected error');
+        var msg = "You have already selected a monster.";
+        player.getSocket().emit("game_message", msg);
+      }  
     }
     else {
-      console.log('already selected error');
-      var msg = "You have already selected a monster.";
-      player.getSocket().emit("game_message", msg);
-    }  
+      console.log('ERROR monster already selected');
+      var msg = "That monster is already selected.";
+      player.getSocket().emit("game_message", msg);       
+    }
   }
   else {
     console.log('not in monster_selection error');
@@ -549,11 +554,12 @@ ROKServerGame.prototype.beginGame = function() {
   for (var p in this.player_ids) {
     played_monsters.push(this.players[p].monster_id);
   }
-  console.log(played_monsters);
-  var new_monsters = [];
-  for (var i = 0; i < this.monsters.length; i++) {
-    if (played_monsters.indexOf(this.monsters[i].id) != -1) {
-      new_monsters.push(this.monsters[i]);
+
+  var new_monsters = {};
+  var monster_ids = Object.keys(this.monsters);
+  for (var i = 0; i < monster_ids.length; i++) {
+    if (played_monsters.indexOf(this.monsters[monster_ids[i]].id) != -1) {
+      new_monsters[monster_ids[i]] = this.monsters[monster_ids[i]];
     }
   }
   this.monsters = new_monsters;

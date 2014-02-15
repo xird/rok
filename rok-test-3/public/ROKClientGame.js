@@ -26,11 +26,15 @@ ROKGame.prototype.initClient = function() {
     game.dice = data.dice;
     game.this_monster = data.this_monster;
     
-    if (data.game_state == "select_monsters") {
-      $('#dev2 .lobby').hide();
+    if (data.game_state == "lobby") {
+      $('#dev2 .lobby').show();
+      $('#dev2 .monster_selection').hide();    
       $('#dev2 .game').hide();
+    }
+    else if (data.game_state == "select_monsters") {
+      $('#dev2 .lobby').hide();
       $('#dev2 .monster_selection').show();
-      // TODO currently selected monsters should probably be highlighted.
+      $('#dev2 .game').hide();
     }
     else {
       $('#dev2 .lobby').hide();
@@ -38,8 +42,6 @@ ROKGame.prototype.initClient = function() {
       $('#dev2 .game').show();
     
       // Write initial values to all UI elements.
-      // TODO: monster_order should define the order the monster ids are laid out
-      //       in the UI.
       $('#this_monster').html(data.this_monster);
       $('#game_state').html(data.game_state);
       $('#turn_phase').html(data.turn_phase);
@@ -47,17 +49,59 @@ ROKGame.prototype.initClient = function() {
       $('#next_input_from_monster').html(data.next_input_from_monster);
       $('#roll_number').html(data.roll_number);
       $('#monster_order').html(utils.dump(data.monster_order));
-      for (var i = 0; i < data.monsters.length; i++) {
-        $('#monster__' + data.monsters[i].id + '__health').html(data.monsters[i].health);
-        $('#monster__' + data.monsters[i].id + '__victory_points').html(data.monsters[i].victory_points);
-        $('#monster__' + data.monsters[i].id + '__energy').html(data.monsters[i].energy);
-        $('#monster__' + data.monsters[i].id + '__in_tokyo_city').html(data.monsters[i].in_tokyo_city);
-        $('#monster__' + data.monsters[i].id + '__in_tokyo_bay').html(data.monsters[i].in_tokyo_bay);
-        $('#monster__' + data.monsters[i].id + '__name').html(data.monsters[i].name);
+      
+      // Place monsters starting from the monsters that's next in sequence from
+      // the current player's monster. That one is shown on the top slot.
+      var own_monster_index = game.monster_order.indexOf(game.this_monster);
+      var first_monster_index = own_monster_index + 1;
+      if (first_monster_index == game.monster_order.length) {
+        first_monster_index = 0;
       }
+      
+      var monsters_placed = 0;
+      var index = first_monster_index;
+      while (monsters_placed < game.monster_order.length) {
+        console.log('Placing monster index ' + index + ", id " + game.monster_order[index]);
+        // TODO clean up to use transforms
+        var html = '      <tr>\
+        <th>Monster ' + game.monster_order[index] + '</th>\
+        <td id="monster__' + game.monster_order[index] + '__health"></td>\
+        <td id="monster__' + game.monster_order[index] + '__victory_points"></td>\
+        <td id="monster__' + game.monster_order[index] + '__energy"></td>\
+        <td id="monster__' + game.monster_order[index] + '__in_tokyo_city"></td>\
+        <td id="monster__' + game.monster_order[index] + '__in_tokyo_bay"></td>\
+        <td id="monster__' + game.monster_order[index] + '__name"></td></tr>';
+                
+        index++;
+        monsters_placed++;
+        if (index == game.monster_order.length) {
+          index = 0;
+        }
+        
+        // If we're placing the last monster, it must be the player's monster.
+        if (monsters_placed != game.monster_order.length) {
+          $("#enemy_monsters").append(html);
+        }
+        else {
+          $("#own_monster").append(html);        
+        }
+
+      }
+      
+      // The slots have been generated, now add the actual data.
+      var monster_ids = Object.keys(data.monsters);
+      for (var i = 0; i < monster_ids.length; i++) {
+        $('#monster__' + data.monsters[monster_ids[i]].id + '__health').html(data.monsters[monster_ids[i]].health);
+        $('#monster__' + data.monsters[monster_ids[i]].id + '__victory_points').html(data.monsters[monster_ids[i]].victory_points);
+        $('#monster__' + data.monsters[monster_ids[i]].id + '__energy').html(data.monsters[monster_ids[i]].energy);
+        $('#monster__' + data.monsters[monster_ids[i]].id + '__in_tokyo_city').html(data.monsters[monster_ids[i]].in_tokyo_city);
+        $('#monster__' + data.monsters[monster_ids[i]].id + '__in_tokyo_bay').html(data.monsters[monster_ids[i]].in_tokyo_bay);
+        $('#monster__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
+      }
+      
       for (var i = 0; i < data.dice.length; i++) {
         $('#dice__' + i + '__value').html(data.dice[i].value);
-        $('#dice__' + i + '__state').html(data.dice[i].state);
+        $('#dice__' + i + '__value').addClass(data.dice[i].state);
       }    
     }
   });
@@ -85,7 +129,7 @@ ROKGame.prototype.initClient = function() {
   // UI event handlers
   
   // Monster selection
-  $("#dev2 .monster_select_button").on("click", function() {
+  $(".monster_select_button").on("click", function() {
     console.log('dev2 select monster ' + $(this).data('monster_id'));
     socket.emit("select_monster", $(this).data('monster_id'));
   });
@@ -130,7 +174,7 @@ ROKGame.prototype.handleUpdates = function(updates) {
     if (update.log) {
       this.addToLog(update.log);    
     }
-console.log(utils.dump(update));
+    console.log(utils.dump(update));
     console.log(update.handler);
     if (typeof this[update.handler] == "function") {
       // TODO FIXME monsters!
@@ -168,10 +212,17 @@ ROKGame.prototype.handle__game_state = function(new_state) {
 
 ROKGame.prototype.handle__dice__state = function(new_state, id) {
   game.dice[id].state = new_state;
-  $("#dice__" + id + "__state").html(new_state);
+  $("#dice__" + id + "__value").removeClass();
+  $("#dice__" + id + "__value").addClass(new_state);
 }
 
 ROKGame.prototype.handle__dice__value = function(new_value, id) {
   game.dice[id].value = new_value;
   $("#dice__" + id + "__value").html(new_value);
+}
+
+ROKGame.prototype.handle__monsters__player_id = function(new_player_id, id) {
+  console.log("ROKGame.prototype.handle__monsters__player_id");
+  game.monsters[id].player_id = new_player_id;
+  $("#monster_select_button_" + id).addClass('selected');
 }

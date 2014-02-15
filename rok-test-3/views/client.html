@@ -88,12 +88,12 @@ $(document).ready(function() {
   
   <div class="monster_selection">
     <h2>Select monster</h2>
-    <input type="button" class="monster_select_button" data-monster_id="1" value="Select 1"/>
-    <input type="button" class="monster_select_button" data-monster_id="2" value="Select 2"/>
-    <input type="button" class="monster_select_button" data-monster_id="3" value="Select 3"/>
-    <input type="button" class="monster_select_button" data-monster_id="4" value="Select 4"/>
-    <input type="button" class="monster_select_button" data-monster_id="5" value="Select 5"/>
-    <input type="button" class="monster_select_button" data-monster_id="6" value="Select 6"/>
+    <input type="button" id="monster_select_button_1" class="monster_select_button" data-monster_id="1" value="Select 1"/>
+    <input type="button" id="monster_select_button_2" class="monster_select_button" data-monster_id="2" value="Select 2"/>
+    <input type="button" id="monster_select_button_3" class="monster_select_button" data-monster_id="3" value="Select 3"/>
+    <input type="button" id="monster_select_button_4" class="monster_select_button" data-monster_id="4" value="Select 4"/>
+    <input type="button" id="monster_select_button_5" class="monster_select_button" data-monster_id="5" value="Select 5"/>
+    <input type="button" id="monster_select_button_6" class="monster_select_button" data-monster_id="6" value="Select 6"/>
   </div>
   
   <div class="game">
@@ -129,7 +129,31 @@ $(document).ready(function() {
       </tr>
     </table>
     
-    <table>
+    <table id="enemy_monsters">
+      <tr>
+        <th></th>
+        <th>health</th>
+        <th>victory_points</th>
+        <th>energy</th>
+        <th>in_tokyo_city</th>
+        <th>in_tokyo_bay</th>
+        <th>name</th>
+      </tr>
+    </table>
+    
+    <table id="own_monster">
+      <tr>
+        <th></th>
+        <th>health</th>
+        <th>victory_points</th>
+        <th>energy</th>
+        <th>in_tokyo_city</th>
+        <th>in_tokyo_bay</th>
+        <th>name</th>
+      </tr>
+    </table>
+    
+    <!--table>
       <tr>
         <th></th>
         <th>health</th>
@@ -193,33 +217,11 @@ $(document).ready(function() {
         <td id="monster__6__in_tokyo_bay"></td>
         <td id="monster__6__name"></td>
       </tr>
-    </table>
+    </table-->
     
     <table>
-      <tr>
-        <th></th>
-        <th>Die 0</th>
-        <th>Die 1</th>
-        <th>Die 2</th>
-        <th>Die 3</th>
-        <th>Die 4</th>
-        <th>Die 5</th>
-        <th>Die 6</th>
-        <th>Die 7</th>
-      </tr>
-      <tr>
-        <th>State</th>
-        <td id="dice__0__state"></td>
-        <td id="dice__1__state"></td>
-        <td id="dice__2__state"></td>
-        <td id="dice__3__state"></td>
-        <td id="dice__4__state"></td>
-        <td id="dice__5__state"></td>
-        <td id="dice__6__state"></td>
-        <td id="dice__7__state"></td>
-      </tr>
-      <tr>
-        <th>Value</th>
+      <tr id="dice">
+        <th>Dice</th>
         <td id="dice__0__value"></td>
         <td id="dice__1__value"></td>
         <td id="dice__2__value"></td>

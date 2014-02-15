@@ -61,8 +61,6 @@ ROKServerLobby.prototype.snapState = function () {
  */
 ROKServerLobby.prototype.invitePlayer = function (inviter, invitee) {
   console.log("ROKServerLobby.prototype.invitePlayer");
-  console.log(inviter);
-  console.log(invitee);
   
   // Check that the inviter has created a new game.
   if (inviter.game_id) {
