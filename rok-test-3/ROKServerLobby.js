@@ -67,8 +67,6 @@ ROKServerLobby.prototype.snapState = function () {
 
   arr = [];
   for(var i in this.players) {
-    // TODO: Only push players that are not in a confirmed game.
-
     arr.push(this.players[i]);
   }
   

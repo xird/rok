@@ -617,8 +617,7 @@ ROKServerGame.prototype.confirmGame = function(player) {
       
       // Send the game status change
       this.sendStateChanges();
-      
-      // TODO: Update the players list to remove the playing players from the list.
+
       return true;
     }
     else {
