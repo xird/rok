@@ -429,17 +429,26 @@ ROKServerGame.prototype.resolveDice = function(player) {
   this.updateState("turn_phase", 'resolve');
   this.updateState("roll_number", 1);
   
-  // TODO resolve money dice
-  //     - increment money
-  //       - and take cards into account
-  //         - "Friend of children"
+  // CARDS: take cards into account: "Friend of children", etc.
+  var new_energy = 0;
+  console.log(this.dice);
+  for (var i = 0; i < this.dice.length; i++) {
+    console.log(this.dice[i]);
+    // TODO set state "n" for dice not in use
+    if (this.dice[i].value == 'e') {
+      new_energy++;
+    }
+  }
+  console.log('new_energy: '+new_energy);
+  var old_energy = this.monsters[player.monster_id].energy;
+  this.updateState("monsters__" + player.monster_id + "__energy", old_energy + new_energy);
   
   // Resolve attack dice.
   var damage = 0;
   // TODO take into account extra dice ("Extra head" card)
   for (var i = 0; i < 6; i++) {
     // TODO check dice attr format
-    if (this.dice[i] == "P") {
+    if (this.dice[i] == "p") {
       damage++;
     }
   }
@@ -603,6 +612,8 @@ ROKServerGame.prototype.addPlayer = function(player) {
     // Update the game itself
     this.players[player.id] = player;
     this.player_ids[player.id] = player.id;
+    
+    this.snapState();
   }
   else {
     console.log('ERROR: The player is already in the game.');

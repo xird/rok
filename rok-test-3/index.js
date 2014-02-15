@@ -212,9 +212,6 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
     // Select monsters
     var i = 2;
     for (var p in game.player_ids) {
-      // Note: We're manually creating the "current" object, which is hacky, but
-      // that's ok since this is for debugging only; normally the players select
-      // their own monsters.
       game.selectMonster(players[p], i);
       i++;
     }

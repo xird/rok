@@ -46,16 +46,6 @@ ROKGame.prototype.initClient = function() {
       }
      
       $('#monster_select_buttons').json2html(monster_select_buttons, transforms.monster_select_buttons);
-      
-      /*
-
-    <input type="button" id="monster_select_button_1" class="monster_select_button" data-monster_id="1" value="Select 1"/>
-    <input type="button" id="monster_select_button_2" class="monster_select_button" data-monster_id="2" value="Select 2"/>
-    <input type="button" id="monster_select_button_3" class="monster_select_button" data-monster_id="3" value="Select 3"/>
-    <input type="button" id="monster_select_button_4" class="monster_select_button" data-monster_id="4" value="Select 4"/>
-    <input type="button" id="monster_select_button_5" class="monster_select_button" data-monster_id="5" value="Select 5"/>
-    <input type="button" id="monster_select_button_6" class="monster_select_button" data-monster_id="6" value="Select 6"/>
-      */
     }
     else {
       $('#lobby').hide();
@@ -86,12 +76,12 @@ ROKGame.prototype.initClient = function() {
         // TODO clean up to use transforms
         var html = '      <tr>\
         <th>Monster ' + game.monster_order[index] + '</th>\
-        <td id="monster__' + game.monster_order[index] + '__health"></td>\
-        <td id="monster__' + game.monster_order[index] + '__victory_points"></td>\
-        <td id="monster__' + game.monster_order[index] + '__energy"></td>\
-        <td id="monster__' + game.monster_order[index] + '__in_tokyo_city"></td>\
-        <td id="monster__' + game.monster_order[index] + '__in_tokyo_bay"></td>\
-        <td id="monster__' + game.monster_order[index] + '__name"></td></tr>';
+        <td id="monsters__' + game.monster_order[index] + '__health"></td>\
+        <td id="monsters__' + game.monster_order[index] + '__victory_points"></td>\
+        <td id="monsters__' + game.monster_order[index] + '__energy"></td>\
+        <td id="monsters__' + game.monster_order[index] + '__in_tokyo_city"></td>\
+        <td id="monsters__' + game.monster_order[index] + '__in_tokyo_bay"></td>\
+        <td id="monsters__' + game.monster_order[index] + '__name"></td></tr>';
                 
         index++;
         monsters_placed++;
@@ -112,12 +102,12 @@ ROKGame.prototype.initClient = function() {
       // The slots have been generated, now add the actual data.
       var monster_ids = Object.keys(data.monsters);
       for (var i = 0; i < monster_ids.length; i++) {
-        $('#monster__' + data.monsters[monster_ids[i]].id + '__health').html(data.monsters[monster_ids[i]].health);
-        $('#monster__' + data.monsters[monster_ids[i]].id + '__victory_points').html(data.monsters[monster_ids[i]].victory_points);
-        $('#monster__' + data.monsters[monster_ids[i]].id + '__energy').html(data.monsters[monster_ids[i]].energy);
-        $('#monster__' + data.monsters[monster_ids[i]].id + '__in_tokyo_city').html(data.monsters[monster_ids[i]].in_tokyo_city);
-        $('#monster__' + data.monsters[monster_ids[i]].id + '__in_tokyo_bay').html(data.monsters[monster_ids[i]].in_tokyo_bay);
-        $('#monster__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__health').html(data.monsters[monster_ids[i]].health);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__victory_points').html(data.monsters[monster_ids[i]].victory_points);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__energy').html(data.monsters[monster_ids[i]].energy);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_tokyo_city').html(data.monsters[monster_ids[i]].in_tokyo_city);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_tokyo_bay').html(data.monsters[monster_ids[i]].in_tokyo_bay);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
       }
       
       for (var i = 0; i < data.dice.length; i++) {
@@ -218,7 +208,7 @@ ROKGame.prototype.handleUpdates = function(updates) {
       this.addToLog(update.log);    
     }
     //console.log(utils.dump(update));
-    //console.log(update.handler);
+    console.log('Handler: ' + update.handler);
     if (typeof this[update.handler] == "function") {
       // TODO FIXME monsters!
       // If we get an update with a multipart element, that means we _must_ have

@@ -79,9 +79,9 @@ ROKUtils.prototype.dieRoll = function () {
     1,
     2,
     3,
-    'P',
-    'H',
-    'E'
+    'p',
+    'h',
+    'e'
   ];
   var r = this.getRandomInt(0, 5);
   return faces[r];
