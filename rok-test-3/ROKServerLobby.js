@@ -91,7 +91,6 @@ ROKServerLobby.prototype.invitePlayer = function (inviter, invitee) {
   if (inviter.game_id) {
     // Add the player in the game object.
     inviter.getGame().addPlayer(invitee);
-    // TODOO only sending to inviter?
   }
   else {
     console.log('no game error');

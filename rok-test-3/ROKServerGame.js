@@ -255,11 +255,10 @@ ROKServerGame.prototype.getMonster = function(monster_id) {
 /**
  * Moves the game to the turn phase where the user can buy cards.
  *
- * TODO:
- *     - Optionally buy cards if there's money
- *       - "Alien metabolism"
- *     - Resolve any discard cards
- *       - check win
+ * TODO: Buy cards if there's money - skip the buy phase if there isn't
+ * CARDS: "Alien metabolism"
+ * TODO: Resolve any discard cards
+ * TODO:  check win
  */
 ROKServerGame.prototype.buyCards = function() {
   console.log("ROKServerGame.prototype.buyCards");
@@ -353,12 +352,9 @@ ROKServerGame.prototype.endTurn = function() {
 
 /**
  * Player rolling dice.
- * TODO:
- *       - take cards into account
- *         - bg dweller
- *     - Number of rerolls defaults to two, but:
- *       - Check if there are cards that give (optional) rerolls
- *       - Not all rerolls affect all dice (reroll any "3"s for example)
+ *
+ * CARDS: Background dweller
+ * CARDS: Additional full reroll cards
  *
  * @param keep_dice_ids array The ids of the dice that are not to be
  * re-rolled.
@@ -526,15 +522,14 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
       this.updateState("monsters__" + target_monsters[i] + '__health', old_health - damage, log_message);
 
       
-      // TODO:
-      //     - check if anyone died
-      //       - check win
-      //       - check any cards that react to deaths
-      //     - damaged monster in Kyoto?
-      //       - Yield input
-      //         - Increment VP
-      //       - Figure out card "Jets" - decrement health and then restore, or don't decrement
-      //         - Must do the latter, otherwise death might be triggered  
+      // TODO: Check deaths
+      // TODO: Check win
+      // CARDS: Death reaction cards
+
+
+      // TODO     - damaged monster in Kyoto? -> Yield input
+      // TODO Increment VP if target yields and kyoto is captured
+      // CARDS: Figure out card "Jets" - Don't decrement health when yielding
     }
     
     // TODO if monster(s) in Kyoto damaged, move game to "yield" state (?)
@@ -614,7 +609,7 @@ ROKServerGame.prototype.resolveVPDice = function(player) {
   // TODO: Resolve VP dice
   //     - Add rolled numbers to VPs
   //       - Take number roll modifier cards into account
-  //     - TODO: players should be allowed to resolve dice in any order
+  // TODO: players should be allowed to resolve dice in any order
 }
 
 
