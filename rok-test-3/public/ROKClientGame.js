@@ -159,11 +159,33 @@ ROKGame.prototype.initClient = function() {
   // Roll dice.
   $('#game').on("click", ".roll_dice_button", function(){
     console.log('dev2 roll_dice');
-    // TODO: Define dice to keep
-    socket.emit("roll_dice", {keep_dice_ids: []});
+    
+    var keep_dice_ids = [];
+    
+    $('#dice td').each(function(){
+      if ($(this).hasClass('k')) {
+        keep_dice_ids.push($(this).data('die_id'));
+      }
+    });
+    
+    console.log(keep_dice_ids);
+    
+    socket.emit("roll_dice", keep_dice_ids);
   });
 
 
+  // Toggle dice keep states
+  $('#dice').on("click", "td", function(){
+    console.log('die keep status toggle');
+    if ($(this).hasClass("r")) {
+      $(this).removeClass("r").addClass("k");
+    }
+    else if ($(this).hasClass("k")) {
+      $(this).removeClass("k").addClass("r");    
+    }
+  });
+  
+  
   // Finish buying cards.
   $('#game').on("click", ".done_buying_button", function(){
     console.log('dev2 done buying');
@@ -195,8 +217,8 @@ ROKGame.prototype.handleUpdates = function(updates) {
     if (update.log) {
       this.addToLog(update.log);    
     }
-    console.log(utils.dump(update));
-    console.log(update.handler);
+    //console.log(utils.dump(update));
+    //console.log(update.handler);
     if (typeof this[update.handler] == "function") {
       // TODO FIXME monsters!
       // If we get an update with a multipart element, that means we _must_ have

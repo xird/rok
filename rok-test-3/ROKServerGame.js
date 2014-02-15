@@ -345,9 +345,8 @@ ROKServerGame.prototype.endTurn = function() {
  */
 ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
   console.log('ROKServerGame.prototype.rollDice');
-
-  var monster = this.getMonster(player.monster_id);
-  console.log(this.monsters);
+  
+  var monster = this.monsters[player.monster_id];
       
   // TODO only roll the not-kept dice.
   if (this.game_state == 'play') {
@@ -355,14 +354,22 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
     if (this.turn_phase == 'roll') {
       console.log('    phase roll');
       if (this.turn_monster == player.monster_id) {
-        console.log("It's this monster's turn");
+        console.log("      It's this monster's turn");
         if (this.roll_number <= monster.number_of_rolls) {
-          console.log('      monster has rolls');
+          console.log('        monster has rolls');
           // TODO: take into account possible extra dice
           for (var i = 0; i < 6; i++) {
-            console.log('Rolling');
-            var roll = utils.dieRoll();
-            this.updateState("dice__" + i + "__value", roll, "Die " + i + " was rolled to " + roll);
+            console.log('        Rolling?');
+            // Roll only dice that are not kept
+            if (keep_dice_ids.indexOf(i) == -1) {
+              console.log('          Rolling.');
+              var roll = utils.dieRoll();
+              this.updateState("dice__" + i + "__value", roll, "Die " + i + " was rolled to " + roll);            
+            }
+            else {
+              this.updateState("dice__" + i + "__state", 'k');              
+            }
+
             // If there are no more re-rolls, set dice states to f.
             if (this.roll_number == monster.number_of_rolls) {
               this.updateState("dice__" + i + "__state", 'f');
@@ -375,6 +382,7 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
               }
             }
           }
+          
           if (this.roll_number < monster.number_of_rolls) {
             var new_roll_number = this.roll_number + 1;
             console.log('new: ' + new_roll_number);
