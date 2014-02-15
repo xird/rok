@@ -311,13 +311,10 @@ ROKServerGame.prototype.endTurn = function() {
     }
   }
 
+  // Turn end.
   this.updateState("turn_phase", 'end');
-    
-  // TODO Do all the turn-end related processing.
-  /**
-   *     - Resolve poison counters
-   *       - TODO: Check if this is done on the poisoned monster's turn or the poisoning monster's turn
-   */
+  // CARDS: Resolve poison counters. Check if this is done on the poisoned monster's turn or the poisoning monster's turn
+
   
   // Advance to the next player's turn.
   this.updateState("turn_phase", 'start');
@@ -332,18 +329,17 @@ ROKServerGame.prototype.endTurn = function() {
   this.updateState("turn_monster", this.monster_order[next_monster_index]);
   this.updateState("next_input_from_monster", this.monster_order[next_monster_index]);
     
-  // TODO resolve all start-of-turn things
-  /**
-   *     - Beginning of a player's turn
-   *     - If in Kyoto, increment VP
-   *     - Resolve card effects
-   *       - Urbavore
-   */
-   
-  this.sendStateChanges();
-  
-  // Note that we want to separately send turn start changes, then advance to
-  // "roll" phase, and send changes again.
+    
+  // Beginning of a player's turn.
+  // If in Kyoto, increment VP.
+  if (this.monsters[this.turn_monster].in_tokyo_city || this.monsters[this.turn_monster].in_tokyo_city) {
+    // CARDS: Resolve card effects: Urbavore
+    var additional_victory_points = 2;
+    var old_victory_points = this.monsters[this.turn_monster].victory_points;
+    var new_victory_points = old_victory_points + additional_victory_points;
+    this.updateState('monsters__' + this.turn_monster + '__victory_points', new_victory_points);
+    // TODO win check
+  }
   
   this.updateState("turn_phase", 'roll');
   this.sendStateChanges();
@@ -542,6 +538,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     this.updateState("monsters__" + player.monster_id + "__in_tokyo_city", 1);
     var old_victory_points = this.monsters[player.monster_id].victory_points;
     this.updateState("monsters__" + player.monster_id + "__victory_points", old_victory_points + 1);
+    // No need to check for win, as this has to be the beginning of the game.
     
     // Note that buyCards() will send state changes.
     this.buyCards();

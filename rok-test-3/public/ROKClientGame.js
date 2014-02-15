@@ -264,7 +264,6 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
   
   // Note: "this_monster" needs to always be updated before turn_phase, or this
   // will never remove the disabled-attribute.
-  
   if (update.value == 'roll') {
     if (game.turn_monster == game.this_monster) {
       $('#roll_dice_button').removeAttr('disabled');
