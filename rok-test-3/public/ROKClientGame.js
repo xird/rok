@@ -3,6 +3,8 @@
  *
  * Base class is in ROKGame.js
  *
+ * FIXME If another player snaps status, this player get duplicate rows in monster tables
+ *
  */
 ROKGame.prototype.initClient = function() {
   console.log("ROKGame.prototype.initClient");
@@ -118,7 +120,13 @@ ROKGame.prototype.initClient = function() {
       // Enable the roll button if this is the current monster.
 
       if (game.turn_monster == game.this_monster) {
-        $('#roll_dice_button').removeAttr('disabled');
+        if (game.turn_phase == 'roll') {
+          $('#roll_dice_button').removeAttr('disabled');
+        }
+        if (game.turn_phase == 'buy') {
+          $('#done_buying_button').removeAttr('disabled');
+        }
+
       }
     }
   });
@@ -155,6 +163,8 @@ ROKGame.prototype.initClient = function() {
   // Roll dice.
   $('#game').on("click", "#roll_dice_button", function(){
     console.log('dev2 roll_dice');
+    
+    $(this).attr('disabled', true);
     
     var keep_dice_ids = [];
     
@@ -221,19 +231,26 @@ ROKGame.prototype.handleUpdates = function(updates) {
   console.log('Handler: ' + update.handler);
   
   if (typeof this[update.handler] == "function") {
-    //this[update.handler](update.value, update.id);
+    // Specific handler exists, call it
     this[update.handler](updates);
   }
   else if (update.element) {
+    // No handler, just update matching DOM element
     game[update.element] = update.value;
     $("#" + update.element).html(update.value);
+    updates.shift();
+    this.handleUpdates(updates);
+  }
+  else {
+    // It was just a log message
     updates.shift();
     this.handleUpdates(updates);
   }
 }
 
 ROKGame.prototype.addToLog = function(str) {
-  // TODO
+  $('#log').append('<p>'+str+'<p>');
+  $('#log').scrollTop($('#log')[0].scrollHeight);
 }
 
 /**
@@ -252,6 +269,18 @@ ROKGame.prototype.handle__game_state = function(updates) {
       $("#game").show();
       break;
   }
+  this.handleUpdates(updates);
+}
+
+ROKGame.prototype.handle__roll_number = function(updates) {
+  var update = updates.shift();
+  console.log("ROKGame.prototype.handle__roll_number to " + update.value);
+  game.roll_number = update.value;
+  $('#roll_number').html(update.value);
+  if (game.turn_monster == game.this_monster) {
+    $('#roll_dice_button').removeAttr('disabled');  
+  }
+
   this.handleUpdates(updates);
 }
 
@@ -288,10 +317,7 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
     $('#done_buying_button').attr('disabled', true);    
   }
   
-  
-  
-  game.handleUpdates(updates);
-  
+  game.handleUpdates(updates); 
 }
 
 ROKGame.prototype.handle__dice__state = function(updates) {

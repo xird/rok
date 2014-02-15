@@ -92,7 +92,7 @@ $(document).ready(function() {
   
   <div id="game">
     <h2>Game</h2>
-    <table>
+    <table id="game_data">
       <tr>
         <th>game_state</th>
         <td id="game_state"></td>
@@ -110,10 +110,6 @@ $(document).ready(function() {
         <td id="next_input_from_monster"></td>
       </tr>
       <tr>
-        <th>roll_number</th>
-        <td id="roll_number"></td>
-      </tr>
-      <tr>
         <th>monster_order</th>
         <td id="monster_order"></td>
       </tr>
@@ -122,6 +118,9 @@ $(document).ready(function() {
         <td id="this_monster"></td>
       </tr>
     </table>
+    
+    <div id="log">
+    </div>
     
     <table id="enemy_monsters">
       <tr>
@@ -158,6 +157,8 @@ $(document).ready(function() {
         <td id="dice__5__value" data-die_id="5"></td>
         <td id="dice__6__value" data-die_id="6"></td>
         <td id="dice__7__value" data-die_id="7"></td>
+        <th>Roll number</th>
+        <td id="roll_number"></td>
       </tr>
     </table>
     
