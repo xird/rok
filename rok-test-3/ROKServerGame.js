@@ -1120,7 +1120,15 @@ ROKServerGame.prototype.leaveGame = function(player) {
 
   if (this.game_state == 'over') {
     // Normal case, players leaving after game ends.
-    // TODO: If this was the last player leaving, delete the game
+    var monster_order = this.monster_order;
+    var index = monster_order.indexOf(monster_id_used);
+    if (index != -1) {
+      monster_order.splice(index, 1);
+      console.log("mo:");
+      console.log(monster_order);
+      this.updateState('monster_order', monster_order);
+    }    
+    
     // Note: The player is added to the lobby in index.js.
   }
   else {
@@ -1155,6 +1163,9 @@ ROKServerGame.prototype.leaveGame = function(player) {
   
     this.sendStateChanges();
   }
+  
+  // Note: After the last player has left the game, the game will be cleaned up
+  // in cleanUpIdlePlayers().
 }
 
 

@@ -127,6 +127,15 @@ var cleanUpIdlePlayers = function () {
     lobby.snapState();
   }
   
+  // Clean up empty games. If any games ended up without players due to the
+  // cleanup, or because the game ended and all the players left, delete those
+  // games as well.
+  for (var game_id in games) {
+    if (games[game_id].monster_order.length == 0) {
+      delete games[game_id];
+    }
+  }
+  
   setTimeout(cleanUpIdlePlayers, 5000);
 }
 cleanUpIdlePlayers();
