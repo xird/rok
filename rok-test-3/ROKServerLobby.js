@@ -82,6 +82,15 @@ ROKServerLobby.prototype.snapState = function () {
   for (var pid in this.players) {
     send_object.this_player_id = pid;
     send_object.this_player_game_id = this.players[pid].game_id;
+    send_object.this_player_mode = this.players[pid].mode;
+    // The current number of players in the current player's game:
+    if (typeof this.players[pid].getGame() == 'object') {
+      send_object.this_game_players = Object.keys(this.players[pid].getGame().players).length;    
+    }
+    else {
+      send_object.this_game_players = 0;
+    }
+
     var player_object = this.players[pid];
     var target_socket = io.sockets.socket(player_object.socket_id);
     target_socket.emit("update_lobby", send_object);

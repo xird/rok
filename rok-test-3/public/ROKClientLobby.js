@@ -3,8 +3,7 @@
  *
  * Base class is in ROKLobby.js
  *
- * TODO only show confirm_game_button when there are enough players in the game.
- * TODO disable new game button once invitation is accepted
+ * TODO add "leave game" button for invited users
  */
 ROKLobby.prototype.initClient = function() {
   console.log("ROKLobby.prototype.initClient");
@@ -37,18 +36,52 @@ ROKLobby.prototype.initClient = function() {
    */
   socket.on('update_lobby', function updateLobby(data) {
     console.log("updateLobby");
-    
-    lobby.players = data.players;
-    lobby.this_player_id = data.this_player_id;
-    lobby.this_player_game_id = data.this_player_game_id;
-    
-    $('#lobby').show();
-    $('#game').hide();
-    
     //console.log(utils.dump(data));
     
-    var transform = [
+    // Update the client side lobby object.
+    lobby.players = data.players;
+    lobby.this_player_id = data.this_player_id;
+    lobby.this_player_mode = data.this_player_mode;
+    lobby.this_player_game_id = data.this_player_game_id;
+    lobby.this_game_players = data.this_game_players;
+    console.log(utils.dump(lobby));
+    
+    // In case this is being called after a player has left a game:
+    $('#lobby').show();
+    $('#game').hide();
 
+
+    // Handle lobby button states.
+    
+    // If a game host has enough players in the game, show confirm_game_button.
+    if (lobby.this_player_mode == 'host' && lobby.this_game_players > 1) {
+      $('#confirm_game_button').removeClass("hidden");
+      $('#confirm_game_button').removeAttr("disabled");
+    }
+    else {
+      $('#confirm_game_button').addClass("hidden");
+    }
+    
+    // If the current player isn't in a game, allow them to create a new game.
+    if (!lobby.this_player_game_id) {
+      $('#new_game_button').removeClass("hidden");
+      $('#new_game_button').removeAttr("disabled");
+    }
+    else {
+      $('#new_game_button').addClass("hidden");
+    }
+    
+    // If the current player is a host, they can cancel the game.
+    if (lobby.this_player_mode == "host") {
+      $('#cancel_game_button').removeClass("hidden");
+      $('#cancel_game_button').removeAttr("disabled");
+    }
+    else {
+      $('#cancel_game_button').addClass("hidden");  
+    }    
+    
+    // Generate the players table.
+    var transform = [
         {tag: 'tr', children: [
         {tag: 'td', html: "${name}"},
         {tag: 'td', html: "${mode}"},
@@ -123,11 +156,8 @@ ROKLobby.prototype.initClient = function() {
   // Creates a new game, making the player the host for this game.
   $('#new_game_button').on("click", function newGame(){
     console.log('newGame');
-    $('#new_game_button').addClass('hidden');
-    $('#confirm_game_button').removeClass('hidden');
-    $('#cancel_game_button').removeClass('hidden');
-    $('#cancel_game_button').removeAttr('disabled');
     socket.emit("new_game");
+    $(this).attr('disabled', true);
   });
   
   // Invite.
@@ -140,28 +170,28 @@ ROKLobby.prototype.initClient = function() {
   $('#players').on("click", ".accept_invite_button", function acceptInvite(){
     console.log('accept clicked');
     socket.emit("accept");
+    $(this).attr('disabled', true);
   });
   
   // Decline.
   $('#players').on("click", ".decline_invite_button", function declineInvite(){
     console.log('decline clicked');
     socket.emit("decline");
+    $(this).attr('disabled', true);
   });
   
   // Confirm invited players and start a new game.
   $('#confirm_game_button').on("click", function confirmGame(){
     console.log('confirmGame');
     socket.emit("confirm_game");
+    $(this).attr('disabled', true);
   });
   
   // Cancel a game instead of confirming it
   $('#cancel_game_button').on("click", function cancelGame(){
     console.log('cancelGame');
     socket.emit("cancel_game");
-
-    $('#new_game_button').removeClass('hidden');
-    $('#confirm_game_button').addClass('hidden');
-    $('#cancel_game_button').addClass('hidden');
+    $(this).attr('disabled', true);
   });
 
 }

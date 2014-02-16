@@ -131,8 +131,14 @@ var cleanUpIdlePlayers = function () {
   // cleanup, or because the game ended and all the players left, delete those
   // games as well.
   for (var game_id in games) {
-    if (games[game_id].monster_order.length == 0) {
+    console.log(game_id);
+    var game_players = games[game_id].players;
+    if (Object.keys(game_players).length == 0) {
+      console.log("Deleting empty game");
       delete games[game_id];
+    }
+    else {
+      console.log("Game still has players");
     }
   }
   
@@ -296,13 +302,21 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
   
   socket.on("accept", function lobbyAccept() {
     console.log("lobbyAccept");
-    var inviter = players[player.inviter_player_id];
-    var game = games[inviter.game_id];
-    player.invited_to_game_id = 0;
-    player.inviter_player_id = 0;
-    console.log(player);
-    game.addPlayer(player);
-    lobby.snapState();
+    if (player.inviter_player_id) {
+      var inviter = players[player.inviter_player_id];
+      var game = games[inviter.game_id];
+      player.invited_to_game_id = 0;
+      player.inviter_player_id = 0;
+      console.log(player);
+      game.addPlayer(player);
+      lobby.snapState();    
+    }
+    else {
+      console.log("ERROR: There is no invite");
+      var msg = "There is no invitation to accept.";
+      player.getSocket().emit('lobby_message', msg);      
+    }
+
   });
   
   socket.on("decline", function lobbyDecline() {
@@ -355,6 +369,8 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
    */
   socket.on("cancel_game", function lobbyCancelGame() {
     console.log('lobbyCancelGame');
+    console.log(player);
+    console.log(games);
     if (player.mode == "host") {
       var game = games[player.game_id];
       player.mode = "";
@@ -362,6 +378,11 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
       // Remove game reference from game players
       for (var pid in game.players) {
         players[pid].game_id = 0;
+        // Notify players other than the host about the cancellation.
+        if (pid != player.id) {
+          players[pid].getSocket().emit('lobby_message', "The host canceled the game.");        
+        }
+
       }
 
       // Reset invitations of invited players by looping through global players.

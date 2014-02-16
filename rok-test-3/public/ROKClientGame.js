@@ -246,8 +246,7 @@ ROKGame.prototype.initClient = function() {
       }
     }
     else if (e.keyCode == 13) {
-      // Enter pressed, roll dice
-      // TODO: Roll? Or context sensitive?
+      // Enter pressed, roll dice or finish buying, depending on turn_phase.
       if (game.turn_phase == 'roll') {
         $('#roll_dice_button').click();
       }

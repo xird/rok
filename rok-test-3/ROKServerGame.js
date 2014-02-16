@@ -1114,6 +1114,7 @@ ROKServerGame.prototype.leaveGame = function(player) {
   var monster_id_used = player.monster_id;
 
   // Remove this game from the player's data.
+  player_mode = player.mode;
   player.mode = '';
   player.monster_id = 0;
   player.game_id = 0;  
@@ -1130,6 +1131,20 @@ ROKServerGame.prototype.leaveGame = function(player) {
     }    
     
     // Note: The player is added to the lobby in index.js.
+  }
+  else if (this.game_state == 'lobby' || this.game_state == 'select_monster') {
+    // Game never got going.
+    delete this.players[player.id];
+    delete this.player_ids[player.id];
+    
+    // TODO if it was the host leaving, drop the other players to the lobby.
+    console.log('mode: ' + player_mode);
+    if (player_mode == 'host') {
+      for (var pid in this.players) {
+        this.players[pid].getSocket().emit('lobby_message', "The host has disconnected.");
+        this.leaveGame(this.players[pid]);
+      }
+    }
   }
   else {
     // Player leaving while game is still going on.
