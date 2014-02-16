@@ -130,6 +130,8 @@ ROKGame.prototype.initClient = function() {
       // without pressing the lobby keys. Note that the div needs a tabindex
       // attribute for this to work.
       $('#game').focus();
+      // And then remove the focus to get rid of the highlight.
+      $('#game').blur();
     }
   });
   
