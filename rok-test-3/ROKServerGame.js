@@ -255,10 +255,9 @@ ROKServerGame.prototype.getMonster = function(monster_id) {
 /**
  * Moves the game to the turn phase where the user can buy cards.
  *
- * TODO: Buy cards if there's money - skip the buy phase if there isn't
+ * CARDS: Buy cards if there's money - skip the buy phase if there isn't
  * CARDS: "Alien metabolism"
- * TODO: Resolve any discard cards
- * TODO:  check win
+ * CARDS: Resolve any discard cards and do a win check
  */
 ROKServerGame.prototype.buyCards = function() {
   console.log("ROKServerGame.prototype.buyCards");

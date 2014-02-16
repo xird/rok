@@ -41,12 +41,6 @@ ROKGame.prototype.initClient = function() {
       // Randomize the order of the monster select buttons.
       var monster_select_buttons = JSON.stringify(utils.shuffleArray([{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, ]));
       
-      var transforms = {
-        'monster_select_buttons': [
-          {tag: "input", type: "button", id: "monster_select_button_${id}", class: "monster_select_button", "data-monster_id": "${id}", value: "Select ${id}"}
-        ],
-      }
-     
       $('#monster_select_buttons').json2html(monster_select_buttons, transforms.monster_select_buttons);
     }
     else {
@@ -75,28 +69,19 @@ ROKGame.prototype.initClient = function() {
       var index = first_monster_index;
       while (monsters_placed < game.monster_order.length) {
         console.log('Placing monster index ' + index + ", id " + game.monster_order[index]);
-        // TODO clean up to use transforms
-        var html = '      <tr>\
-        <th id="monsters__' + game.monster_order[index] + '__name"></th>\
-        <td id="monsters__' + game.monster_order[index] + '__health"></td>\
-        <td id="monsters__' + game.monster_order[index] + '__victory_points"></td>\
-        <td id="monsters__' + game.monster_order[index] + '__energy"></td>\
-        <td id="monsters__' + game.monster_order[index] + '__in_tokyo_city"></td>\
-        <td id="monsters__' + game.monster_order[index] + '__in_tokyo_bay"></td>\
-        </tr>';
-                
-        index++;
+
         monsters_placed++;
-        if (index == game.monster_order.length) {
-          index = 0;
-        }
-        
+
         // If we're placing the last monster, it must be the player's monster.
         if (monsters_placed != game.monster_order.length) {
-          $("#enemy_monsters").append(html);
+          $("#enemy_monsters").json2html([{index: game.monster_order[index]}], transforms.monster_slots);
         }
         else {
-          $("#own_monster").append(html);        
+          $("#own_monster").json2html([{index: game.monster_order[index]}], transforms.monster_slots);
+        }
+        index++;
+        if (index == game.monster_order.length) {
+          index = 0;
         }
 
       }
@@ -216,6 +201,22 @@ ROKGame.prototype.initClient = function() {
     console.log('staying in bay');
     socket.emit("resolve_yield", {kyoto: "bay", yield: false});
   });
+  
+  var transforms = {
+    'monster_select_buttons': [
+      {tag: "input", type: "button", id: "monster_select_button_${id}", class: "monster_select_button", "data-monster_id": "${id}", value: "Select ${id}"}
+    ],
+    'monster_slots': [
+      {tag: "tr", children: [
+        {tag: "th", id: "monsters__${index}__name"},
+        {tag: "td", id: "monsters__${index}__health"},
+        {tag: "td", id: "monsters__${index}__victory_points"},
+        {tag: "td", id: "monsters__${index}__energy"},
+        {tag: "td", id: "monsters__${index}__in_tokyo_city"},
+        {tag: "td", id: "monsters__${index}__in_tokyo_bay"}
+      ]}
+    ]
+  }
 }
 
 /**
