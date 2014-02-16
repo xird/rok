@@ -5,7 +5,6 @@
  *
  * FIXME If another player snaps status, this player get duplicate rows in monster tables
  * TODO disable donebuying after click, make sure it gets re-enabled
- * TODO Allow dead monsters to leave the game
  *
  */
 ROKGame.prototype.initClient = function() {

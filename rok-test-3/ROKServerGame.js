@@ -793,15 +793,36 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
       }
     }
     else {
-      // The monster is not yielding, so nothing happens, unless we're looking
-      // for an answer from a monster in the bay, as well.
-      // TODO: Also, if the bay is empty and there are 5-6 monsters in play, the
-      // monster should go straight to the bay.
+      // The monster in the city is not yielding, so nothing happens, unless
+      // we're looking for an answer from a monster in the bay, as well.
       log_message = this.monsters[this.monster_to_yield_kyoto_city].name + " stays in Kyoto city.";
       this.updateState('monster_to_yield_kyoto_city', 0, log_message);
       
       if (this.monster_to_yield_kyoto_bay) {
         this.yieldKyotoBay();
+      }
+      else if (this.monster_order.length > 4) {
+        // There's no monster yielding the bay, but there are 5-6 players.
+        
+        // Check that there isn't an _undamaged_ monster in the bay.
+        var bay_empty = true;
+        for (var mid in this.monsters) {
+          console.log("Check if " + this.monsters[mid].name + " is in the bay: " + this.monsters[mid].in_kyoto_bay);
+          if (this.monsters[mid].in_kyoto_bay) {
+            bay_empty = false;
+          }
+        }
+        
+        // If there isn't, move the monster to the bay.
+        if (bay_empty) {
+          var old_victory_points = this.monsters[this.turn_monster].victory_points;
+          var new_victory_points = old_victory_points + 1;
+          this.updateState('monsters__' + this.turn_monster + '__victory_points', new_victory_points);
+          log_message = this.monsters[this.turn_monster] + " takes Kyoto bay for 1 VP.";
+          this.updateState('monsters__' + this.turn_monster + '__in_kyoto_bay', 1, log_message);        
+        }
+        
+        this.buyCards();
       }
       else {
         // Yield resolved, move to next phase
@@ -1100,7 +1121,7 @@ ROKServerGame.prototype.leaveGame = function(player) {
   if (this.game_state == 'over') {
     // Normal case, players leaving after game ends.
     // TODO: If this was the last player leaving, delete the game
-    // TODO: Add the player to the lobby in index.js.
+    // Note: The player is added to the lobby in index.js.
   }
   else {
     // Player leaving while game is still going on.

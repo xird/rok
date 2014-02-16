@@ -1,14 +1,5 @@
 /**
  *
- * TODO: Clean up disconnected players who haven't been seen for a while.
- * TODO: Clean up the games where the last player gets cleaned up from.
- *
- * TODO: Terminate game-button
- *       - Delete the game object
- *       - Reset players' game reference
- *       - Add players to lobby
- *
- *
  * FIXME: confirming a game before invitation is accepted jams the game
  */
 
