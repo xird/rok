@@ -5,7 +5,6 @@
  * always add new users at the bottom of the list. When removing players, don't
  * snap them out of existence, but fade them out instead.
  *
- * TODO: Cancel game-button in the lobby
  */
  
 var util = require('util');

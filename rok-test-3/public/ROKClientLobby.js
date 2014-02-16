@@ -14,20 +14,20 @@ ROKLobby.prototype.initClient = function() {
 
   // Make sure the client doesn't try to keep playing with a server that's been
   // reset.
-  socket.on('server_has_gone_away', function () {
+  socket.on('server_has_gone_away', function serverByeBye() {
     $('body').html('<p>The server has gone away. Try reloading the page.</p>');
   });
   
+  
   // Welcomes a new player.
-  socket.on('welcome', function (data) {
+  socket.on('welcome', function welcome(data) {
     $('#welcome').html("Welcome to the ROK, <strong>" + data.name + "</strong>");
   });
 
 
   // Lobby message
-  socket.on('lobby_message', function (data) {
-    console.log('dev2 lobby message received');
-
+  socket.on('lobby_message', function lobbyMessage(data) {
+    console.log('lobbyMessage');
     $('#messages').html(data).show().delay(1500).fadeOut(1000);
   });
   
@@ -45,7 +45,7 @@ ROKLobby.prototype.initClient = function() {
     $('#lobby').show();
     $('#game').hide();
     
-    console.log(utils.dump(data));
+    //console.log(utils.dump(data));
     
     var transform = [
 
@@ -111,11 +111,12 @@ ROKLobby.prototype.initClient = function() {
   });
   
   // Start game
-  socket.on('start_game', function (data) {
+  socket.on('start_game', function startGame(data) {
     console.log('dev2 start_game');
     $('#dev2 .lobby').hide();
     $('#dev2 .game').show();
   });
+  
   
   // UI event handlers.
   
@@ -124,23 +125,25 @@ ROKLobby.prototype.initClient = function() {
     console.log('newGame');
     $('#new_game_button').addClass('hidden');
     $('#confirm_game_button').removeClass('hidden');
+    $('#cancel_game_button').removeClass('hidden');
+    $('#cancel_game_button').removeAttr('disabled');
     socket.emit("new_game");
   });
   
   // Invite.
-  $('#players').on("click", ".player_invite_button", function(){
+  $('#players').on("click", ".player_invite_button", function invitePlayer(){
     console.log('invite clicked');
     socket.emit("invite", $(this).data("player_id"));
   });
   
   // Accept.
-  $('#players').on("click", ".accept_invite_button", function(){
+  $('#players').on("click", ".accept_invite_button", function acceptInvite(){
     console.log('accept clicked');
     socket.emit("accept");
   });
   
   // Decline.
-  $('#players').on("click", ".decline_invite_button", function(){
+  $('#players').on("click", ".decline_invite_button", function declineInvite(){
     console.log('decline clicked');
     socket.emit("decline");
   });
@@ -149,6 +152,16 @@ ROKLobby.prototype.initClient = function() {
   $('#confirm_game_button').on("click", function confirmGame(){
     console.log('confirmGame');
     socket.emit("confirm_game");
+  });
+  
+  // Cancel a game instead of confirming it
+  $('#cancel_game_button').on("click", function cancelGame(){
+    console.log('cancelGame');
+    socket.emit("cancel_game");
+
+    $('#new_game_button').removeClass('hidden');
+    $('#confirm_game_button').addClass('hidden');
+    $('#cancel_game_button').addClass('hidden');
   });
 
 }

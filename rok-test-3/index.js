@@ -56,7 +56,7 @@ app.get('/', function getHandler(req, res) {
   res.render('client.html');
 });
 
-var games = [];
+var games = {};
 var players = {};
 var lobby = new ROKServerLobby();
 var utils = new ROKUtils();
@@ -112,7 +112,7 @@ var cleanUpIdlePlayers = function () {
   }
   
   for (var i = 0; i < idle_players.length; i++) {
-    console.log('Cleaning up idle player ' + idle.players[i].name);
+    console.log('Cleaning up idle player ' + idle_players[i].name);
     // Remove the player from the lobby
     lobby.removePlayer(idle_players[i].id);
   
@@ -298,20 +298,13 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
   
   socket.on("decline", function lobbyDecline() {
     console.log("lobbyDecline");
-    
-    console.log('players');
-    console.log(players);
 
     var msg = "Your invitation was declined.";
     players[player.inviter_player_id].getSocket().emit('lobby_message', msg);
 
     player.invited_to_game_id = 0;
     player.inviter_player_id = 0;
-    
-    console.log(players);
-    
-
-    
+        
     lobby.snapState();
   });
 
@@ -340,7 +333,43 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
     }
     else {
       console.log("ERROR: Create a game first");
-      socket.emit('game_message', "Create a game first.");  
+      socket.emit('game_message', "Create a game first.");
+    }
+  });
+
+  /**
+   * Game host canceling the game instead of confirming it.
+   * 
+   * This is left in the main code file since it handles both the game and the
+   * lobby object.
+   *
+   */
+  socket.on("cancel_game", function lobbyCancelGame() {
+    console.log('lobbyCancelGame');
+    if (player.mode == "host") {
+      var game = games[player.game_id];
+      player.mode = "";
+      
+      // Remove game reference from game players
+      for (var pid in game.players) {
+        players[pid].game_id = 0;
+      }
+
+      // Reset invitations of invited players by looping through global players.
+      for (var pid in players) {
+        players[pid].invited_to_game_id = 0;
+        players[pid].inviter_player_id = 0;
+      }
+      
+      // Delete game
+      console.log('trying to delete game ' + game.id);
+      delete games[game.id];
+      
+      lobby.snapState();
+    }
+    else {
+      console.log("ERROR: Canceling game hosted by someone else.");
+      socket.emit('game_message', "You can only cancel your own games."); 
     }
   });
 
