@@ -4,6 +4,7 @@
  * Base class is in ROKGame.js
  *
  * FIXME If another player snaps status, this player get duplicate rows in monster tables
+ * TODO disable donebuying after click, make sure it gets re-enabled
  *
  */
 ROKGame.prototype.initClient = function() {
@@ -118,7 +119,8 @@ ROKGame.prototype.initClient = function() {
       
       console.log('Setting focus to #game');
       // Set focus to the game to allow using the keyboard shortcuts
-      // without pressing the lobby keys.
+      // without pressing the lobby keys. Note that the div needs a tabindex
+      // attribute for this to work.
       $('#game').focus();
     }
   });

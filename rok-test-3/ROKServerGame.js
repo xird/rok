@@ -281,12 +281,12 @@ ROKServerGame.prototype.doneBuying = function(player) {
       this.sendStateChanges();
     }
     else {
-      console.log('Not this user\'s turn');
+      console.log('ERROR: Not this user\'s turn');
       player.getSocket().emit('game_message', "It's not your turn."); 
     }  
   }
   else {
-    console.log('Not buying phase');
+    console.log('ERROR: Not buying phase');
     player.getSocket().emit('game_message', "It's not the buying phase.");
   }
 }
@@ -430,16 +430,17 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
         }
       }
       else {
-        console.log("Not this monster's turn");
+        console.log("ERROR: Not this monster's turn");
         player.getSocket().emit("game_message", "It's not your turn to roll");
       }
     }
     else {
-      console.log('    not roll phase');
+      console.log('    ERROR: not roll phase');
       player.getSocket().emit('game_message', "Not roll phase.");
     }
   }
   else {
+    console.log('ERROR: game not being played');
     player.getSocket().emit('game_message', "Game not being played.");
   }
     
@@ -491,38 +492,29 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
   }
   
   for (var mid in this.monsters) {
-    console.log('mid: ' + mid);
     if (attacker_in_kyoto) {
       console.log('  attacker in kyoto');
       if (this.monsters[mid].in_kyoto_city ||
           this.monsters[mid].in_kyoto_bay) {
         // Attacker in Kyoto, target in Kyoto
-        console.log('    target in kyoto');
-        console.log(this.monsters[mid]);
       }
       else {
         // Attacker in Kyoto, target NOT in Kyoto
-        console.log('    target NOT in kyoto');
-        console.log(this.monsters[mid]);
         if (this.monsters[mid].health > 0) {
           target_monsters.push(mid);        
         }
       }
     }
     else {
-      console.log('  attacker NOT in kyoto');
       if (this.monsters[mid].in_kyoto_city ||
           this.monsters[mid].in_kyoto_bay) {
-        console.log('    target in kyoto');
         // Attacker NOT in Kyoto, target in Kyoto
-        console.log(this.monsters[mid]);
         if (this.monsters[mid].health > 0) {
           target_monsters.push(mid);
         }
       }
       else {
         // Attacker NOT in Kyoto, target NOT in Kyoto
-        console.log('    target NOT in kyoto');
       }    
     }
   }
@@ -875,8 +867,6 @@ ROKServerGame.prototype.resolveVictoryPointDice = function(player) {
     }
   }
   
-  console.log(victory_points_dice);
-  
   var additional_victory_points = 0;
   for (var points in victory_points_dice) {
     if (victory_points_dice[points] > 2) {
@@ -950,7 +940,7 @@ ROKServerGame.prototype.selectMonster = function (player, selected_monster_id) {
 
       }
       else {
-        console.log('already selected error');
+        console.log('ERROR: already selected error');
         var msg = "You have already selected a monster.";
         player.getSocket().emit("game_message", msg);
       }  
@@ -962,7 +952,7 @@ ROKServerGame.prototype.selectMonster = function (player, selected_monster_id) {
     }
   }
   else {
-    console.log('not in monster_selection error');
+    console.log('ERROR: not in monster_selection error');
     var msg = "This is not the time to select a monster.";
     player.getSocket().emit("game_message", msg);   
   }
@@ -1059,14 +1049,14 @@ ROKServerGame.prototype.confirmGame = function(player) {
       return true;
     }
     else {
-      console.log('not enough players error');
+      console.log('ERROR: not enough players');
       // Notify the player.
       var msg = "At least two players are needed to play.";
       player.getSocket().emit("lobby_message", msg);     
     }
   }
   else {
-    console.log('not a host error');
+    console.log('ERROR: not a host');
     // Notify the player that he needs to be a host to confirm a game.
     var msg = "Only the host can confirm a game.";
     player.getSocket().emit("lobby_message", msg);

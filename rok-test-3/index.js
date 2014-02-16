@@ -97,13 +97,6 @@ process.on('SIGINT', function () {
   io.sockets.emit("server_has_gone_away");
   process.exit();
 });
-/*
-process.on('exit', function () {
-  console.log('About to exit.');
-  io.sockets.emit("server_has_gone_away");
-  process.exit();
-});
-*/
 
 process.on('uncaughtException', function(e) {
   console.log(e.stack);
@@ -183,13 +176,13 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
   socket.on("quick_game", function debugQuickGame(args) {
     console.log("Initializing quick game");
     if (Object.keys(players).length < 2) {
-      console.log('Two players required');
+      console.log('ERROR: Two players required');
       socket.emit('lobby_message', "Two players required");
       return;
     }
     
     if (player.game_id) {
-      console.log('You already have a game');
+      console.log('ERROR: You already have a game');
       socket.emit('game_message', "You already have a game");
       return;
     }
@@ -266,6 +259,7 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
       }
     }
     else {
+      console.log("ERROR: Create a game first");
       socket.emit('game_message', "Create a game first.");  
     }
     
