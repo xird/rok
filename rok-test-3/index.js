@@ -8,6 +8,8 @@
  *       - Reset players' game reference
  *       - Add players to lobby
  *
+ *
+ * FIXME: confirming a game before invitation is accepted jams the game
  */
 
 var http = require('http')
@@ -78,12 +80,9 @@ var static = require('node-static');
 // Create a node-static server instance to serve the './public' folder
 var file = new static.Server('./public');
 require('http').createServer(function (request, response) {
-    request.addListener('end', function () {
-        //
-        // Serve files!
-        //
-        file.serve(request, response);
-    }).resume();
+  request.addListener('end', function () {
+    file.serve(request, response);
+  }).resume();
 }).listen(8080);
 // End code for serving static files.
 
@@ -91,17 +90,54 @@ require('http').createServer(function (request, response) {
 /**
  * Let any clients know that the server has gone away.
  */
-process.on('SIGINT', function () {
+process.on('SIGINT', function catchSIGINT() {
   console.log('About to exit.');
   io.sockets.emit("server_has_gone_away");
   process.exit();
 });
 
-process.on('uncaughtException', function(e) {
+process.on('uncaughtException', function catchUncaught(e) {
   console.log(e.stack);
   io.sockets.emit("server_has_gone_away");
   process.exit();
 });
+
+
+/**
+ * Periodically clean up players that we haven't seen for a while. In other
+ * words, 5 seconds. This allows users to accidentally close a browser and 
+ * re-open one, or to refresh the browser, while not making others wait too long
+ * for players that have actually disconnected.
+ */
+var cleanUpIdlePlayers = function () {
+  console.log("cleanUpIdlePlayers");
+  var now = Date.now();
+  var idle_players = [];
+  for (var pid in players) {
+    var diff = now - players[pid].last_seen;
+    if (diff > 5000) {
+      idle_players.push(players[pid]);
+    }
+  }
+  
+  for (var i = 0; i < idle_players.length; i++) {
+    // Remove the player from the lobby
+    lobby.removePlayer(idle_players[i].id);
+  
+    // Remove the player from any game.
+    if (idle_players[i].game_id) {
+      idle_players[i].getGame().leaveGame(idle_players[i]);
+    }
+    
+    // Remove the player from the global players object.
+    delete players[idle_players[i].id];
+    
+    lobby.snapState();
+  }
+  
+  setTimeout(cleanUpIdlePlayers, 5000);
+}
+cleanUpIdlePlayers();
 
 
 /**
@@ -152,6 +188,15 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
 
   
   // Define event handlers:  
+
+  /**
+   * A client reporting that it's still there.
+   */
+  socket.on("keep_alive", function keepAlive() {
+    console.log('keepAlive');
+    player.last_seen = Date.now();
+  });
+
   /**
    * Debug
    */
@@ -251,8 +296,6 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
   socket.on("accept", function lobbyAccept() {
     console.log("lobbyAccept");
     var inviter = players[player.inviter_player_id];
-    console.log('inviter:');
-    console.log(inviter);
     var game = games[inviter.game_id];
     player.invited_to_game_id = 0;
     player.inviter_player_id = 0;
@@ -423,3 +466,4 @@ var addPlayer = function(socket, sessid) {
 var removePlayer = function(player) {
   player.status = "disconnected";
 }
+

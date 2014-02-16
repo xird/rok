@@ -1084,10 +1084,11 @@ ROKServerGame.prototype.addPlayer = function(player) {
 
 
 /**
- * A player is leaving the game, hopefully once the game is over.
+ * A player is leaving the game, hopefully once the game is over. This is also
+ * used when idle players are cleaned up.
  */
 ROKServerGame.prototype.leaveGame = function(player) {
-  console.log("ROKServerGame.prototype.leaveGame");
+  console.log("ROKServerGame.prototype.leaveGame " + player.name);
   // TODO handle leaving player
   // TODO When player leaves a game, reset game ref and monster ref and mode
 }

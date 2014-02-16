@@ -12,6 +12,14 @@ ROKGame.prototype.initClient = function() {
   console.log("ROKGame.prototype.initClient");
   var game = this;
 
+  /**
+   * Ping the server every 2 seconds to let the server know we're still here. If
+   * the server doesn't hear from us within 5 seconds, our session will be
+   * cleaned up.
+   */
+  window.setInterval("socket.emit('keep_alive');", 2000);
+
+
   // Socket event handlers.
 
   /**
@@ -282,6 +290,7 @@ ROKGame.prototype.initClient = function() {
     ]
   }
 }
+
 
 /**
  * Main game data update handler.
