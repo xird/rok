@@ -118,7 +118,21 @@ var cleanUpIdlePlayers = function () {
   
     // Remove the player from any game.
     if (idle_players[i].game_id) {
-      idle_players[i].getGame().leaveGame(idle_players[i]);
+      var player_mode = idle_players[i].mode;
+      var game = idle_players[i].getGame();
+      game.leaveGame(idle_players[i]);
+      
+      // If it was the host leaving, drop the other players to the lobby.
+      console.log('mode: ' + player_mode);
+      if (player_mode == 'host') {
+        for (var pid in game.players) {
+          game.players[pid].getSocket().emit('lobby_message', "The host has disconnected.");
+          game.leaveGame(game.players[pid]);
+          lobby.addPlayer(players[pid]);
+        }
+        lobby.snapState();
+      }
+      
     }
     
     // Remove the player from the global players object.
@@ -136,6 +150,7 @@ var cleanUpIdlePlayers = function () {
     if (Object.keys(game_players).length == 0) {
       console.log("Deleting empty game");
       delete games[game_id];
+      lobby.snapState();
     }
     else {
       console.log("Game still has players");

@@ -1074,6 +1074,12 @@ ROKServerGame.prototype.beginGame = function() {
     var target_socket = io.sockets.socket(this.players[game_player_id].socket_id);
     target_socket.emit("start_game");
   }
+  
+  // In case other players dropped during monster selection, this ends the game
+  // immediately.
+  if (this.checkWin()) {
+    this.finishGame();
+  }
 }
 
 
@@ -1132,24 +1138,14 @@ ROKServerGame.prototype.leaveGame = function(player) {
     
     // Note: The player is added to the lobby in index.js.
   }
-  else if (this.game_state == 'lobby' || this.game_state == 'select_monster') {
+  else if (this.game_state == 'lobby' || this.game_state == 'select_monsters') {
     // Game never got going.
     delete this.players[player.id];
     delete this.player_ids[player.id];
-    
-    // TODO if it was the host leaving, drop the other players to the lobby.
-    console.log('mode: ' + player_mode);
-    if (player_mode == 'host') {
-      for (var pid in this.players) {
-        this.players[pid].getSocket().emit('lobby_message', "The host has disconnected.");
-        this.leaveGame(this.players[pid]);
-      }
-    }
   }
   else {
     // Player leaving while game is still going on.
     
-    // Reset monster's player_id
     this.updateState("monsters__" + monster_id_used + "__player_id", 0);
 
     // If it was the player's turn, end the turn.

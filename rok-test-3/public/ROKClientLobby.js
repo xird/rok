@@ -48,6 +48,7 @@ ROKLobby.prototype.initClient = function() {
     
     // In case this is being called after a player has left a game:
     $('#lobby').show();
+    $('#monster_selection').hide();
     $('#game').hide();
 
 
@@ -146,8 +147,8 @@ ROKLobby.prototype.initClient = function() {
   // Start game
   socket.on('start_game', function startGame(data) {
     console.log('dev2 start_game');
-    $('#dev2 .lobby').hide();
-    $('#dev2 .game').show();
+    $('#lobby').hide();
+    $('#game').show();
   });
   
   
