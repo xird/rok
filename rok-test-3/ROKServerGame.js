@@ -375,11 +375,16 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
         if (this.roll_number <= monster.number_of_rolls) {
           console.log('        monster has rolls');
           // CARDS: take into account possible extra dice
-          log_message = "";
+          log_message = this.monsters[player.monster_id].name + " gets ";
+          
+          // Flag variable for detecting situation where the monster keeps all
+          // the dice
+          var keep_all = true;
           for (var i = 0; i < 6; i++) {
             console.log('        Rolling?');
             // Roll only dice that are not kept
             if (keep_dice_ids.indexOf(i) == -1) {
+              keep_all = false;
               console.log('          Rolling.');
               var roll = utils.dieRoll();
               this.updateState("dice__" + i + "__value", roll, this.monsters[player.monster_id].name + " rolls " + roll);
@@ -404,7 +409,9 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
           }
           this.updateState(false, false, log_message);
           
-          if (this.roll_number < monster.number_of_rolls) {
+          // Go to the next roll if there are more rolls and the monster isn't
+          // keeping all the dice.
+          if (this.roll_number < monster.number_of_rolls && keep_all != true) {
             var new_roll_number = this.roll_number + 1;
             console.log('new: ' + new_roll_number);
             this.updateState("roll_number", new_roll_number);
@@ -443,6 +450,7 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
 /**
  * Resolves the results of the dice rolls after all the rerolls are done.
  *
+ * STRICT: players should be allowed to resolve dice in any order
  */
 ROKServerGame.prototype.resolveDice = function(player) {
   console.log('ROKServerGame.prototype.resolveDice');
@@ -451,7 +459,7 @@ ROKServerGame.prototype.resolveDice = function(player) {
   
   this.resolveEnergyDice(player);
   this.resolveHealthDice(player);
-  this.resolveVPDice(player);
+  this.resolveVictoryPointDice(player);
   this.resolveAttackDice(player);
 }
 
@@ -581,13 +589,16 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
   else {
     console.log('  no target monsters');
     // No target monsters, so no-one takes damage and the playing monster enters
-    // Kyoto.
-    this.updateState("monsters__" + player.monster_id + "__in_tokyo_city", 1);
-    var old_victory_points = this.monsters[player.monster_id].victory_points;
-    log_message = this.monsters[this.turn_monster].name + " takes Kyoto city for 1 VP.";
-    this.updateState("monsters__" + player.monster_id + "__victory_points", old_victory_points + 1, log_message);
-    // No need to check for win, as this has to be the beginning of the game.
-    
+    // Kyoto. At least one punch is still needed.
+    if (damage) {
+      this.updateState("monsters__" + player.monster_id + "__in_tokyo_city", 1);
+      var old_victory_points = this.monsters[player.monster_id].victory_points;
+      log_message = this.monsters[this.turn_monster].name + " takes Kyoto city for 1 VP.";
+      this.updateState("monsters__" + player.monster_id + "__victory_points", old_victory_points + 1, log_message);
+      // TODO: win check, in case kyoto is empty because a card eliminated the
+      // previous tennant.    
+    }
+
     // Note that buyCards() will send state changes.
     this.buyCards();
   }
@@ -746,12 +757,44 @@ ROKServerGame.prototype.resolveHealthDice = function(player) {
 /**
  * Resolve VP dice.
  */
-ROKServerGame.prototype.resolveVPDice = function(player) {
+ROKServerGame.prototype.resolveVictoryPointDice = function(player) {
   console.log("ROKServerGame.prototype.resolveVPDice");
-  // TODO: Resolve VP dice
-  //     - Add rolled numbers to VPs
-  //       - Take number roll modifier cards into account
-  // TODO: players should be allowed to resolve dice in any order
+  
+  var victory_points_dice = {
+    1: 0,
+    2: 0,
+    3: 0,
+  };
+  for (var i = 0; i < this.dice.length; i++) {
+    if (this.dice[i].state == 'f' && isNaN(this.dice[i].value) == false) {
+      victory_points_dice[this.dice[i].value]++;
+    }
+  }
+  
+  console.log(victory_points_dice);
+  
+  var additional_victory_points = 0;
+  for (var points in victory_points_dice) {
+    if (victory_points_dice[points] > 2) {
+      console.log("Add " + points + " from " + points + "s");
+      additional_victory_points += parseInt(points);
+      var extra_victory_points = 0;
+      extra_victory_points = victory_points_dice[points] - 3;
+      if (extra_victory_points > 0) {
+        additional_victory_points += extra_victory_points;
+        console.log("  Add " + extra_victory_points + " extra points from extra " + points + "s");
+      }
+    }
+  }
+  console.log("additional_victory_points: " + additional_victory_points);
+  var log_message = this.monsters[this.turn_monster].name + " rolls " + additional_victory_points + " VP.";
+  var old_victory_points = this.monsters[this.turn_monster].victory_points;
+  var new_victory_points = old_victory_points + additional_victory_points;
+  if (new_victory_points > old_victory_points) {
+    this.updateState("monsters__" + this.turn_monster + '__victory_points', new_victory_points, log_message);  
+  }
+
+  // CARDS: Take number roll modifier cards into account ("111 counts as 333")
 }
 
 
