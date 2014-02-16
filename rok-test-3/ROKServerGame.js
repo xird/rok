@@ -643,9 +643,9 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
   if (part_of_kyoto == 'city' && this.turn_phase == 'yield_kyoto_city') {
     if (yielding) {
       // The monster yields Kyoto city.
-      log_message = this.monsters[this.next_input_from_monster] + " yields Kyoto city.";
+      log_message = this.monsters[this.next_input_from_monster].name + " yields Kyoto city.";
       this.updateState('monsters__' + this.next_input_from_monster + '__in_tokyo_city', 0, log_message);
-      log_message = this.monsters[this.turn_monster] + " takes Kyoto city for 1 VP.";
+      log_message = this.monsters[this.turn_monster].name + " takes Kyoto city for 1 VP.";
       this.updateState('monsters__' + this.turn_monster + '__in_tokyo_city', 1, log_message);
 
       // Add victory points for taking Kyoto city
@@ -681,9 +681,9 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
   else if (part_of_kyoto == 'bay' && this.turn_phase == 'yield_kyoto_bay') {
     if (yielding) {
       // The monster yields Kyoto bay.
-      log_message = this.monsters[this.next_input_from_monster] + " yields Kyoto bay.";
+      log_message = this.monsters[this.next_input_from_monster].name + " yields Kyoto bay.";
       this.updateState('monsters__' + this.next_input_from_monster + '__in_tokyo_bay', 0, log_message);
-      log_message = this.monsters[this.turn_monster] + " takes Kyoto bay for 1 VP.";
+      log_message = this.monsters[this.turn_monster].name + " takes Kyoto bay for 1 VP.";
       this.updateState('monsters__' + this.turn_monster + '__in_tokyo_bay', 1, log_message);
 
       // Add victory points for taking Kyoto bay
@@ -739,7 +739,7 @@ ROKServerGame.prototype.resolveEnergyDice = function(player) {
  */
 ROKServerGame.prototype.resolveHealthDice = function(player) {
   console.log("ROKServerGame.prototype.resolveHealthDice");
-  // TODO: If in Kyoto, don't heal
+
   var additional_health = 0;
   for (var i = 0; i < this.dice.length; i++) {
     if (this.dice[i].state == 'f' && this.dice[i].value == 'h') {
@@ -754,8 +754,15 @@ ROKServerGame.prototype.resolveHealthDice = function(player) {
     new_health = 10;
   }
   if (new_health != old_health) {
-    var log_message = this.monsters[this.turn_monster].name + " gains " + additional_health + " health.";
-    this.updateState("monsters__" + player.monster_id + "__health", new_health, log_message);  
+    // Can't heal in Kyoto.
+    if (!this.monsters[this.turn_monster].in_tokyo_city && !this.monsters[this.turn_monster].in_tokyo_city) {
+      var log_message = this.monsters[this.turn_monster].name + " gains " + additional_health + " health.";
+      this.updateState("monsters__" + player.monster_id + "__health", new_health, log_message);
+    }
+    else {
+      var log_message = this.monsters[this.turn_monster].name + " can't heal in Kyoto.";
+      this.updateState(false, false, log_message);
+    }
   }
 }
 

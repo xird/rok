@@ -29,11 +29,13 @@ ROKGame.prototype.initClient = function() {
     game.this_monster = data.this_monster;
     
     if (data.game_state == "lobby") {
+      // The player is still in the lobby.
       $('#lobby').show();
-      $('#monster_selection').hide();    
+      $('#monster_selection').hide();
       $('#game').hide();
     }
     else if (data.game_state == "select_monsters") {
+      // The players are selecting their monsters.
       $('#lobby').hide();
       $('#monster_selection').show();
       $('#game').hide();
@@ -44,6 +46,7 @@ ROKGame.prototype.initClient = function() {
       $('#monster_select_buttons').json2html(monster_select_buttons, transforms.monster_select_buttons);
     }
     else {
+      // The game is already in progress
       $('#lobby').hide();
       $('#monster_selection').hide();
       $('#game').show();
@@ -111,8 +114,13 @@ ROKGame.prototype.initClient = function() {
         if (game.turn_phase == 'buy') {
           $('#done_buying_button').removeAttr('disabled');
         }
-
       }
+      
+      console.log('Setting focus to #game');
+      // Set focus to the roll button to allow using the keyboard shortcuts
+      // without pressing the lobby keys.
+//      $('#quick_game').blur();
+      $('#roll_dice_button').focus();
     }
   });
   
@@ -202,6 +210,54 @@ ROKGame.prototype.initClient = function() {
     socket.emit("resolve_yield", {kyoto: "bay", yield: false});
   });
   
+  /**
+   * Keyboard shortcuts
+   */
+  $(document).keyup(function(e){
+    console.log("Key pressed: " + e.keyCode);
+    if (e.keyCode >= 49 && e.keyCode <= 56) {
+      // Dice status toggles, i.e. number keys 1-8
+      if (game.turn_phase == 'roll') {
+        var elid = '#dice__' + (e.keyCode - 49) + '__value';
+      
+        if ($(elid).hasClass("r")) {
+          $(elid).removeClass("r").addClass("k");
+        }
+        else if ($(elid).hasClass("k")) {
+          $(elid).removeClass("k").addClass("r");    
+        }
+      }
+    }
+    else if (e.keyCode == 13) {
+      // Enter pressed, roll dice
+      // TODO: Roll? Or context sensitive?
+      if (game.turn_phase == 'roll') {
+        $('#roll_dice_button').click();
+      }
+      else if (game.turn_phase == 'buy') {
+        $('#done_buying_button').click();
+      }
+    }
+    else if (e.keyCode == 89) {
+      // [y]ield
+      if (game.turn_phase == 'yield_kyoto_city') {
+        $('#yield_kyoto_city_button').click();
+      }
+      else if (game.turn_phase == 'yield_kyoto_bay') {
+        $('#yield_kyoto_bay_button').click();      
+      }
+    }
+    else if (e.keyCode == 83) {
+      // [s]tay
+      if (game.turn_phase == 'yield_kyoto_city') {
+        $('#stay_in_kyoto_city_button').click();
+      }
+      else if (game.turn_phase == 'yield_kyoto_bay') {
+        $('#stay_in_kyoto_bay_button').click();      
+      }
+    }
+  });
+  
   var transforms = {
     'monster_select_buttons': [
       {tag: "input", type: "button", id: "monster_select_button_${id}", class: "monster_select_button", "data-monster_id": "${id}", value: "Select ${id}"}
@@ -247,7 +303,7 @@ ROKGame.prototype.handleUpdates = function(updates) {
     this.addToLog(update.log);    
   }
   
-  console.log(utils.dump(update));
+  //console.log(utils.dump(update));
   console.log('Handler: ' + update.handler);
   
   if (typeof this[update.handler] == "function") {
@@ -283,10 +339,6 @@ ROKGame.prototype.handle__game_state = function(updates) {
     case "select_monsters":
       $("#lobby").hide();
       $("#monster_selection").show();
-      break;
-    case "play":
-      $("#monster_selection").hide();
-      $("#game").show();
       break;
   }
   this.handleUpdates(updates);
