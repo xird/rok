@@ -1089,8 +1089,51 @@ ROKServerGame.prototype.addPlayer = function(player) {
  */
 ROKServerGame.prototype.leaveGame = function(player) {
   console.log("ROKServerGame.prototype.leaveGame " + player.name);
-  // TODO handle leaving player
-  // TODO When player leaves a game, reset game ref and monster ref and mode
+
+  var monster_id_used = player.monster_id;
+
+  // Remove this game from the player's data.
+  player.mode = '';
+  player.monster_id = 0;
+  player.game_id = 0;  
+
+  if (this.game_state == 'over') {
+    // Normal case, players leaving after game ends.
+    // TODO: If this was the last player leaving, delete the game
+    // TODO: Add the player to the lobby in index.js.
+  }
+  else {
+    // Player leaving while game is still going on.
+    
+    // Reset monster's player_id
+    this.updateState("monsters__" + monster_id_used + "__player_id", 0);
+
+    // If it was the player's turn, end the turn.
+    if (this.turn_monster == monster_id_used) {
+      this.endTurn();
+    }
+
+    // Kill monster
+    var log_message = this.monsters[monster_id_used].name + "'s player has left the game.";
+    this.updateState('monsters__' + monster_id_used + '__health', 0, log_message);
+    // CARDS Make sure "it has a child" doesn't respawn the monster...
+  
+    // If the monster was yielding, advance the turn_phase
+    console.log(this.turn_phase);
+    if (this.turn_phase == 'yield_kyoto_city' || this.turn_phase == 'yield_kyoto_bay') {
+      console.log("detected yielding quitter");
+      this.updateState('turn_phase', 'buy');
+      this.updateState('next_input_from_monster', this.turn_monster);  
+    }  
+  
+    this.checkDeaths();
+    this.checkWin();
+  
+    delete this.players[player.id];
+    delete this.player_ids[player.id];
+  
+    this.sendStateChanges();
+  }
 }
 
 

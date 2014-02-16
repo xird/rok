@@ -110,7 +110,7 @@ process.on('uncaughtException', function catchUncaught(e) {
  * for players that have actually disconnected.
  */
 var cleanUpIdlePlayers = function () {
-  console.log("cleanUpIdlePlayers");
+  //console.log("cleanUpIdlePlayers");
   var now = Date.now();
   var idle_players = [];
   for (var pid in players) {
@@ -121,6 +121,7 @@ var cleanUpIdlePlayers = function () {
   }
   
   for (var i = 0; i < idle_players.length; i++) {
+    console.log('Cleaning up idle player ' + idle.players[i].name);
     // Remove the player from the lobby
     lobby.removePlayer(idle_players[i].id);
   
@@ -193,7 +194,7 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
    * A client reporting that it's still there.
    */
   socket.on("keep_alive", function keepAlive() {
-    console.log('keepAlive');
+    //console.log('keepAlive');
     player.last_seen = Date.now();
   });
 
@@ -394,6 +395,8 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
    */
   socket.on("leave_game", function leaveGame (args) {
     games[player.game_id].leaveGame(player);
+    lobby.addPlayer(player);
+    lobby.snapState();
   });
 
   
