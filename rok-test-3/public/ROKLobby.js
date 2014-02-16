@@ -3,7 +3,7 @@
  *
  */
 function ROKLobby() {
-  this.players = [];
+  this.players = {};
   this.player_ids = [];
   
   /**

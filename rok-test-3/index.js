@@ -1,6 +1,7 @@
 /**
  *
- * TODO: Cleanup disconnected players who haven't been seen for a while.
+ * TODO: Clean up disconnected players who haven't been seen for a while.
+ * TODO: Clean up the games where the last player gets cleaned up from.
  *
  * TODO: Terminate game-button
  *       - Delete the game object
@@ -128,6 +129,7 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
   // Create a new player (returns an existing player if one exists for this
   // session).
   var player = addPlayer(socket, sessid);
+  console.log(player);
   player.status = "connected";
 
   // Depending on the user's status, either update the lobby or the game.
@@ -189,16 +191,23 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
     var game = new ROKServerGame(player);
     games[game.id] = game;
 
-    // Invite one other user
+    // For a quick game, one other user is added to the game without invitation.
     for (var p in players) {
       if (players[p].id != player.id) {
-        lobby.invitePlayer(player, players[p]);
+        game.addPlayer(players[p]);
         break;
       }
     }
     
-    // Confirm game
-    game.confirmGame(player);
+    // Confirm game. If the game can be successfully confirmed, remove the
+    // players from the lobby.
+    if (game.confirmGame(player)) {
+      game.snapState();
+      for (var p in game.players) {
+        lobby.removePlayer(p);
+      }
+      lobby.snapState();
+    }
     
     // Select monsters
     var i = 2;
@@ -226,16 +235,48 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
     lobby.snapState();
   });
   
-  //
+
   /**
    * Game host inviting a player to the game.
-   * @param Integer player_id 
+   * @param Integer invitee_id 
    *   The id of the player being invited.
    *
    */
   socket.on("invite", function lobbyInvite(invitee_id) {
-    console.log("invite-handler");
+    console.log("lobbyInvite");
     lobby.invitePlayer(player, players[invitee_id]);
+    lobby.snapState();
+  });
+  
+  socket.on("accept", function lobbyAccept() {
+    console.log("lobbyAccept");
+    var inviter = players[player.inviter_player_id];
+    console.log('inviter:');
+    console.log(inviter);
+    var game = games[inviter.game_id];
+    player.invited_to_game_id = 0;
+    player.inviter_player_id = 0;
+    console.log(player);
+    game.addPlayer(player);
+    lobby.snapState();
+  });
+  
+  socket.on("decline", function lobbyDecline() {
+    console.log("lobbyDecline");
+    
+    console.log('players');
+    console.log(players);
+
+    var msg = "Your invitation was declined.";
+    players[player.inviter_player_id].getSocket().emit('lobby_message', msg);
+
+    player.invited_to_game_id = 0;
+    player.inviter_player_id = 0;
+    
+    console.log(players);
+    
+
+    
     lobby.snapState();
   });
 
@@ -259,6 +300,7 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
         for (var p in games[player.game_id].players) {
           lobby.removePlayer(p);
         }
+        lobby.snapState();
       }
     }
     else {
@@ -303,10 +345,16 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
     games[player.game_id].resolveYield(args.kyoto, args.yield);
   });
 
+
+  /**
+   * Player is leaving the game.
+   */
+  socket.on("leave_game", function leaveGame (args) {
+    games[player.game_id].leaveGame(player);
+  });
+
   
   // CARDS: buy(buyable_card_slot)
-  // TODO: accept_invite
-  // TODO: reject_invite
 });
 
 
@@ -348,6 +396,8 @@ var addPlayer = function(socket, sessid) {
       },
       session_id: sessid,
       game_id: 0,
+      invited_to_game_id: 0,
+      inviter_player_id: 0,
       mode: "",
       getGame: function() {
         return games[this.game_id]

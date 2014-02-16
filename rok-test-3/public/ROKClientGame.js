@@ -5,6 +5,7 @@
  *
  * FIXME If another player snaps status, this player get duplicate rows in monster tables
  * TODO disable donebuying after click, make sure it gets re-enabled
+ * TODO Allow dead monsters to leave the game
  *
  */
 ROKGame.prototype.initClient = function() {
@@ -16,7 +17,7 @@ ROKGame.prototype.initClient = function() {
   /**
    * Game state snap
    */
-  socket.on('snap_state', function snapState(data) {
+  socket.on('snap_state', function socketSnapState(data) {
     console.log("snapping game state");
     
     game.game_state = data.game_state;
@@ -129,7 +130,7 @@ ROKGame.prototype.initClient = function() {
   /**
    * Update game state changes to the UI.
    */
-  socket.on('state_changes', function stateChanges(data) {
+  socket.on('state_changes', function socketStateChanges(data) {
     console.log("received game state changes");
 
     game.handleUpdates(data.updates);
@@ -139,7 +140,7 @@ ROKGame.prototype.initClient = function() {
   /**
    * Game message
    */
-  socket.on('game_message', function (data) {
+  socket.on('game_message', function socketGameMessage(data) {
     console.log('dev2 game message received');
     $('#messages').html(data).show().delay(1500).fadeOut(1000);
   });
@@ -148,15 +149,15 @@ ROKGame.prototype.initClient = function() {
   // UI event handlers
   
   // Monster selection
-  $("#monster_selection").on("click", ".monster_select_button", function() {
-    console.log('dev2 select monster ' + $(this).data('monster_id'));
+  $("#monster_selection").on("click", ".monster_select_button", function clickMonsterSelect() {
+    console.log('clickMonsterSelect ' + $(this).data('monster_id'));
     socket.emit("select_monster", $(this).data('monster_id'));
   });
 
 
   // Roll dice.
-  $('#game').on("click", "#roll_dice_button", function(){
-    console.log('dev2 roll_dice');
+  $('#game').on("click", "#roll_dice_button", function clickRollDice(){
+    console.log('clickRollDice');
     
     $(this).attr('disabled', true);
     
@@ -175,8 +176,8 @@ ROKGame.prototype.initClient = function() {
 
 
   // Toggle dice keep states
-  $('#dice').on("click", "td", function(){
-    console.log('die keep status toggle');
+  $('#dice').on("click", "td", function toggleDiceStatus(){
+    console.log('toggleDiceStatus');
     if ($(this).hasClass("r")) {
       $(this).removeClass("r").addClass("k");
     }
@@ -187,26 +188,32 @@ ROKGame.prototype.initClient = function() {
   
   
   // Finish buying cards.
-  $('#game').on("click", "#done_buying_button", function(){
+  $('#game').on("click", "#done_buying_button", function clickDoneBuying(){
     console.log('dev2 done buying');
     socket.emit("done_buying");
   });
   
   
+  // Leave game.
+  $('#game').on("click", "#leave_game_button", function clickLeaveGame(){
+    console.log('clickLeaveGame');
+    socket.emit("leave_game");
+  });
+  
   // Yield Kyoto or not.
-  $('#game').on("click", "#yield_kyoto_city_button", function(){
+  $('#game').on("click", "#yield_kyoto_city_button", function clickYieldCity(){
     console.log('yielding city');
     socket.emit("resolve_yield", {kyoto: "city", yield: true});
   });
-  $('#game').on("click", "#yield_kyoto_bay_button", function(){
+  $('#game').on("click", "#yield_kyoto_bay_button", function clickYieldBay(){
     console.log('yielding bay');
     socket.emit("resolve_yield", {kyoto: "bay", yield: true});
   });
-  $('#game').on("click", "#stay_in_kyoto_city_button", function(){
+  $('#game').on("click", "#stay_in_kyoto_city_button", function clickStayInCity(){
     console.log('staying in city');
     socket.emit("resolve_yield", {kyoto: "city", yield: false});
   });
-  $('#game').on("click", "#stay_in_kyoto_bay_button", function(){
+  $('#game').on("click", "#stay_in_kyoto_bay_button", function clickStayInBay(){
     console.log('staying in bay');
     socket.emit("resolve_yield", {kyoto: "bay", yield: false});
   });
@@ -214,7 +221,7 @@ ROKGame.prototype.initClient = function() {
   /**
    * Keyboard shortcuts
    */
-  $(document).keyup(function(e){
+  $(document).keyup(function handleShortcuts(e){
     console.log("Key pressed: " + e.keyCode);
     if (e.keyCode >= 49 && e.keyCode <= 56) {
       // Dice status toggles, i.e. number keys 1-8
@@ -341,6 +348,10 @@ ROKGame.prototype.handle__game_state = function(updates) {
   if (update.value == "select_monsters") {
     $("#lobby").hide();
     $("#monster_selection").show();
+  }
+  else if (update.value == "over") {
+    console.log('Game over man, game over!');
+    $('#leave_game_button').removeAttr('disabled');
   }
   this.handleUpdates(updates);
 }

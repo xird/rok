@@ -69,7 +69,7 @@ ROKServerGame.prototype.init = function(player) {
     // The id of the player controlling this monster.
     this.player_id = 0;
     this.health = 10;
-    this.victory_points = 15;
+    this.victory_points = 0;
     this.energy = 0;
     this.in_kyoto_city = 0;
     this.in_kyoto_bay = 0;
@@ -530,8 +530,6 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
   // entered Kyoto.
   // CARDS: That's not true; If a monster is eliminated by a card Kyoto can be
   // left empty.
-  // TODO: If there are 5-6 monsters in the game, and the bay is empty, the 
-  // monster gets to go straight to the bay with no yield resolution.
   if (target_monsters.length) {
     console.log('  got target monsters');
     // Reset yield flags from previous round.
@@ -592,8 +590,9 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
           bay_empty = false;
         }
       }
-      // If the attacker cleared the city or the bay, it automatically occupies
-      // one.
+      
+      // If the attacker cleared (or if one was already empty) the city or the
+      // bay, it automatically occupies one.
       var old_victory_points = this.monsters[this.turn_monster].victory_points;
       if (city_empty) {
         console.log("City empty");
@@ -692,9 +691,6 @@ ROKServerGame.prototype.checkDeaths = function() {
       // Dead monsters aren't in Kyoto.
       this.updateState('monsters__' + mid + '__in_kyoto_city', 0);
       this.updateState('monsters__' + mid + '__in_kyoto_bay', 0);
-      
-      // TODO Keep player in game, allow them to leave if they want.
-      // TODO When player leaves a game, reset game ref and monster ref and mode
     }
   }
 }
@@ -1080,8 +1076,20 @@ ROKServerGame.prototype.addPlayer = function(player) {
     this.snapState();
   }
   else {
-    console.log('ERROR: The player is already in the game.');
+    console.log('ERROR: The player is already invited.');
+    var msg = "That player is already invited";
+    player.getSocket().emit("lobby_message", msg);  
   }
+}
+
+
+/**
+ * A player is leaving the game, hopefully once the game is over.
+ */
+ROKServerGame.prototype.leaveGame = function(player) {
+  console.log("ROKServerGame.prototype.leaveGame");
+  // TODO handle leaving player
+  // TODO When player leaves a game, reset game ref and monster ref and mode
 }
 
 

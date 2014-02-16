@@ -15,7 +15,6 @@
 <script src="//localhost:8080/ROKClientGame.js"></script>
 <script src="//localhost:8080/ROKLobby.js"></script>
 <script src="//localhost:8080/ROKClientLobby.js"></script>
-<script src="//localhost:8080/dev_client_2_lobby.js"></script>
 
 <script src="/socket.io/socket.io.js"></script>
 
@@ -80,9 +79,22 @@ $(document).ready(function() {
   <div id="lobby">
     <h2>Lobby</h2>
     <div id="welcome"></div>
-    <div id="players"></div>
-    <input id="new_game" type="button" value="New game"/>
-    <input id="confirm_game" type="button" value="Start game"/>
+    
+    <div id="players">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Mode</th><th>Invited to game</th><th>In game</th>
+          </tr>
+        </thead>
+        
+        <tbody></tbody>
+      </table>
+    </div>
+    
+    <input id="new_game_button" type="button" value="New game"/>
+    
+    <input id="confirm_game_button" class="hidden" type="button" value="Start game"/>
   </div>
   
   <div id="monster_selection">
@@ -172,7 +184,8 @@ $(document).ready(function() {
     <input type="button" value="Stay in Kyoto city" id="stay_in_kyoto_city_button" disabled="disabled" />
     <input type="button" value="Yield Kyoto bay" id="yield_kyoto_bay_button" disabled="disabled" />
     <input type="button" value="Stay in Kyoto bay" id="stay_in_kyoto_bay_button" disabled="disabled" />
-    
+    <input type="button" value="Leave game" id="leave_game_button" disabled="disabled" />
+        
   </div>
 </div>
 </body>

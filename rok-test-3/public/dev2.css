@@ -84,3 +84,8 @@ div#log p {
 .monster_data.dead td {
   background: #aaa;
 }
+
+.hidden {
+  border: 2px solid red;
+  display: none;
+}
