@@ -1,6 +1,14 @@
 /**
  *
  * FIXME: confirming a game before invitation is accepted jams the game
+ *
+ * ROKClientGame.js:6: * FIXME If another player snaps status, this player get duplicate rows in monster tables
+ *
+ * ROKClientGame.js:7: * TODO disable donebuying after click, make sure it gets re-enabled
+ * 
+ * ROKClientLobby.js:6: * TODO add "leave game" button for invited users
+ *
+ * ROKServerLobby.js:4: * TODO: For UI reasons (keep the players from jumping up and down in the list),
  */
 
 var http = require('http')
