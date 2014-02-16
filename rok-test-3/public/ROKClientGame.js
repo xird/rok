@@ -95,8 +95,8 @@ ROKGame.prototype.initClient = function() {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__health').html(data.monsters[monster_ids[i]].health);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__victory_points').html(data.monsters[monster_ids[i]].victory_points);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__energy').html(data.monsters[monster_ids[i]].energy);
-        $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_tokyo_city').html(data.monsters[monster_ids[i]].in_tokyo_city);
-        $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_tokyo_bay').html(data.monsters[monster_ids[i]].in_tokyo_bay);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_city').html(data.monsters[monster_ids[i]].in_kyoto_city);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_bay').html(data.monsters[monster_ids[i]].in_kyoto_bay);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
       }
       
@@ -117,10 +117,9 @@ ROKGame.prototype.initClient = function() {
       }
       
       console.log('Setting focus to #game');
-      // Set focus to the roll button to allow using the keyboard shortcuts
+      // Set focus to the game to allow using the keyboard shortcuts
       // without pressing the lobby keys.
-//      $('#quick_game').blur();
-      $('#roll_dice_button').focus();
+      $('#game').focus();
     }
   });
   
@@ -263,13 +262,13 @@ ROKGame.prototype.initClient = function() {
       {tag: "input", type: "button", id: "monster_select_button_${id}", class: "monster_select_button", "data-monster_id": "${id}", value: "Select ${id}"}
     ],
     'monster_slots': [
-      {tag: "tr", children: [
+      {tag: "tr", id: "monsters__${index}", class: "monster_data", children: [
         {tag: "th", id: "monsters__${index}__name"},
         {tag: "td", id: "monsters__${index}__health"},
         {tag: "td", id: "monsters__${index}__victory_points"},
         {tag: "td", id: "monsters__${index}__energy"},
-        {tag: "td", id: "monsters__${index}__in_tokyo_city"},
-        {tag: "td", id: "monsters__${index}__in_tokyo_bay"}
+        {tag: "td", id: "monsters__${index}__in_kyoto_city"},
+        {tag: "td", id: "monsters__${index}__in_kyoto_bay"}
       ]}
     ]
   }
@@ -460,7 +459,16 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
     var color = "blue";
   }
   
-  $(elid).css('backgroundColor', color).html(update.value).animate({backgroundColor: "white"}, 700, function() {
+  console.log('bgcolor: ' + $(elid).css('backgroundColor'));
+  var original_background_color = $(elid).css('backgroundColor');
+  $(elid).css('backgroundColor', color).html(update.value).animate({backgroundColor: original_background_color}, 700, function() {
+    // Did the monster die?
+    console.log('checking death: ' + update.value);
+    if (update.value < 1) {
+      console.log('mark monster dead');
+      $('#monsters__' + update.id).addClass("dead");
+    }
+
     game.handleUpdates(updates);
   });
 }

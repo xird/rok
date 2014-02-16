@@ -80,3 +80,7 @@ div#log {
 div#log p {
   margin: 0;
 }
+
+.monster_data.dead td {
+  background: #aaa;
+}
