@@ -244,16 +244,21 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
 
   /**
    * Game host confirming invited players and starting the game.
-   * TODO this should be in the lobby class
+   * 
+   * This is left in the main code file since it handles both the game and the
+   * lobby object.
+   *
    */
   socket.on("confirm_game", function lobbyConfirmGame() {
     console.log("lobbyConfirmGame");
+    
+    // Check that the player has a game
     if (typeof games[player.game_id] == "object") {
+      // If the game can be successfully confirmed, remove the players from the
+      // lobby.
       if (games[player.game_id].confirmGame(player)) {
         games[player.game_id].snapState();
-        // Remove playing players from the lobby.
         for (var p in games[player.game_id].players) {
-          console.log('removing player ' + p + ' from lobby');
           lobby.removePlayer(p);
         }
       }
@@ -262,7 +267,6 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
       console.log("ERROR: Create a game first");
       socket.emit('game_message', "Create a game first.");  
     }
-    
   });
 
 
