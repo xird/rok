@@ -336,11 +336,11 @@ ROKGame.prototype.addToLog = function(str) {
 ROKGame.prototype.handle__game_state = function(updates) {
   var update = updates.shift();
   console.log("ROKGame.prototype.handle__game_state to " + update.value);
-  switch (update.value) {
-    case "select_monsters":
-      $("#lobby").hide();
-      $("#monster_selection").show();
-      break;
+  this.game_state = update.value;
+  $('#game_state').html(update.value);
+  if (update.value == "select_monsters") {
+    $("#lobby").hide();
+    $("#monster_selection").show();
   }
   this.handleUpdates(updates);
 }

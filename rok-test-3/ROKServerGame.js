@@ -68,8 +68,8 @@ ROKServerGame.prototype.init = function(player) {
   function Monster(id) {
     // The id of the player controlling this monster.
     this.player_id = 0;
-    this.health = 3;
-    this.victory_points = 0;
+    this.health = 10;
+    this.victory_points = 15;
     this.energy = 0;
     this.in_kyoto_city = 0;
     this.in_kyoto_bay = 0;
@@ -343,11 +343,15 @@ ROKServerGame.prototype.endTurn = function() {
     var new_victory_points = old_victory_points + additional_victory_points;
     log_message = this.monsters[this.turn_monster].name + " gets 2 VP for starting the turn in Kyoto.";
     this.updateState('monsters__' + this.turn_monster + '__victory_points', new_victory_points, log_message);
-    // TODO win check
   }
   
-  this.updateState("turn_phase", 'roll');
-  this.sendStateChanges();
+  if (this.checkWin()) {
+    this.finishGame();
+  }
+  else {
+    this.updateState("turn_phase", 'roll');
+    this.sendStateChanges();  
+  }
 }
 
 
@@ -608,25 +612,27 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
       }
       
       
-      // TODO: Check win
-
-
     }
     
-    // If monster(s) in Kyoto damaged, move game to "yield" state
-    if (this.monster_to_yield_kyoto_city) {
-      console.log('    Monster yielding city or bay?');
-      this.yieldKyotoCity();
-    }
-    else if (this.monster_to_yield_kyoto_bay) {
-      console.log('    Monster yielding bay?');
-      this.yieldKyotoBay();
+    if (this.checkWin()) {
+      this.finishGame();
     }
     else {
-      console.log('    No-one to yield');
-      // Otherwise:
-      // Note that buyCards() will send the state changes.
-      this.buyCards();
+      // If monster(s) in Kyoto damaged, move game to "yield" state
+      if (this.monster_to_yield_kyoto_city) {
+        console.log('    Monster yielding city or bay?');
+        this.yieldKyotoCity();
+      }
+      else if (this.monster_to_yield_kyoto_bay) {
+        console.log('    Monster yielding bay?');
+        this.yieldKyotoBay();
+      }
+      else {
+        console.log('    No-one to yield');
+        // Otherwise:
+        // Note that buyCards() will send the state changes.
+        this.buyCards();
+      }    
     }
   }
   else {
@@ -638,12 +644,16 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
       var old_victory_points = this.monsters[player.monster_id].victory_points;
       log_message = this.monsters[this.turn_monster].name + " takes Kyoto city for 1 VP.";
       this.updateState("monsters__" + player.monster_id + "__victory_points", old_victory_points + 1, log_message);
-      // TODO: win check, in case kyoto is empty because a card eliminated the
-      // previous tennant.    
+      // Check win, in case kyoto is empty because a card eliminated the
+      // previous tennant.
     }
 
-    // Note that buyCards() will send state changes.
-    this.buyCards();
+    if (this.checkWin()) {
+      this.finishGame();
+    }
+    else {
+      this.buyCards();    
+    }
   }
 }
 
@@ -687,6 +697,45 @@ ROKServerGame.prototype.checkDeaths = function() {
       // TODO When player leaves a game, reset game ref and monster ref and mode
     }
   }
+}
+
+
+/**
+ * Check if anyone has won yet.
+ */
+ROKServerGame.prototype.checkWin = function() {
+  console.log("ROKServerGame.prototype.checkWin");
+  var log_message = "";
+  // Check if there's only one monster left.
+  if (this.monster_order.length == 1) {
+    log_message = this.monsters[this.monster_order[0]].name + " is the last monster standing.";
+    this.updateState(false, false, log_message);
+    log_message = this.monsters[this.monster_order[0]].name + " wins!";
+    this.updateState("game_state", "over", log_message);
+    return true;
+  }
+  
+  // Check if anyone got to 20 victory points
+  for (var i = 0; i < this.monster_order.length; i++) {
+    var victory_points = this.monsters[this.monster_order[i]].victory_points;
+    if (victory_points > 19) {
+      log_message = this.monsters[this.monster_order[i]].name + " has won by getting to " + victory_points + " victory points.";
+      this.updateState(false, false, log_message);
+      log_message = this.monsters[this.monster_order[i]].name + " wins!";
+      this.updateState("game_state", "over", log_message);
+      return true;      
+    }
+  }
+}
+
+
+/**
+ * The game has ended, do any final setup tasks.
+ */
+ROKServerGame.prototype.finishGame = function() {
+  this.updateState('game_state', 'over');
+  this.updateState('winner', this.monster_order[0]);
+  this.sendStateChanges();
 }
 
 
@@ -736,13 +785,16 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
       var old_victory_points = this.monsters[this.turn_monster].victory_points;
       var new_victory_points = old_victory_points + additional_victory_points;
       this.updateState('monsters__' + this.turn_monster + '__victory_points', new_victory_points);
-      // TODO win check
-
-      this.updateState('monster_to_yield_kyoto_city', 0);
-      // Since the monster gets to go to city, there's no reason to resolve
-      // yielding the bay.
-      this.updateState('monster_to_yield_kyoto_bay', 0);
-      this.buyCards();
+      if(this.checkWin()) {
+        this.finishGame();
+      }
+      else {
+        this.updateState('monster_to_yield_kyoto_city', 0);
+        // Since the monster gets to go to city, there's no reason to resolve
+        // yielding the bay.
+        this.updateState('monster_to_yield_kyoto_bay', 0);
+        this.buyCards();      
+      }
     }
     else {
       // The monster is not yielding, so nothing happens, unless we're looking
@@ -774,9 +826,12 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
       var old_victory_points = this.monsters[this.turn_monster].victory_points;
       var new_victory_points = old_victory_points + additional_victory_points;
       this.updateState('monsters__' + this.turn_monster + '__victory_points', new_victory_points);
-      // TODO win check
-
-      this.updateState('monster_to_yield_kyoto_bay', 0);
+      if (this.checkWin()) {
+        this.finishGame();
+      }
+      else {
+        this.updateState('monster_to_yield_kyoto_bay', 0);      
+      }
     }
     else {
       // The monster in the bay is not yielding, so nothing happens.

@@ -7,8 +7,6 @@
  *       - Reset players' game reference
  *       - Add players to lobby
  *
- * TODO: Game state: "over", i.e. win checks
- *
  */
 
 var http = require('http')
