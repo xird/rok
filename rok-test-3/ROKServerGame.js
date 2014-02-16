@@ -574,10 +574,14 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
       // CARDS: "Jets" - Don't decrement health when yielding
     }
     
-    // TODO if monster(s) in Kyoto damaged, move game to "yield" state
-    if (this.monster_to_yield_kyoto_city || this.monster_to_yield_kyoto_bay) {
-      console.log('    Monsters yielding?');
+    // If monster(s) in Kyoto damaged, move game to "yield" state
+    if (this.monster_to_yield_kyoto_city) {
+      console.log('    Monster yielding city or bay?');
       this.yieldKyotoCity();
+    }
+    else if (this.monster_to_yield_kyoto_bay) {
+      console.log('    Monster yielding bay?');
+      this.yieldKyotoBay();
     }
     else {
       console.log('    No-one to yield');
@@ -660,6 +664,8 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
     else {
       // The monster is not yielding, so nothing happens, unless we're looking
       // for an answer from a monster in the bay, as well.
+      // TODO: Also, if the bay is empty and there are 5-6 monsters in play, the
+      // monster should go straight to the bay.
       log_message = this.monsters[this.monster_to_yield_kyoto_city].name + " stays in Kyoto city.";
       this.updateState('monster_to_yield_kyoto_city', 0, log_message);
       
