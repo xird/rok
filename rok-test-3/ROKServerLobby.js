@@ -1,6 +1,9 @@
 /**
  * Server side functionality for the lobby.
  */
+
+// TODO: accept_invite
+// TODO: reject_invite
  
 var util = require('util');
 

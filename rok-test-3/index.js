@@ -300,11 +300,17 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
   });
 
 
-  // yield(yield)
+  /**
+   * Player is responding to yield question.
+   */
+  socket.on("resolve_yield", function resolveYield (args) {
+    games[player.game_id].resolveYield(args.kyoto, args.yield);
+  });
+
   
-  // buy(buyable_card_slot)
-  // accept_invite
-  // reject_invite
+  // CARDS: buy(buyable_card_slot)
+  // TODO: accept_invite
+  // TODO: reject_invite
 });
 
 

@@ -77,13 +77,13 @@ ROKGame.prototype.initClient = function() {
         console.log('Placing monster index ' + index + ", id " + game.monster_order[index]);
         // TODO clean up to use transforms
         var html = '      <tr>\
-        <th>Monster ' + game.monster_order[index] + '</th>\
+        <th id="monsters__' + game.monster_order[index] + '__name"></th>\
         <td id="monsters__' + game.monster_order[index] + '__health"></td>\
         <td id="monsters__' + game.monster_order[index] + '__victory_points"></td>\
         <td id="monsters__' + game.monster_order[index] + '__energy"></td>\
         <td id="monsters__' + game.monster_order[index] + '__in_tokyo_city"></td>\
         <td id="monsters__' + game.monster_order[index] + '__in_tokyo_bay"></td>\
-        <td id="monsters__' + game.monster_order[index] + '__name"></td></tr>';
+        </tr>';
                 
         index++;
         monsters_placed++;
@@ -197,6 +197,25 @@ ROKGame.prototype.initClient = function() {
     console.log('dev2 done buying');
     socket.emit("done_buying");
   });
+  
+  
+  // Yield Kyoto or not.
+  $('#game').on("click", "#yield_kyoto_city_button", function(){
+    console.log('yielding city');
+    socket.emit("resolve_yield", {kyoto: "city", yield: true});
+  });
+  $('#game').on("click", "#yield_kyoto_bay_button", function(){
+    console.log('yielding bay');
+    socket.emit("resolve_yield", {kyoto: "bay", yield: true});
+  });
+  $('#game').on("click", "#stay_in_kyoto_city_button", function(){
+    console.log('staying in city');
+    socket.emit("resolve_yield", {kyoto: "city", yield: false});
+  });
+  $('#game').on("click", "#stay_in_kyoto_bay_button", function(){
+    console.log('staying in bay');
+    socket.emit("resolve_yield", {kyoto: "bay", yield: false});
+  });
 }
 
 /**
@@ -293,28 +312,36 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
   
   // Note: "this_monster" needs to always be updated before turn_phase, or this
   // will never remove the disabled-attribute.
-  if (update.value == 'roll') {
-    if (game.turn_monster == game.this_monster) {
-      $('#roll_dice_button').removeAttr('disabled');
-    }
-    else {
-      $('#roll_dice_button').attr('disabled', true);
-    }
+  if (update.value == 'roll' && game.turn_monster == game.this_monster) {
+    $('#roll_dice_button').removeAttr('disabled');
   }
   else {
     $('#roll_dice_button').attr('disabled', true);    
   }
   
-  if (update.value == 'buy') {
-    if (game.turn_monster == game.this_monster) {
-      $('#done_buying_button').removeAttr('disabled');
-    }
-    else {
-      $('#done_buying_button').attr('disabled', true);
-    }
+  if (update.value == 'buy' && game.turn_monster == game.this_monster) {
+    $('#done_buying_button').removeAttr('disabled');
   }
   else {
     $('#done_buying_button').attr('disabled', true);    
+  }
+  
+  if (update.value == 'yield_kyoto_city' && game.next_input_from_monster == game.this_monster) {
+    $('#yield_kyoto_city_button').removeAttr('disabled');
+    $('#stay_in_kyoto_city_button').removeAttr('disabled');
+  }
+  else {
+    $('#yield_kyoto_city_button').attr('disabled', true);
+    $('#stay_in_kyoto_city_button').attr('disabled', true);  
+  }
+  
+  if (update.value == 'yield_kyoto_bay' && game.next_input_from_monster == game.this_monster) {
+    $('#yield_kyoto_bay_button').removeAttr('disabled');
+    $('#stay_in_kyoto_bay_button').removeAttr('disabled');
+  }
+  else {
+    $('#yield_kyoto_bay_button').attr('disabled', true);
+    $('#stay_in_kyoto_bay_button').attr('disabled', true);  
   }
   
   game.handleUpdates(updates); 

@@ -264,6 +264,8 @@ ROKServerGame.prototype.buyCards = function() {
   console.log("ROKServerGame.prototype.buyCards");
   var log_message = this.monsters[this.turn_monster].name + ' can buy cards.'
   this.updateState("turn_phase", 'buy', log_message);
+  // Reset NIFP, in case yield resolution has changed it.
+  this.updateState("next_input_from_monster", this.turn_monster);
   this.sendStateChanges();
 }
 
@@ -510,32 +512,72 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
   // Check if there are any target monsters. There's only one stage in the game
   // when that can be true; At the beginning of the game when no one has yet
   // entered Kyoto.
+  // CARDS: That's not true; If a monster is eliminated by a card Kyoto can be
+  // left empty.
+  // TODO: If there are 5-6 monsters in the game, and the bay is empty, the 
+  // monster gets to go straight to the bay with no yield resolution.
   if (target_monsters.length) {
     console.log('  got target monsters');
+    // Reset yield flags from previous round.
+    this.monster_to_yield_kyoto_city = 0;
+    this.monster_to_yield_kyoto_city = 0;
+    
     // Targets monsters are now defined in an array, loop through and:
     for (var i = 0; i < target_monsters.length; i++) {
       var old_health = this.monsters[target_monsters[i]].health;
+
       // CARDS: 
       // - cards with damage reactions, like "lightning armor"
       // - cards that reduce damage, like "armor plating"
-      log_message = this.monsters[target_monsters[i]].name + " takes " + damage + " damage.";
-      this.updateState("monsters__" + target_monsters[i] + '__health', old_health - damage, log_message);
-
+      var monster_specific_damage = damage;
+      var new_health = old_health - monster_specific_damage;
       
+      if (monster_specific_damage > 0) {
+        log_message = this.monsters[target_monsters[i]].name + " takes " + damage + " damage.";
+        this.updateState("monsters__" + target_monsters[i] + '__health', old_health - damage, log_message);
+      }
+      else {
+        // CARDS: Add log message noting any negated damage
+      }
+
       // TODO: Check deaths
       // TODO: Check win
       // CARDS: Death reaction cards
 
-
-      // TODO     - damaged monster in Kyoto? -> Yield input
+      // Damaged monster in Kyoto? -> Make note to get yield input once we've
+      // looped through all monsters.
+      if (monster_specific_damage > 0 && !attacker_in_kyoto) {
+        if (this.monsters[target_monsters[i]].in_tokyo_city) {
+          this.monster_to_yield_kyoto_city = target_monsters[i];
+          console.log("    This monster took damage in Kyoto city");
+        }
+        else if (this.monsters[target_monsters[i]].in_tokyo_city) {
+          this.monster_to_yield_kyoto_bay = target_monsters[i];
+          console.log("    This monster took damage in Kyoto bay");
+        }
+        else {
+          // Should never end up in this branch
+          console.log(this);
+          console.log('FATAL ERROR: Attacker outside Kyoto damaged monsters not in Kyoto.');
+          process.quit();
+        }
+      }
+      
       // TODO Increment VP if target yields and kyoto is captured
-      // CARDS: Figure out card "Jets" - Don't decrement health when yielding
+      // CARDS: "Jets" - Don't decrement health when yielding
     }
     
-    // TODO if monster(s) in Kyoto damaged, move game to "yield" state (?)
-    // Otherwise:
-    // Note that buyCards() will send state changes.
-    this.buyCards();     
+    // TODO if monster(s) in Kyoto damaged, move game to "yield" state
+    if (this.monster_to_yield_kyoto_city || this.monster_to_yield_kyoto_bay) {
+      console.log('    Monsters yielding?');
+      this.yieldKyotoCity();
+    }
+    else {
+      console.log('    No-one to yield');
+      // Otherwise:
+      // Note that buyCards() will send the state changes.
+      this.buyCards();
+    }
   }
   else {
     console.log('  no target monsters');
@@ -543,7 +585,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     // Kyoto.
     this.updateState("monsters__" + player.monster_id + "__in_tokyo_city", 1);
     var old_victory_points = this.monsters[player.monster_id].victory_points;
-    log_message = this.monsters[this.turn_monster].name + " takes Kyoto for 1 VP.";
+    log_message = this.monsters[this.turn_monster].name + " takes Kyoto city for 1 VP.";
     this.updateState("monsters__" + player.monster_id + "__victory_points", old_victory_points + 1, log_message);
     // No need to check for win, as this has to be the beginning of the game.
     
@@ -552,6 +594,107 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
   }
 }
 
+
+/**
+ * Gets yield input from monster in Kyoto city
+ */
+ROKServerGame.prototype.yieldKyotoCity = function(player) {
+  console.log("ROKServerGame.prototype.yieldKyotoCity");
+  this.updateState('next_input_from_monster', this.monster_to_yield_kyoto_city);
+  var log_message = this.monsters[this.monster_to_yield_kyoto_city].name + " can yield Kyoto city.";
+  this.updateState('turn_phase', 'yield_kyoto_city', log_message);
+  this.sendStateChanges();
+}
+
+
+/**
+ * Gets yield input from monster in Kyoto bay
+ */
+ROKServerGame.prototype.yieldKyotoBay = function(player) {
+  console.log("ROKServerGame.prototype.yieldKyotoBay");
+  this.updateState('next_input_from_monster', this.monster_to_yield_kyoto_bay);
+  var log_message = this.monsters[this.monster_to_yield_kyoto_bay].name + " can yield Kyoto bay.";
+  this.updateState('turn_phase', 'yield_kyoto_bay', log_message);
+  this.sendStateChanges();
+}
+
+
+/**
+ * Handle reply to monsters reply to yield questio
+ */
+ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
+  console.log("ROKServerGame.prototype.resolveYield");
+  console.log("part: " + part_of_kyoto + ', yielding: ' + yielding);
+  var log_message = "";
+  if (part_of_kyoto == 'city' && this.turn_phase == 'yield_kyoto_city') {
+    if (yielding) {
+      // The monster yields Kyoto city.
+      log_message = this.monsters[this.next_input_from_monster] + " yields Kyoto city.";
+      this.updateState('monsters__' + this.next_input_from_monster + '__in_tokyo_city', 0, log_message);
+      log_message = this.monsters[this.turn_monster] + " takes Kyoto city for 1 VP.";
+      this.updateState('monsters__' + this.turn_monster + '__in_tokyo_city', 1, log_message);
+
+      // Add victory points for taking Kyoto city
+      var additional_victory_points = 1;
+      var old_victory_points = this.monsters[this.turn_monster].victory_points;
+      var new_victory_points = old_victory_points + additional_victory_points;
+      this.updateState('monsters__' + this.turn_monster + '__victory_points', new_victory_points);
+      // TODO win check
+
+      this.updateState('monster_to_yield_kyoto_city', 0);
+      // Since the monster gets to go to city, there's no reason to resolve
+      // yielding the bay.
+      this.updateState('monster_to_yield_kyoto_bay', 0);
+      this.buyCards();
+    }
+    else {
+      // The monster is not yielding, so nothing happens, unless we're looking
+      // for an answer from a monster in the bay, as well.
+      log_message = this.monsters[this.monster_to_yield_kyoto_city].name + " stays in Kyoto city.";
+      this.updateState('monster_to_yield_kyoto_city', 0, log_message);
+      
+      if (this.monster_to_yield_kyoto_bay) {
+        this.yieldKyotoBay();
+      }
+      else {
+        // Yield resolved, move to next phase
+        this.buyCards();
+      }
+    }
+  }
+  else if (part_of_kyoto == 'bay' && this.turn_phase == 'yield_kyoto_bay') {
+    if (yielding) {
+      // The monster yields Kyoto bay.
+      log_message = this.monsters[this.next_input_from_monster] + " yields Kyoto bay.";
+      this.updateState('monsters__' + this.next_input_from_monster + '__in_tokyo_bay', 0, log_message);
+      log_message = this.monsters[this.turn_monster] + " takes Kyoto bay for 1 VP.";
+      this.updateState('monsters__' + this.turn_monster + '__in_tokyo_bay', 1, log_message);
+
+      // Add victory points for taking Kyoto bay
+      var additional_victory_points = 1;
+      var old_victory_points = this.monsters[this.turn_monster].victory_points;
+      var new_victory_points = old_victory_points + additional_victory_points;
+      this.updateState('monsters__' + this.turn_monster + '__victory_points', new_victory_points);
+      // TODO win check
+
+      this.updateState('monster_to_yield_kyoto_bay', 0);
+    }
+    else {
+      // The monster in the bay is not yielding, so nothing happens.
+      log_message = this.monsters[this.monster_to_yield_kyoto_bay].name + " stays in Kyoto bay.";
+      this.updateState('monster_to_yield_kyoto_bay', 0, log_message);
+    }
+    
+    // Yield resolved, move to next phase.
+    this.buyCards();
+  }
+  else {
+    console.log('Trying to resolve bay yield on city yield phase or vice versa');
+  }
+  
+
+}
+ 
 
 /**
  * Resolve energy dice.

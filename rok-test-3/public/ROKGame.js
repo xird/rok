@@ -36,6 +36,8 @@ function ROKGame(player) {
   this.monsters = {};
   this.dice = [];
   this.updates = [];
+  this.monster_to_yield_kyoto_city = 0;
+  this.monster_to_yield_kyoto_bay = 0;
   for (var i = 0; i < 6; i++) {
     this.dice.push({
       value: 0,
