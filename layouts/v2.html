@@ -12,17 +12,23 @@
 
     #wrap {
       width: 1024px;
-      height: 630px;
+      height: 600px;
       background: #666;
       position: relative;
     }
     
     #right,
+    #left,
+    #top,
+    #map,
+    #log {
+      height: 400px;
+    }
+    
+    #right,
     #left {
-      height: 380px;
       top: 0;
-      opacity: 0.5;
-
+      oopacity: 0.5;
     }
     
     #left {
@@ -45,23 +51,26 @@
       bottom:0;
       left:0;
       width: 1024px;
-      height: 250px;
-      opacity: 0.5;
+
+      oopacity: 0.5;
       background: #cfc;
+    }
+    
+    #bottom, 
+    #cards,
+    #dice_area {
+      height: 250px;    
     }
     
     div.enemy,
     div.own_monster {
-      border: 1px solid black;
-      height: 95px;
-      width: 95px;
       position: absolute;
     }
     
     #log {
       background: #caa;
       width: 312px;
-      height: 380px;
+
       overflow-y: scroll;
     }
     
@@ -72,11 +81,11 @@
     
     #cards {
       width: 592px;
-      height: 318px;
+
       background: #aca;
       position: absolute;
       top: 0px;
-      display: none;
+
     }
     
     #cards img {
@@ -102,121 +111,105 @@
       left: 445px;    
     }
     
-    #dice {
+    #dice_area {
       width: 432px;
-      height: 318px;
       background: #cca;
       position: absolute;
       bottom: 0px;
-      right: 0;
-      display: none;
+      right: 0px;
+    }
+    
+    #dice {
+      bbackground: #cc0;
+      height: 160px;
+      left: 20px;
+      position: absolute;
+      top: 20px;
+      width: 385px;
+
     }
     
     .die,
     #roll_dice_button {
-      font-size: 1.6em;
-      height: 88px;
-      width: 88px;
       background: #caa;
       border: 1px solid #400;
+      font-size: 1.6em;
       text-align: center;
-      position: absolute;
     }
     
-    #dice__0 {
-      top: 20px;
-      left: 20px;
-    }
-    
-    #dice__1 {
-      top: 20px;
-      left: 120px;
-    }
-    
-    #dice__2 {
-      top: 20px;
-      left: 220px;
-    }
-    
-    #dice__3 {
-      top: 20px;
-      left: 320px;
-    }
-    
-    #dice__4 {
-      top: 120px;
-      left: 20px;
-    }
-    
-    #dice__5 {
-      top: 120px;
-      left: 120px;
-    }
-    
-    #dice__6 {
-      top: 120px;
-      left: 220px;
-    }
-    
-    #dice__7 {
-      top: 120px;
-      left: 320px;
+    .die {
+      float: left;
+      width: 70px;
+      height: 70px;
+      margin: 0 12px 10px 12px;
+
     }
     
     #roll_dice_button {
-      bottom:20px;
+      position: absolute;
+      bottom: 10px;
       right: 20px;
       font-size: 0.8em;
       width: 160px;
-      height: 70px;
+      height: 50px;
     }
     
     #map {
       position: absolute;
-      background-color: #ccf;
-      height: 380px;
+      background-color: #ff0;
+      z-index: 2;
       width: 712px;
     }
     
-    .icon-bg-gray {
+    /*.icon-bg-gray {
       background: url('icon-bg-gray.png');
       background-repeat: no-repeat;
-    }
+    }*/
     
     div.own-monster-icon,
     div.enemy-monster-icon {
-      width: 90px;
-      height: 90px;
+      width: 142px;
+      height: 174px;
     }
     
     #m1 {
-      left: 100px;
-      top: 50px;
+      left: 20px;
+      top: 20px;
     }
     
     #m2 {
-      left: 300px;
-      top: 50px;
+      left: 285px;
+      top: 20px;
     }
     
     #m3 {
-      left: 500px;
-      top: 50px;
+      right: 20px;
+      top: 20px;
     }
     
     #m4 {
-      left: 100px;
-      top: 300px;
+      left: 20px;
+      bottom: 20px;
     }
     
     #m5 {
-      left: 300px;
-      top: 300px;
+      left: 285px;
+      bottom: 20px;
     }
     
     #m6 {
-      left: 500px;
-      top: 300px;
+      right: 20px;
+      bottom: 20px;
+    }
+    
+    #m7 {
+      right: 150px;
+      top: 100px;
+    }
+    
+    #m8 {
+      left: 150px;
+      top: 100px;
     }
     
     #measure {
@@ -224,7 +217,7 @@
       z-index: 9;
       border: 1px dotted black;
       width: 1022px;
-      height: 628px;
+      height: 598px;
     }
   </style>
   
@@ -256,37 +249,49 @@
       <div id="map">
         <div id="m1" class="enemy">
           <div class="enemy-monster-icon icon-bg-gray">
-            <img class="monster-icon" src="kong90.png"/>
+            <img class="monster-icon" src="alien_frame.png"/>
           </div>
         </div>
       
         <div id="m2" class="enemy">
           <div class="enemy-monster-icon icon-bg-gray">
-            <img class="monster-icon" src="rabbot90.png"/>
+            <img class="monster-icon" src="alien_frame.png"/>
           </div>
         </div>
       
         <div id="m3" class="enemy">
           <div class="enemy-monster-icon icon-bg-gray">
-            <img class="monster-icon" src="rex90.png"/>
+            <img class="monster-icon" src="alien_frame.png"/>
           </div>
         </div>
       
         <div id="m4" class="enemy">
           <div class="enemy-monster-icon icon-bg-gray">
-            <img class="monster-icon" src="squid90.png"/>
+            <img class="monster-icon" src="alien_frame.png"/>
           </div>
         </div>
       
         <div id="m5" class="enemy">
           <div class="enemy-monster-icon icon-bg-gray">
-            <img class="monster-icon" src="dragon90.png"/>
+            <img class="monster-icon" src="alien_frame.png"/>
           </div>
         </div>
       
         <div id="m6" class="own_monster">
           <div class="own-monster-icon icon-bg-gray">
-            <img class="monster-icon" src="alien90.png"/>
+            <img class="monster-icon" src="alien_frame.png"/>
+          </div>
+        </div>
+      
+        <div id="m7" class="own_monster">
+          <div class="own-monster-icon icon-bg-gray">
+            <img class="monster-icon" src="alien_frame.png"/>
+          </div>
+        </div>
+      
+        <div id="m8" class="own_monster">
+          <div class="own-monster-icon icon-bg-gray">
+            <img class="monster-icon" src="alien_frame.png"/>
           </div>
         </div>
       </div>
@@ -304,15 +309,18 @@
         <img id="card__3" src="extra_head.jpg" />
       </div>
     
-      <div id="dice">
-        <div id="dice__0" class="die">_</div>
-        <div id="dice__1" class="die">1</div>
-        <div id="dice__2" class="die">2</div>
-        <div id="dice__3" class="die">3</div>
-        <div id="dice__4" class="die">P</div>
-        <div id="dice__5" class="die">E</div>
-        <div id="dice__6" class="die">H</div>
-        <div id="dice__7" class="die">_</div>
+      <div id="dice_area">
+        <div id="dice">
+          <div id="dice__0" class="die">_</div>
+          <div id="dice__1" class="die">1</div>
+          <div id="dice__2" class="die">2</div>
+          <div id="dice__3" class="die">3</div>
+          <div id="dice__4" class="die">P</div>
+          <div id="dice__5" class="die">E</div>
+          <div id="dice__6" class="die">H</div>
+          <div id="dice__7" class="die">_</div>
+        </div>
+        
         <div id="roll_dice_button">Roll</div>
       </div>
     
