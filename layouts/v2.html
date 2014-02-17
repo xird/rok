@@ -1,0 +1,310 @@
+<html><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>ROK v1</title>
+
+  <style type="text/css">
+    body {
+      background: #fff;
+      color: #333;
+      font-size: 1em;
+    }
+
+    #wrap {
+      width: 1024px;
+      height: 768px;
+      background: #666;
+      position: relative;
+    }
+    
+    #right,
+    #left {
+      height: 450px;
+      top: 0;
+    }
+    
+    #left {
+      position: absolute;
+      left:0;
+      width: 312px;
+      bborder: 1px solid #800;
+      background: #fcc;
+    }
+    
+    #right {
+      position: absolute;
+      top:0;
+      right:0;
+      width: 712px;
+
+      bborder: 1px solid #aaa;
+      background: #ccc;
+    }
+    
+    #bottom {
+      position: absolute;
+      bottom:0;
+      left:0;
+      width: 1024px;
+      height: 318px;
+      bborder: 1px solid #080;
+      background: #cfc;
+    }
+    
+    div.enemy,
+    div.own_monster {
+      border: 1px solid black;
+      height: 95px;
+      width: 95px;
+      position: absolute;
+    }
+    
+    #log {
+      background: #caa;
+      width: 312px;
+      height: 450px;
+      overflow-y: scroll;
+    }
+    
+    #log p {
+      font-size: 0.9em;
+      margin: 0;
+    }
+    
+    #cards {
+      width: 592px;
+      height: 318px;
+      background: #aca;
+      position: absolute;
+      top: 0px;
+    }
+    
+    #cards img {
+      width: 120px;
+      height: 174px;
+      position: absolute;
+      bottom: 20px;
+    }
+    
+    #card__0 {
+      left: 25px;    
+    }
+    
+    #card__1 {
+      left: 165px;    
+    }
+    
+    #card__2 {
+      left: 305px;    
+    }
+    
+    #card__3 {
+      left: 445px;    
+    }
+    
+    #dice {
+      width: 432px;
+      height: 318px;
+      background: #cca;
+      position: absolute;
+      bottom: 0px;
+      right: 0;
+    }
+    
+    .die,
+    #roll_dice_button {
+      font-size: 1.6em;
+      height: 88px;
+      width: 88px;
+      background: #caa;
+      border: 1px solid #400;
+      text-align: center;
+      position: absolute;
+    }
+    
+    #dice__0 {
+      top: 20px;
+      left: 20px;
+    }
+    
+    #dice__1 {
+      top: 20px;
+      left: 120px;
+    }
+    
+    #dice__2 {
+      top: 20px;
+      left: 220px;
+    }
+    
+    #dice__3 {
+      top: 20px;
+      left: 320px;
+    }
+    
+    #dice__4 {
+      top: 120px;
+      left: 20px;
+    }
+    
+    #dice__5 {
+      top: 120px;
+      left: 120px;
+    }
+    
+    #dice__6 {
+      top: 120px;
+      left: 220px;
+    }
+    
+    #dice__7 {
+      top: 120px;
+      left: 320px;
+    }
+    
+    #roll_dice_button {
+      bottom:20px;
+      right: 20px;
+      font-size: 0.8em;
+      width: 160px;
+      height: 70px;
+    }
+    
+    #map {
+      background-color: #cfc;
+    }
+    
+    .icon-bg-gray {
+      background: url('icon-bg-gray.png');
+      background-repeat: no-repeat;
+    }
+    
+    div.own-monster-icon,
+    div.enemy-monster-icon {
+      width: 90px;
+      height: 90px;
+    }
+    
+    #m1 {
+      left: 100px;
+      top: 50px;
+    }
+    
+    #m2 {
+      left: 300px;
+      top: 50px;
+    }
+    
+    #m3 {
+      left: 500px;
+      top: 50px;
+    }
+    
+    #m4 {
+      left: 100px;
+      top: 300px;
+    }
+    
+    #m5 {
+      left: 300px;
+      top: 300px;
+    }
+    
+    #m6 {
+      left: 500px;
+      top: 300px;
+    }
+    
+  </style>
+  
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+</head>
+<body>
+  <div id="wrap">
+    <div id="left">
+      <div id="log">
+        <p>Kong rolls 1, 2, 3, 1, P, E</p>
+        <p>Kong uses background dweller to re-roll a 3</p>
+        <p>Kong rolls (1), (2),  1 , (1), (P), (E)</p>
+        <p>Kong rolls  P ,  1 ,  2 ,  E , (P), (E)</p>
+        <p>Kong rolls (P),  2 ,  E , (E), (P), (E)</p>
+        <p>Kong's final dice are P, 2, E, E, P, E</p>
+        <p>Kong gains 3E</p>
+        <p>Kong attacks Squid for 2 damage</p>
+        <p>Kong buys nothing</p>
+        <p>Squid rolls  P ,  P ,  1 ,  1 ,  2 ,  2 </p>
+        <p>Squid rolls (P), (P),  E ,  3 ,  1 ,  1 </p>
+        <p>Squid rolls (P), (P), (E),  1 ,  P ,  2 </p>
+        <p>Squid's final dice are P, P, E, 1, P, 2 </p>
+      </div>
+    </div>
+
+    <div id="right">
+      <div id="map">
+        <div id="m1" class="enemy">
+          <div class="enemy-monster-icon icon-bg-gray">
+            <img class="monster-icon" src="kong90.png"/>
+          </div>
+        </div>
+      
+        <div id="m2" class="enemy">
+          <div class="enemy-monster-icon icon-bg-gray">
+            <img class="monster-icon" src="rabbot90.png"/>
+          </div>
+        </div>
+      
+        <div id="m3" class="enemy">
+          <div class="enemy-monster-icon icon-bg-gray">
+            <img class="monster-icon" src="rex90.png"/>
+          </div>
+        </div>
+      
+        <div id="m4" class="enemy">
+          <div class="enemy-monster-icon icon-bg-gray">
+            <img class="monster-icon" src="squid90.png"/>
+          </div>
+        </div>
+      
+        <div id="m5" class="enemy">
+          <div class="enemy-monster-icon icon-bg-gray">
+            <img class="monster-icon" src="dragon90.png"/>
+          </div>
+        </div>
+      
+        <div id="m6" class="own_monster">
+          <div class="own-monster-icon icon-bg-gray">
+            <img class="monster-icon" src="alien90.png"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div id="bottom">
+      <div id="cards">
+        <h1>Cards</h1>
+      
+        <img id="card__0" src="extra_head.jpg" />
+        <img id="card__1" src="extra_head.jpg" />
+
+        <img id="card__2" src="extra_head.jpg" />
+        <img id="card__3" src="extra_head.jpg" />
+      </div>
+    
+      <div id="dice">
+        <div id="dice__0" class="die">_</div>
+        <div id="dice__1" class="die">1</div>
+        <div id="dice__2" class="die">2</div>
+        <div id="dice__3" class="die">3</div>
+        <div id="dice__4" class="die">P</div>
+        <div id="dice__5" class="die">E</div>
+        <div id="dice__6" class="die">H</div>
+        <div id="dice__7" class="die">_</div>
+        <div id="roll_dice_button">Roll</div>
+      </div>
+    
+
+    </div>
+  </div>
+</body></html>
