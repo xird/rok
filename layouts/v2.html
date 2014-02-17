@@ -12,22 +12,23 @@
 
     #wrap {
       width: 1024px;
-      height: 768px;
+      height: 630px;
       background: #666;
       position: relative;
     }
     
     #right,
     #left {
-      height: 450px;
+      height: 380px;
       top: 0;
+      opacity: 0.5;
+
     }
     
     #left {
       position: absolute;
       left:0;
       width: 312px;
-      bborder: 1px solid #800;
       background: #fcc;
     }
     
@@ -36,8 +37,6 @@
       top:0;
       right:0;
       width: 712px;
-
-      bborder: 1px solid #aaa;
       background: #ccc;
     }
     
@@ -46,8 +45,8 @@
       bottom:0;
       left:0;
       width: 1024px;
-      height: 318px;
-      bborder: 1px solid #080;
+      height: 250px;
+      opacity: 0.5;
       background: #cfc;
     }
     
@@ -62,7 +61,7 @@
     #log {
       background: #caa;
       width: 312px;
-      height: 450px;
+      height: 380px;
       overflow-y: scroll;
     }
     
@@ -77,6 +76,7 @@
       background: #aca;
       position: absolute;
       top: 0px;
+      display: none;
     }
     
     #cards img {
@@ -109,6 +109,7 @@
       position: absolute;
       bottom: 0px;
       right: 0;
+      display: none;
     }
     
     .die,
@@ -171,7 +172,10 @@
     }
     
     #map {
-      background-color: #cfc;
+      position: absolute;
+      background-color: #ccf;
+      height: 380px;
+      width: 712px;
     }
     
     .icon-bg-gray {
@@ -215,6 +219,13 @@
       top: 300px;
     }
     
+    #measure {
+      position: absolute;
+      z-index: 9;
+      border: 1px dotted black;
+      width: 1022px;
+      height: 628px;
+    }
   </style>
   
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -222,6 +233,7 @@
 </head>
 <body>
   <div id="wrap">
+    <div id="measure"></div>
     <div id="left">
       <div id="log">
         <p>Kong rolls 1, 2, 3, 1, P, E</p>
