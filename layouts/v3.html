@@ -4,10 +4,16 @@
   <title>ROK v3</title>
 
   <style type="text/css">
+    @font-face {
+      font-family: cracked;
+      src: url("cracked.woff");
+    }
+  
     body {
       background: #fff;
       color: #333;
       font-size: 1em;
+      font-family: helvetica, arial, sans-serif;
     }
 
     #wrap {
@@ -140,6 +146,30 @@
       top: 170px;
     }
     
+    .monster_health,
+    .monster_victory_points,
+    .monster_energy {
+      padding: 2px;
+      position: absolute;    
+      font-family: cracked;
+      font-size: 28px;
+    }
+    
+    .monster_health {
+      top: 5px;
+      left: 112px;
+      transform: rotate(20deg);
+      -webkit-transform: rotate(20deg);
+    }
+    
+    .monster_victory_points {
+      top: 21px;
+      left: 58px;
+      transform: rotate(-55deg);
+      -webkit-transform: rotate(-55deg);
+    }
+    
+    
     #log {
       top: 0;
       right: 0;
@@ -269,6 +299,8 @@
       </div>
     
       <div id="m6" class="own-monster">
+        <div class="monster_health" id="monsters__6__health">10</div>
+        <div class="monster_victory_points" id="monsters__6__victory_points">3</div>
       </div>
     
       <div id="ms7" class="monster_slot">
