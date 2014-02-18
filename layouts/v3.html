@@ -70,15 +70,19 @@
     }
 
     div.monster_slot {
+      ddisplay: none;
       position: absolute;
       width: 214px;
       height: 142px;
-      background-image: url('monster_slot.png');
+      background: white;
+      opacity: 0.35;
+      bbackground-image: url('monster_slot.png');
       z-index: -1;
     }
     
     div.own-monster,
     div.enemy-monster {
+      ddisplay: none;
       position: absolute;
       width: 214px;
       height: 142px;
@@ -86,7 +90,7 @@
       background-repeat: no-repeat;
     }
     
-    #m1,
+
     #ms1 {
       left: 10px;
       top: 10px;
@@ -94,6 +98,14 @@
     
     #m1 {
       background-position: 0 0;
+
+      /* slot 1 
+      left: 10px;
+      top: 10px;*/
+      
+      /* city */
+      left: 175px;
+      top: 170px;
     }
     
     #m2,
@@ -108,65 +120,90 @@
       display: none;    
     }
     
-    #m3 {
+    #m3,
+    #ms3 {
       right: 10px;
       top: 10px;
+    }
+        
+    #m3 {
       background-position: 0px -284px;
     }
     
-    #m4 {
+    #m4,
+    #ms4 {
       left: 10px;
       bottom: 10px;
+    }
+    
+    #m4 {
       background-position: 0px -426px;
     }
     
-    #m5 {
-    /*
+    #m5,
+    #ms5 {
       left: 50%;
       margin: 0 0 0 -107px;
       bottom: 10px;
-      */
+    }
+    
+    #m5 {
       background-position: 0px -568px;
     }
     
-    #m6 {
+    #m6,
+    #ms6 {
       right: 10px;
       bottom: 10px;
+    }
+    
+    #m6 {
       background-position: -214px -710px;
     }
     
-    #ms7,
-    #m5 {
+    #ms7 {
+      left: 175px;
+      top: 170px;
+    }
+  
+    #ms8 {
+      display: none;
       right: 175px;
       top: 170px;
     }
     
-    #ms8 {
-      left: 175px;
-      top: 170px;
-    }
-    
-    .monster_health,
-    .monster_victory_points,
-    .monster_energy {
+
+    .monster_stats {
+  
       padding: 2px;
       position: absolute;    
       font-family: cracked;
       font-size: 28px;
+      bbackground: white;
+      padding: 0;
+      -webkit-transform-origin: 0% 50%;
     }
+
     
     .monster_health {
-      top: 5px;
-      left: 112px;
-      transform: rotate(20deg);
-      -webkit-transform: rotate(20deg);
+      top: 2px;
+      left: 114px;
+      transform: rotate(16deg);
+      -webkit-transform: rotate(16deg);
     }
     
     .monster_victory_points {
-      top: 21px;
-      left: 58px;
-      transform: rotate(-55deg);
-      -webkit-transform: rotate(-55deg);
+      top: 27px;
+      left: 61px;
+      transform: rotate(-51deg);
+      -webkit-transform: rotate(-51deg);
+    }
+    
+    .monster_energy {
+      top: 35px;
+      left: 158px;
+      transform: rotate(75deg);
+      -webkit-transform: rotate(75deg);
     }
     
     
@@ -251,8 +288,21 @@
     }
   </style>
   
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="jquery-2.1.0.min.js"></script>
+  
+  <script>
+      
+      var a = function() {
+        console.log('!');
+        var i = $('.monster_stats').html();
+        console.log(i);
+        i++;
+        $('.monster_stats').html(i);
+        window.setTimeout("a()", 1000);
+      }
+      //a();
 
+  </script>
 </head>
 <body>
   <div id="wrap">
@@ -292,15 +342,28 @@
       <div id="m3" class="enemy-monster">
       </div>
     
+      <div id="ms3" class="monster_slot">
+      </div>
+    
       <div id="m4" class="enemy-monster">
+      </div>
+    
+      <div id="ms4" class="monster_slot">
       </div>
     
       <div id="m5" class="enemy-monster">
       </div>
     
+      <div id="ms5" class="monster_slot">
+      </div>
+    
       <div id="m6" class="own-monster">
-        <div class="monster_health" id="monsters__6__health">10</div>
-        <div class="monster_victory_points" id="monsters__6__victory_points">3</div>
+        <div class="monster_stats monster_health" id="monsters__6__health">0</div>
+        <div class="monster_stats monster_victory_points" id="monsters__6__victory_points">0</div>
+        <div class="monster_stats monster_energy" id="monsters__6__energy">0</div>
+      </div>
+    
+      <div id="ms6" class="monster_slot">
       </div>
     
       <div id="ms7" class="monster_slot">
