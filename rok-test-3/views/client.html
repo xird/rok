@@ -3,7 +3,7 @@
 <head>
 <title>ROK test 3 - dev client 3</title>
 
-<link rel="stylesheet" href="//localhost:8080/dev2.css" type="text/css" media="all" />
+<link rel="stylesheet" href="//localhost:8080/rok.css" type="text/css" media="all" />
 
 <!-- TODO make the server dynamic -->
 <script src="//localhost:8080/jquery-2.1.0.min.js"></script>
@@ -21,8 +21,6 @@
 
 <script type="text/javascript">
 
-// TODO: Keyboard shortcuts for all possible actions
- 
 $(document).ready(function() {
   // Connect to the socket.
   socket = io.connect('http://localhost:3250');
@@ -73,7 +71,7 @@ $(document).ready(function() {
   <hr/>
 </div>
 
-<div id="dev2">
+<div id="wrap">
   <div id="messages"></div>
     
   <div id="lobby">

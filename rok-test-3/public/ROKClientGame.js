@@ -150,7 +150,7 @@ ROKGame.prototype.initClient = function() {
    * Game message
    */
   socket.on('game_message', function socketGameMessage(data) {
-    console.log('dev2 game message received');
+    console.log('game message received');
     $('#messages').html(data).show().delay(1500).fadeOut(1000);
   });
 
@@ -198,7 +198,7 @@ ROKGame.prototype.initClient = function() {
   
   // Finish buying cards.
   $('#game').on("click", "#done_buying_button", function clickDoneBuying(){
-    console.log('dev2 done buying');
+    console.log('clickDoneBuying');
     socket.emit("done_buying");
   });
   
