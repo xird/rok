@@ -88,6 +88,7 @@ ROKServerGame.prototype.init = function(player) {
     this.name = monster_names[id - 1];
   }
   
+  // TODO Really not needed? This is run in the lobby!
   this.snapState();
 }
 
@@ -997,6 +998,7 @@ ROKServerGame.prototype.selectMonster = function (player, selected_monster_id) {
           // Start the game
           this.beginGame();
           // Send all the information...
+          // Note: This needs to go to all players.
           this.snapState();
           // .. and then add messages about the beginning of the game. 
           // Separately, because snapState() doesn't know what to do with log
@@ -1100,6 +1102,9 @@ ROKServerGame.prototype.addPlayer = function(player) {
     this.players[player.id] = player;
     this.player_ids[player.id] = player.id;
     
+    // TODO is this needed? This seems to update the state when the game isn't
+    // visible yet, so one snapState after monster selection should be enough.
+    // No need to snap for monster selection?
     this.snapState();
   }
   else {

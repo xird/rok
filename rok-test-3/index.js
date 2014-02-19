@@ -207,6 +207,8 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
     }
     else {
       // The game must be in progress, so dump all the game data.
+      // TODO: Only to the player connecting! The others already have/will have
+      // the same data.
       games[player.game_id].snapState();
     }
   }
@@ -278,6 +280,8 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
     // Confirm game. If the game can be successfully confirmed, remove the
     // players from the lobby.
     if (game.confirmGame(player)) {
+      // TODO is there any need to snap the game state when we're just showing 
+      // monster selection?
       game.snapState();
       for (var p in game.players) {
         lobby.removePlayer(p);
@@ -371,6 +375,8 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
       // If the game can be successfully confirmed, remove the players from the
       // lobby.
       if (games[player.game_id].confirmGame(player)) {
+        // TODO: Shouldn't need to snap here, since we're just moving to monster
+        // selection?
         games[player.game_id].snapState();
         for (var p in games[player.game_id].players) {
           lobby.removePlayer(p);
