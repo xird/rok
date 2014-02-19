@@ -4,7 +4,6 @@
  * Base class is in ROKGame.js
  *
  * FIXME If another player snaps status, this player get duplicate rows in monster tables
- * TODO disable donebuying after click, make sure it gets re-enabled
  *
  */
 ROKGame.prototype.initClient = function() {
@@ -160,6 +159,7 @@ ROKGame.prototype.initClient = function() {
   // Monster selection
   $("#monster_selection").on("click", ".monster_select_button", function clickMonsterSelect() {
     console.log('clickMonsterSelect ' + $(this).data('monster_id'));
+    $(this).attr('disabled', true);
     socket.emit("select_monster", $(this).data('monster_id'));
   });
 
@@ -167,18 +167,14 @@ ROKGame.prototype.initClient = function() {
   // Roll dice.
   $('#game').on("click", "#roll_dice_button", function clickRollDice(){
     console.log('clickRollDice');
-    
     $(this).attr('disabled', true);
     
     var keep_dice_ids = [];
-    
     $('#dice td').each(function(){
       if ($(this).hasClass('k')) {
         keep_dice_ids.push($(this).data('die_id'));
       }
     });
-    
-    console.log(keep_dice_ids);
     
     socket.emit("roll_dice", keep_dice_ids);
   });
@@ -199,6 +195,7 @@ ROKGame.prototype.initClient = function() {
   // Finish buying cards.
   $('#game').on("click", "#done_buying_button", function clickDoneBuying(){
     console.log('clickDoneBuying');
+    $(this).attr('disabled', true);
     socket.emit("done_buying");
   });
   
@@ -206,24 +203,29 @@ ROKGame.prototype.initClient = function() {
   // Leave game.
   $('#game').on("click", "#leave_game_button", function clickLeaveGame(){
     console.log('clickLeaveGame');
+    $(this).attr('disabled', true);
     socket.emit("leave_game");
   });
   
   // Yield Kyoto or not.
   $('#game').on("click", "#yield_kyoto_city_button", function clickYieldCity(){
     console.log('yielding city');
+    $(this).attr('disabled', true);
     socket.emit("resolve_yield", {kyoto: "city", yield: true});
   });
   $('#game').on("click", "#yield_kyoto_bay_button", function clickYieldBay(){
     console.log('yielding bay');
+    $(this).attr('disabled', true);
     socket.emit("resolve_yield", {kyoto: "bay", yield: true});
   });
   $('#game').on("click", "#stay_in_kyoto_city_button", function clickStayInCity(){
     console.log('staying in city');
+    $(this).attr('disabled', true);
     socket.emit("resolve_yield", {kyoto: "city", yield: false});
   });
   $('#game').on("click", "#stay_in_kyoto_bay_button", function clickStayInBay(){
     console.log('staying in bay');
+    $(this).attr('disabled', true);
     socket.emit("resolve_yield", {kyoto: "bay", yield: false});
   });
   
