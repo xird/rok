@@ -21,15 +21,13 @@
  */
 ROKGame.prototype.handleUpdates = function(updates) {
   console.log("Handle updates");
-  console.log(dump(updates));
   for (var i = 0; i < updates.length; i++) {
     var update = updates[i];
     
     if (update.log) {
       this.addToLog(update.log);    
     }
-    console.log("update");    
-    console.log(update);
+
     if (typeof this[update.handler] == "function") {
       this[update.handler](update.value, update.id);
     }
