@@ -1,3 +1,9 @@
+/* Production client confirmed CSS rules */
+
+
+/* end production client rules */
+
+/* TODO dev client rules */
 #wrap {
   position: relative;
 }
@@ -38,29 +44,29 @@
 }
 
 
-tr#dice td {
+div#dice div.die {
   height: 20px;
   width: 20px;
   text-align: center;
 }
 
-tr#dice td.i {
+div#dice div.i {
   background: #888;
 }
 
-tr#dice td.r {
+div#dice div.r {
   background: #cfc;
 }
 
-tr#dice td.f {
+div#dice div.f {
   background: #ccf;
 }
 
-tr#dice td.k {
+div#dice div.k {
   background: #fcc;
 }
 
-tr#dice td.n {
+div#dice div.n {
   background: #222;
 }
 
@@ -89,3 +95,296 @@ div#log p {
   border: 2px solid red;
   display: none;
 }
+
+/* TODO styles from layouts */
+/*
+    @font-face {
+      font-family: cracked;
+      src: url("cracked.woff");
+    }
+  
+    body {
+      background: #fff;
+      color: #333;
+      font-size: 1em;
+      font-family: helvetica, arial, sans-serif;
+    }
+
+    #wrap {
+      width: 1024px;
+      height: 600px;
+      background: #666;
+      position: relative;
+    }
+    
+    #map,
+    #log,
+    #cards,
+    #dice_area {
+      position: absolute;
+      oopacity: 0.5;
+    }
+    
+    #map,
+    #log {
+      height: 480px;
+    }
+    
+    #cards,
+    #dice_area {
+      height: 120px;
+      overflow: hidden;
+    }
+    
+
+    
+    #map {
+      left: 0;
+      top: 0;
+      background-color: #6a4;
+      background-image: url("map.png");
+      background-repeat: no-repeat;
+      background-position: 0px 100px;
+      z-index: 2;
+      width: 520px;
+      overflow: hidden;
+    }
+    
+    #maphalf {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width:400px;
+      height: 400px;
+      opacity: 0.5;
+      background: red;
+      display:none;
+    }
+
+    div.monster_slot {
+      ddisplay: none;
+      position: absolute;
+      width: 214px;
+      height: 142px;
+      background: white;
+      opacity: 0.35;
+      bbackground-image: url('monster_slot.png');
+      z-index: -1;
+    }
+    
+    div.own-monster,
+    div.enemy-monster {
+      ddisplay: none;
+      position: absolute;
+      width: 214px;
+      height: 142px;
+      background-image: url('monster_frames.png');
+      background-repeat: no-repeat;
+    }
+    
+
+    #ms1 {
+      left: 10px;
+      top: 10px;
+    }
+    
+    #m1 {
+      display: none;
+      background-position: 0 0;
+
+      slot1: foo; 
+      left: 10px;
+      top: 10px;
+      
+      city: bar;
+      left: 175px;
+      top: 170px;
+    }
+    
+    #m2,
+    #ms2 {
+      display: none;
+      left: 50%;
+      margin: 0 0 0 -107px;
+      top: 10px;
+    }
+    
+    #m2 {
+      background-position: 0px -142px;
+      display: none;    
+    }
+    
+    #m3,
+    #ms3 {
+      right: 10px;
+      top: 10px;
+    }
+        
+    #m3 {
+      background-position: 0px -284px;
+    }
+    
+    #m4,
+    #ms4 {
+      left: 10px;
+      bottom: 10px;
+    }
+    
+    #m4 {
+      background-position: 0px -426px;
+    }
+    
+    #m5,
+    #ms5 {
+
+      left: 50%;
+      margin: 0 0 0 -107px;
+      bottom: 10px;
+    }
+    
+    #m5 {
+      display: none;
+      background-position: 0px -568px;
+    }
+    
+    #m6,
+    #ms6 {
+      right: 10px;
+      bottom: 10px;
+    }
+    
+    #m6 {
+      background-position: -214px -710px;
+    }
+    
+    #ms7 {
+      plrs: 5-6;
+      left: 175px;
+      top: 170px;
+      
+      plrs: 4;
+      left: 150px;
+      top: 170px;
+    }
+  
+    #ms8 {
+      display: none;
+      right: 150px;
+      top: 170px;
+    }
+    
+
+    .monster_stats {
+  
+      padding: 2px;
+      position: absolute;    
+      font-family: cracked;
+      font-size: 28px;
+      bbackground: white;
+      padding: 0;
+      -webkit-transform-origin: 0% 50%;
+    }
+
+    
+    .monster_health {
+      top: 2px;
+      left: 114px;
+      transform: rotate(16deg);
+      -webkit-transform: rotate(16deg);
+    }
+    
+    .monster_victory_points {
+      top: 27px;
+      left: 61px;
+      transform: rotate(-51deg);
+      -webkit-transform: rotate(-51deg);
+    }
+    
+    .monster_energy {
+      top: 35px;
+      left: 158px;
+      transform: rotate(75deg);
+      -webkit-transform: rotate(75deg);
+    }
+    
+    
+    #log {
+      top: 0;
+      right: 0;
+      background: #caa;
+      width: 504px;
+      overflow-y: scroll;
+    }
+    
+    #log p {
+      font-size: 0.9em;
+      margin: 0;
+    }
+    
+    
+    
+    #cards {
+      width: 276px;
+      background: #aca;
+      bottom: 0px;
+      left: 244px;
+    }
+    
+    #cards img {
+      width: 56px;
+      height: 84px;
+      float: left;
+      margin: 20px 0 0 10px;
+    }
+    
+    #dice_area {
+      width: 504px;
+      background: #cca;
+      position: absolute;
+      bottom: 0px;
+      right: 0px;
+    }
+    
+    #dice {
+      bbackground: #cc0;
+      height: 60px;
+      right: 30px;
+      position: absolute;
+      top: 0px;
+      width: 440px;
+
+    }
+    
+    .die,
+    #roll_dice_button {
+      background: #caa;
+      bborder: 1px solid #400;
+      font-size: 1.6em;
+      text-align: center;
+    }
+    
+    .die {
+      float: left;
+      width: 45px;
+      height: 45px;
+      margin: 10px 5px 10px 5px;
+
+    }
+    
+    #roll_dice_button {
+      position: absolute;
+      bottom: 10px;
+      right: 35px;
+      font-size: 0.8em;
+      width: 160px;
+      height: 40px;
+    }
+    
+    #measure {
+      position: absolute;
+      z-index: 9;
+      border: 1px dotted black;
+      width: 1022px;
+      height: 598px;
+    }
+*/

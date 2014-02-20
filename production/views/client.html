@@ -71,6 +71,7 @@ $(document).ready(function() {
   <hr/>
 </div>
 
+<!-- TODO dev client HTML - turn this into production HTML -->
 <div id="wrap">
   <div id="messages"></div>
     
@@ -96,11 +97,13 @@ $(document).ready(function() {
     
     <input type="button" value="Cancel game" id="cancel_game_button" class="hidden" />
   </div>
-  
+
+
   <div id="monster_selection">
     <h2>Select monster</h2>
     <div id="monster_select_buttons"></div>
   </div>
+  
   
   <div id="game" tabindex="0">
     <h2>Game</h2>
@@ -160,23 +163,29 @@ $(document).ready(function() {
       </tr>
     </table>
     
-    <table>
-      <tr id="dice">
-        <th>Dice</th>
-        <td id="dice__0__value" data-die_id="0"></td>
-        <td id="dice__1__value" data-die_id="1"></td>
-        <td id="dice__2__value" data-die_id="2"></td>
-        <td id="dice__3__value" data-die_id="3"></td>
-        <td id="dice__4__value" data-die_id="4"></td>
-        <td id="dice__5__value" data-die_id="5"></td>
-        <td id="dice__6__value" data-die_id="6"></td>
-        <td id="dice__7__value" data-die_id="7"></td>
-        <th>Roll number</th>
-        <td id="roll_number"></td>
-      </tr>
-    </table>
+
+    <div id="dice_area">
+      <div id="dice">
+        <div id="dice__0__value" data-die_id="0"></div>
+        <div id="dice__1__value" data-die_id="1"></div>
+        <div id="dice__2__value" data-die_id="2"></div>
+        <div id="dice__3__value" data-die_id="3"></div>
+        <div id="dice__4__value" data-die_id="4"></div>
+        <div id="dice__5__value" data-die_id="5"></div>
+        <div id="dice__6__value" data-die_id="6"></div>
+        <div id="dice__7__value" data-die_id="7"></div>
+      </div>
+      
+      <div>Roll number: <span id="roll_number"></span></div>
+
+      <input type="button" value="Roll" id="roll_dice_button" disabled="disabled" />
+      
+      <!-- div id="roll_dice_button">Roll</div -->
+    </div>
     
-    <input type="button" value="Roll" id="roll_dice_button" disabled="disabled" />
+    
+    
+
     
     <input type="button" value="Done buying" id="done_buying_button" disabled="disabled" />
     
@@ -188,5 +197,94 @@ $(document).ready(function() {
         
   </div>
 </div>
+<!-- end dev client HTML -->
+
+<!-- TODO layouts HTML -->
+<!--
+  <div id="wrap">
+    <div id="measure"></div>
+
+    <div id="log">
+      <p>Kong rolls 1, 2, 3, 1, P, E</p>
+      <p>Kong uses background dweller to re-roll a 3</p>
+      <p>Kong rolls (1), (2),  1 , (1), (P), (E)</p>
+      <p>Kong rolls  P ,  1 ,  2 ,  E , (P), (E)</p>
+      <p>Kong rolls (P),  2 ,  E , (E), (P), (E)</p>
+      <p>Kong's final dice are P, 2, E, E, P, E</p>
+      <p>Kong gains 3E</p>
+      <p>Kong attacks Squid for 2 damage</p>
+      <p>Kong buys nothing</p>
+      <p>Squid rolls  P ,  P ,  1 ,  1 ,  2 ,  2 </p>
+      <p>Squid rolls (P), (P),  E ,  3 ,  1 ,  1 </p>
+      <p>Squid rolls (P), (P), (E),  1 ,  P ,  2 </p>
+      <p>Squid's final dice are P, P, E, 1, P, 2 </p>
+    </div>
+
+    <div id="map">
+      <div id="maphalf"></div>
+    
+      <div id="m1" class="enemy-monster">
+      </div>
+    
+      <div id="ms1" class="monster_slot">
+      </div>
+    
+      <div id="m2" class="enemy-monster">
+      </div>
+    
+      <div id="ms2" class="monster_slot">
+      </div>
+    
+      <div id="m3" class="enemy-monster">
+      </div>
+    
+      <div id="ms3" class="monster_slot">
+      </div>
+    
+      <div id="m4" class="enemy-monster">
+      </div>
+    
+      <div id="ms4" class="monster_slot">
+      </div>
+    
+      <div id="m5" class="enemy-monster">
+      </div>
+    
+      <div id="ms5" class="monster_slot">
+      </div>
+    
+      <div id="m6" class="own-monster">
+        <div class="monster_stats monster_health" id="monsters__6__health">0</div>
+        <div class="monster_stats monster_victory_points" id="monsters__6__victory_points">0</div>
+        <div class="monster_stats monster_energy" id="monsters__6__energy">0</div>
+      </div>
+    
+      <div id="ms6" class="monster_slot">
+      </div>
+    
+      <div id="ms7" class="monster_slot">
+      </div>
+    
+      <div id="ms8" class="monster_slot">
+      </div>
+    </div>
+
+    
+  
+
+    <div id="cards">
+      <img id="card__0" src="extra_head.jpg" />
+      <img id="card__1" src="extra_head.jpg" />
+
+      <img id="card__2" src="extra_head.jpg" />
+      <img id="card__3" src="extra_head.jpg" />
+    </div>
+  
+
+  </div>
+-->
+
+
+
 </body>
 </html>

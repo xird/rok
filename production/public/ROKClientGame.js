@@ -4,6 +4,8 @@
  * Base class is in ROKGame.js
  *
  * FIXME If another player snaps status, this player get duplicate rows in monster tables
+ * FIXME IF refresh while yielding, button stays disabled
+ * TODO Dice CSS refs, roll_dice_button
  *
  */
 ROKGame.prototype.initClient = function() {
@@ -170,7 +172,7 @@ ROKGame.prototype.initClient = function() {
     $(this).attr('disabled', true);
     
     var keep_dice_ids = [];
-    $('#dice td').each(function(){
+    $('#dice div').each(function(){
       if ($(this).hasClass('k')) {
         keep_dice_ids.push($(this).data('die_id'));
       }
@@ -181,7 +183,7 @@ ROKGame.prototype.initClient = function() {
 
 
   // Toggle dice keep states
-  $('#dice').on("click", "td", function toggleDiceStatus(){
+  $('#dice').on("click", "div", function toggleDiceStatus(){
     console.log('toggleDiceStatus');
     if ($(this).hasClass("r")) {
       $(this).removeClass("r").addClass("k");
@@ -403,10 +405,12 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
   }
   
   if (update.value == 'yield_kyoto_city' && game.next_input_from_monster == game.this_monster) {
+    console.log('enable yield city');
     $('#yield_kyoto_city_button').removeAttr('disabled');
     $('#stay_in_kyoto_city_button').removeAttr('disabled');
   }
   else {
+    console.log('disable yield city');
     $('#yield_kyoto_city_button').attr('disabled', true);
     $('#stay_in_kyoto_city_button').attr('disabled', true);  
   }
