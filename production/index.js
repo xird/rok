@@ -55,14 +55,11 @@ var SessionSockets = require('session.socket.io')
  */
 app.get('/', function getHandler(req, res) {
   console.log("Client page load");
-  if (typeof req.session != undefined) {
-    var sessid = req.session.id;
-  }
-  else {
-    var sessid = "";
-  }
-  console.log('Client page load - SESSION ID: ' + sessid);
   res.render('client.html');
+});
+app.get('/dev', function getHandler(req, res) {
+  console.log("Dev client page load");
+  res.render('dev_client.html');
 });
 
 var games = {};
@@ -154,15 +151,11 @@ var cleanUpIdlePlayers = function () {
   // cleanup, or because the game ended and all the players left, delete those
   // games as well.
   for (var game_id in games) {
-    console.log(game_id);
     var game_players = games[game_id].players;
     if (Object.keys(game_players).length == 0) {
       console.log("Deleting empty game");
       delete games[game_id];
       lobby.snapState();
-    }
-    else {
-      console.log("Game still has players");
     }
   }
   
