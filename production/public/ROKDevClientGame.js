@@ -154,6 +154,11 @@ ROKGame.prototype.initClient = function() {
     $('#messages').html(data).show().delay(1500).fadeOut(1000);
   });
 
+  // The server emits the disconnect event after an idle player has been
+  // deleted.
+  socket.on('die', function socketDisconnect() {
+    window.location = "disconnected";
+  });
 
   // UI event handlers
   

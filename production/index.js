@@ -24,7 +24,7 @@
   app.use(express.static(path.join(application_root, "StaticPages")));
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
- */
+
  *
  */
 
@@ -77,6 +77,10 @@ app.get('/dev', function getHandler(req, res) {
   console.log("Dev client page load");
   res.render('dev_client.html');
 });
+app.get('/disconnected', function getHandler(req, res) {
+  console.log("disconnected page load");
+  res.render('disconnected.html');
+});
 
 var games = {};
 var players = {};
@@ -122,28 +126,30 @@ process.on('uncaughtException', function catchUncaught(e) {
  * re-open one, or to refresh the browser, while not making others wait too long
  * for players that have actually disconnected.
  *
- * Weird. Upon further testing, leaving browsers idle seems to cause pauses in
- * the sending of the keepalive calls, dropping users that still have open 
- * browsers. Suspicion: It's Mavericks and some new power saving feature? This
- * hasn't happened on any older OS X.
- * TODO investigate
- *
- * Increased to 10 seconds to allwo developing
+ * Note: At least on Mavericks/Safari and Mavericks/Firefox, leaving the browser
+ * open but in the background (i.e. some other application has focus) causes the
+ * browser to eventually start sending the keep_alive messages at intervals less
+ * than 2 seconds, even though that's what's set in the setInterval() function
+ * call on the client side. There is extra error handling for that, namely the 
+ * added die() call in this function, and the "zombie" checks and nuking in the
+ * keep_alive event handler.
  *
  */
 var cleanUpIdlePlayers = function () {
   var now = Date.now();
-  console.log("cleanUpIdlePlayers " + now);
+  //console.log("cleanUpIdlePlayers " + new Date().getSeconds());
+  //console.log(players);
   var idle_players = [];
   for (var pid in players) {
     var diff = now - players[pid].last_seen;
-    if (diff > 10000) {
+    if (diff > 5000) {
       idle_players.push(players[pid]);
     }
   }
   
   for (var i = 0; i < idle_players.length; i++) {
     console.log('Cleaning up idle player ' + idle_players[i].name);
+    var idle_socket = idle_players[i].getSocket();
     // Remove the player from the lobby
     lobby.removePlayer(idle_players[i].id);
   
@@ -169,6 +175,12 @@ var cleanUpIdlePlayers = function () {
     // Remove the player from the global players object.
     delete players[idle_players[i].id];
     
+    // Tell the client to disconnect, so the "player" variable set up in the
+    // connect event handler won't stick around.
+    idle_socket.emit('die');
+    
+    //console.log("Deleted idle player, players now:");
+    //console.log(players);
     lobby.snapState();
   }
   
@@ -244,9 +256,28 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
    * A client reporting that it's still there.
    */
   socket.on("keep_alive", function keepAlive() {
-    var now = Date.now();
-    console.log('keep ' + player.name +' alive at ' + now);
-    player.last_seen = now;
+    if (player == null) {
+      // This zombie has been nuked already, but the client is still sticking
+      // around for some reason. It probably didn't get the "die" message, or
+      // doesn't know that it's meant to die when it gets it. Send it again,
+      // just in case.
+      console.log("Zombie still kicking around");
+      socket.emit("die");
+    }
+    else if (typeof players[player.id] == 'undefined') {
+      // The "player" variable keeps the idle player in existence even though
+      // it's been removed from the global "players" array. So, in case we're
+      // dealing with a zombie, get rid of it:
+      console.log("Nuking zombie " + player.name);
+      player = null;
+    }
+    else {
+      // Everything is ok, the player hasn't been removed.
+      var now = Date.now();
+      console.log('keeping ' + player.name +' alive at ' + new Date().getSeconds());
+      player.last_seen = now;    
+    }
+
   });
 
   /**
@@ -322,6 +353,7 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
   
   // Handles players leaving the game.
   socket.on('disconnect', function lobbyRemovePlayer() {
+    console.log('DISCONNECT');
     removePlayer(player);
   });
   
@@ -566,6 +598,8 @@ var addPlayer = function(socket, sessid) {
  * Removes a player from the global players array.
  */
 var removePlayer = function(player) {
-  player.status = "disconnected";
+  if (player) {
+    player.status = "disconnected";  
+  }
 }
 

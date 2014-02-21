@@ -4,7 +4,7 @@
  * Base class is in ROKGame.js
  *
  * FIXME If another player snaps status, this player get duplicate rows in monster tables
- * FIXME IF refresh while yielding, button stays disabled
+
  * TODO Dice CSS refs, roll_dice_button
  *
  */
@@ -17,7 +17,7 @@ ROKGame.prototype.initClient = function() {
    * the server doesn't hear from us within 5 seconds, our session will be
    * cleaned up.
    */
-  window.setInterval("socket.emit('keep_alive');console.log(Date.now());", 2000);
+  window.setInterval("socket.emit('keep_alive');", 2000);
 
 
   // Socket event handlers.
@@ -39,12 +39,14 @@ ROKGame.prototype.initClient = function() {
     game.this_monster = data.this_monster;
     
     if (data.game_state == "lobby") {
+      console.log('Lobby');
       // The player is still in the lobby.
       $('#lobby').show();
       $('#monster_selection').hide();
       $('#game').hide();
     }
     else if (data.game_state == "select_monsters") {
+      console.log('select_monsters');
       // The players are selecting their monsters.
       $('#lobby').hide();
       $('#monster_selection').show();
@@ -56,7 +58,7 @@ ROKGame.prototype.initClient = function() {
       $('#monster_select_buttons').json2html(monster_select_buttons, transforms.monster_select_buttons);
     }
     else {
-      // The game is already in progress
+      // The game is already in progress or over
       $('#lobby').hide();
       $('#monster_selection').hide();
       $('#game').show();
@@ -115,16 +117,24 @@ ROKGame.prototype.initClient = function() {
         $('#dice__' + i + '__value').addClass(data.dice[i].state);
       }
       
-      // Enable the roll button if this is the current monster.
-
-      if (game.turn_monster == game.this_monster) {
-        if (game.turn_phase == 'roll') {
-          $('#roll_dice_button').removeAttr('disabled');
-        }
-        if (game.turn_phase == 'buy') {
-          $('#done_buying_button').removeAttr('disabled');
-        }
+      // Enable appropriate buttons for the current state.
+      // FIXME IF refresh while yielding, button stays disabled
+//      console.log(utils.dump(game));
+      if (game.game_state == 'over') {
+        console.log('over');
+        $('#leave_game_button').removeAttr('disabled');
       }
+      else {
+        if (game.turn_monster == game.this_monster) {
+          if (game.turn_phase == 'roll') {
+            $('#roll_dice_button').removeAttr('disabled');
+          }
+          if (game.turn_phase == 'buy') {
+            $('#done_buying_button').removeAttr('disabled');
+          }
+        }      
+      }
+
       
       console.log('Setting focus to #game');
       // Set focus to the game to allow using the keyboard shortcuts
@@ -153,6 +163,13 @@ ROKGame.prototype.initClient = function() {
   socket.on('game_message', function socketGameMessage(data) {
     console.log('game message received');
     $('#messages').html(data).show().delay(1500).fadeOut(1000);
+  });
+  
+  // The server emits the "die" event after an idle player has been
+  // deleted. Resetting the browser's URL is the easiest way to force a 
+  // disconnect and to stop the keep_alive messages.
+  socket.on('die', function socketDisconnect() {
+    window.location = "disconnected";
   });
 
 

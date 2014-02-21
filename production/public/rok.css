@@ -14,8 +14,10 @@ body {
 #wrap {
   width: 1024px;
   height: 600px;
-  background: #666;
+  background: #aaa;
   position: relative;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* TODO Style this nicer */
@@ -38,7 +40,7 @@ body {
 #cards,
 #dice_area {
   position: absolute;
-  opacity: 0.5;
+  oopacity: 0.5;
 }
 
 #map,
@@ -64,6 +66,10 @@ body {
   z-index: 2;
   width: 520px;
   overflow: hidden;
+}
+
+#game.fivetosix #map {
+  width: 800px;
 }
 
 #dice_area {
@@ -122,6 +128,7 @@ body {
 
 
 #game table {
+  ddisplay: none;
   position: relative;
   z-index: 99999;
   border-collapse: collapse;
@@ -181,6 +188,10 @@ div#log {
   overflow-x: hidden;
 }
 
+#game.fivetosix {
+  width: 100px;
+}
+
 div#log p {
   margin: 0;
 }
@@ -209,14 +220,13 @@ div#log p {
       position: absolute;
       width: 214px;
       height: 142px;
-      background: white;
+      bbackground: white;
       opacity: 0.35;
-      bbackground-image: url('http://localhost:8080/monster_slot.png');
+      background-image: url('http://localhost:8080/monster_slot.png');
       z-index: -1;
     }
     
-    div.own-monster,
-    div.enemy-monster {
+    div.monster {
       ddisplay: none;
       position: absolute;
       width: 214px;
@@ -225,96 +235,116 @@ div#log p {
       background-repeat: no-repeat;
     }
     
+    .monster_slot {
+      ddisplay: none;
+    }
 
     #ms1 {
       left: 10px;
       top: 10px;
+      bborder: 2px solid red;
     }
-    
-    #m1 {
-      display: none;
-      background-position: 0 0;
 
-      slot1: foo; 
-      left: 10px;
-      top: 10px;
-      
-      city: bar;
-      left: 175px;
-      top: 170px;
-    }
-    
-    #m2,
     #ms2 {
       display: none;
       left: 50%;
       margin: 0 0 0 -107px;
       top: 10px;
+      bborder: 2px solid orange;
+    }
+    
+    #game.fivetosix #ms2 {
+      display: block;
+    }
+
+    #ms3 {
+      right: 10px;
+      top: 10px;
+      bborder: 2px solid yellow;
+    }
+
+    #ms4 {
+      left: 10px;
+      bottom: 10px;
+      bborder: 2px solid green;
+    }
+    
+    #ms5 {
+      display: none;
+      left: 50%;
+      margin: 0 0 0 -107px;
+      bottom: 10px;
+      bborder: 2px solid blue;
+    }
+
+    #game.fivetosix #ms5 {
+      display: block;
+    }
+
+    #ms6 {
+      right: 10px;
+      bottom: 10px;
+      bborder: 2px solid purple;
+    }
+
+    #mskc {
+      left: 150px;
+      top: 170px;
+    }
+  
+    #mskb {
+      display: none;
+      right: 150px;
+      top: 170px;
+    }
+
+    #game.fivetosix #mskb {
+      display: block;
+    }
+
+    
+    #m1 {
+      background-position: 0 0;
+    }
+    #m1.active {
+      background-position: -214px 0;
     }
     
     #m2 {
       background-position: 0px -142px;
-      display: none;    
     }
-    
-    #m3,
-    #ms3 {
-      right: 10px;
-      top: 10px;
+    #m2.active {
+      background-position: -214px -142px;
     }
         
     #m3 {
       background-position: 0px -284px;
-    }
-    
-    #m4,
-    #ms4 {
-      left: 10px;
-      bottom: 10px;
+    }   
+    #m3.active {
+      background-position: -214px -284px;
     }
     
     #m4 {
       background-position: 0px -426px;
     }
-    
-    #m5,
-    #ms5 {
-
-      left: 50%;
-      margin: 0 0 0 -107px;
-      bottom: 10px;
+    #m4.active {
+      background-position: -214px -426px;
     }
     
     #m5 {
-      display: none;
       background-position: 0px -568px;
     }
-    
-    #m6,
-    #ms6 {
-      right: 10px;
-      bottom: 10px;
+    #m5.active {
+      background-position: -214px -568px;
     }
     
     #m6 {
+      background-position: 0px -710px;
+    }
+    #m6.active {
       background-position: -214px -710px;
     }
-    
-    #ms7 {
-      plrs: 5-6;
-      left: 175px;
-      top: 170px;
-      
-      plrs: 4;
-      left: 150px;
-      top: 170px;
-    }
-  
-    #ms8 {
-      display: none;
-      right: 150px;
-      top: 170px;
-    }
+ 
     
 
     .monster_stats {
@@ -385,6 +415,13 @@ div#log p {
 */
 
 #game_dev {
+  ddisplay: none;
   position: relative;
   z-index: 2;
+}
+
+p#disconnected {
+  font-size: 2em;
+  text-align: center;
+  padding-top:50px;
 }
