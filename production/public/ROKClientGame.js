@@ -17,7 +17,7 @@ ROKGame.prototype.initClient = function() {
    * the server doesn't hear from us within 5 seconds, our session will be
    * cleaned up.
    */
-  window.setInterval("socket.emit('keep_alive');", 2000);
+  window.setInterval("socket.emit('keep_alive');console.log(Date.now());", 2000);
 
 
   // Socket event handlers.
@@ -450,7 +450,8 @@ ROKGame.prototype.handle__monsters__victory_points = function(updates) {
   game.monsters[update.id].victory_points = update.value;
   var elid = "#monsters__" + update.id + "__victory_points";
   
-  $(elid).css('backgroundColor', "yellow").html(update.value).animate({backgroundColor: "white"}, 500, function() {
+  var obc = $(elid).css('backgroundColor');
+  $(elid).css('backgroundColor', "yellow").html(update.value).animate({backgroundColor: obc}, 500, function() {
     game.handleUpdates(updates);
   });
 }
@@ -460,7 +461,8 @@ ROKGame.prototype.handle__monsters__energy = function(updates) {
   game.monsters[update.id].energy = update.value;
   var elid = "#monsters__" + update.id + "__energy";
   
-  $(elid).css('backgroundColor', "green").html(update.value).animate({backgroundColor: "white"}, 500, function() {
+  var obc = $(elid).css('backgroundColor');
+  $(elid).css('backgroundColor', "green").html(update.value).animate({backgroundColor: obc}, 500, function() {
     game.handleUpdates(updates);
   });
 }
@@ -488,8 +490,8 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
   }
   
   console.log('bgcolor: ' + $(elid).css('backgroundColor'));
-  var original_background_color = $(elid).css('backgroundColor');
-  $(elid).css('backgroundColor', color).html(update.value).animate({backgroundColor: original_background_color}, 700, function() {
+  var obc = $(elid).css('backgroundColor');
+  $(elid).css('backgroundColor', color).html(update.value).animate({backgroundColor: obc}, 700, function() {
     // Did the monster die?
     console.log('checking death: ' + update.value);
     if (update.value < 1) {

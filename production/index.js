@@ -10,6 +10,22 @@
  *
  * ROKServerLobby.js:4: * TODO: For UI reasons (keep the players from jumping up and down in the list),
  *
+ * TODO: Send a message to idle players that causes them to reload the page, so
+ * they stop sending the pings. This just for the debugging of the weird idle
+ * browser bug that causes the pings to stop.
+ *
+ * /*
+ TODO make the web fonts work:
+ app.configure(function(){
+  app.use(function(req, res, next) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    return next();
+  });
+  app.use(express.static(path.join(application_root, "StaticPages")));
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+});
+ */
+ *
  */
 
 var http = require('http')
@@ -105,14 +121,23 @@ process.on('uncaughtException', function catchUncaught(e) {
  * words, 5 seconds. This allows users to accidentally close a browser and 
  * re-open one, or to refresh the browser, while not making others wait too long
  * for players that have actually disconnected.
+ *
+ * Weird. Upon further testing, leaving browsers idle seems to cause pauses in
+ * the sending of the keepalive calls, dropping users that still have open 
+ * browsers. Suspicion: It's Mavericks and some new power saving feature? This
+ * hasn't happened on any older OS X.
+ * TODO investigate
+ *
+ * Increased to 10 seconds to allwo developing
+ *
  */
 var cleanUpIdlePlayers = function () {
-  //console.log("cleanUpIdlePlayers");
   var now = Date.now();
+  console.log("cleanUpIdlePlayers " + now);
   var idle_players = [];
   for (var pid in players) {
     var diff = now - players[pid].last_seen;
-    if (diff > 5000) {
+    if (diff > 10000) {
       idle_players.push(players[pid]);
     }
   }
@@ -219,8 +244,9 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
    * A client reporting that it's still there.
    */
   socket.on("keep_alive", function keepAlive() {
-    //console.log('keepAlive');
-    player.last_seen = Date.now();
+    var now = Date.now();
+    console.log('keep ' + player.name +' alive at ' + now);
+    player.last_seen = now;
   });
 
   /**

@@ -16,6 +16,7 @@ ROKGame.prototype.initClient = function() {
    * cleaned up.
    */
   window.setInterval("socket.emit('keep_alive');", 2000);
+  //console.log(Date.now());
 
 
   // Socket event handlers.

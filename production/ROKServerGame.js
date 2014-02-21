@@ -666,18 +666,13 @@ ROKServerGame.prototype.checkDeaths = function() {
   for (var mid in this.monsters) {
     mid = parseInt(mid);
     if (this.monsters[mid].health < 1) {
+      console.log(this.monsters[mid].name + ' is dead');
       // Remove monster from monster_order so it doesn't get to play.
       var log_message = this.monsters[mid].name + " is killed.";
       var monster_order = this.monster_order;
-      console.log(monster_order);
-      console.log('mid: ' + mid);
-      console.log(monster_order.indexOf(mid));
-      console.log('mid type ' + typeof mid);
-      console.log('mo0 type ' + typeof monster_order[0]);
       var index = monster_order.indexOf(mid)
       if (index != -1) {
-        monster_order.splice(index, 1);      
-        console.log(monster_order);
+        monster_order.splice(index, 1);
         this.updateState('monster_order', monster_order, log_message);
       }
 

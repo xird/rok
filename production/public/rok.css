@@ -1,13 +1,24 @@
 /* Production client confirmed CSS rules */
+@font-face {
+  font-family: cracked;
+  src: url("http://localhost:8080/cracked.woff");
+}
 
+body {
+  background: #fff;
+  color: #333;
+  font-size: 1em;
+  font-family: helvetica, arial, sans-serif;
+}
 
-/* end production client rules */
-
-/* TODO dev client rules */
 #wrap {
+  width: 1024px;
+  height: 600px;
+  background: #666;
   position: relative;
 }
 
+/* TODO Style this nicer */
 #messages {
   position: absolute;
   top: 30px;
@@ -19,11 +30,100 @@
 }
 
 #game {
-  border: 1px solid blue;
   display: none;
 }
 
+#map,
+#log,
+#cards,
+#dice_area {
+  position: absolute;
+  opacity: 0.5;
+}
+
+#map,
+#log {
+  height: 480px;
+}
+
+#cards,
+#dice_area {
+  height: 120px;
+  overflow: hidden;
+}
+
+
+
+#map {
+  left: 0;
+  top: 0;
+  background-color: #6a4;
+  background-image: url("http://localhost:8080/map.png");
+  background-repeat: no-repeat;
+  background-position: 0px 100px;
+  z-index: 2;
+  width: 520px;
+  overflow: hidden;
+}
+
+#dice_area {
+  width: 504px;
+  background: #cca;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+}
+
+#dice {
+  bbackground: #cc0;
+  height: 60px;
+  right: 30px;
+  position: absolute;
+  top: 0px;
+  width: 440px;
+
+}
+
+#dice div,
+#roll_dice_button {
+  background: #caa;
+  font-size: 1.6em;
+  text-align: center;
+}
+
+#dice div {
+  float: left;
+  width: 45px;
+  height: 45px;
+  margin: 10px 5px 10px 5px;
+
+}
+
+#roll_dice_button {
+  position: absolute;
+  bottom: 10px;
+  right: 35px;
+  font-size: 0.8em;
+  width: 160px;
+  height: 40px;
+}
+
+#debug h4 {
+  margin: 0;
+}
+
+/* end production client rules */
+
+/* TODO dev client rules */
+
+
+
+
+
+
 #game table {
+  position: relative;
+  z-index: 99999;
   border-collapse: collapse;
 }
 
@@ -35,9 +135,7 @@
   display: none;
 }
 
-.debug h5 {
-  margin: 0;
-}
+
 
 .monster_select_button.selected {
   border: 1px solid red;
@@ -97,69 +195,14 @@ div#log p {
 }
 
 /* TODO styles from layouts */
-/*
-    @font-face {
-      font-family: cracked;
-      src: url("cracked.woff");
-    }
+
+
   
-    body {
-      background: #fff;
-      color: #333;
-      font-size: 1em;
-      font-family: helvetica, arial, sans-serif;
-    }
 
-    #wrap {
-      width: 1024px;
-      height: 600px;
-      background: #666;
-      position: relative;
-    }
-    
-    #map,
-    #log,
-    #cards,
-    #dice_area {
-      position: absolute;
-      oopacity: 0.5;
-    }
-    
-    #map,
-    #log {
-      height: 480px;
-    }
-    
-    #cards,
-    #dice_area {
-      height: 120px;
-      overflow: hidden;
-    }
-    
+
 
     
-    #map {
-      left: 0;
-      top: 0;
-      background-color: #6a4;
-      background-image: url("map.png");
-      background-repeat: no-repeat;
-      background-position: 0px 100px;
-      z-index: 2;
-      width: 520px;
-      overflow: hidden;
-    }
-    
-    #maphalf {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width:400px;
-      height: 400px;
-      opacity: 0.5;
-      background: red;
-      display:none;
-    }
+
 
     div.monster_slot {
       ddisplay: none;
@@ -168,7 +211,7 @@ div#log p {
       height: 142px;
       background: white;
       opacity: 0.35;
-      bbackground-image: url('monster_slot.png');
+      bbackground-image: url('http://localhost:8080/monster_slot.png');
       z-index: -1;
     }
     
@@ -178,7 +221,7 @@ div#log p {
       position: absolute;
       width: 214px;
       height: 142px;
-      background-image: url('monster_frames.png');
+      background-image: url('http://localhost:8080/monster_frames.png');
       background-repeat: no-repeat;
     }
     
@@ -306,7 +349,7 @@ div#log p {
       transform: rotate(75deg);
       -webkit-transform: rotate(75deg);
     }
-    
+/*  
     
     #log {
       top: 0;
@@ -337,54 +380,11 @@ div#log p {
       margin: 20px 0 0 10px;
     }
     
-    #dice_area {
-      width: 504px;
-      background: #cca;
-      position: absolute;
-      bottom: 0px;
-      right: 0px;
-    }
-    
-    #dice {
-      bbackground: #cc0;
-      height: 60px;
-      right: 30px;
-      position: absolute;
-      top: 0px;
-      width: 440px;
 
-    }
     
-    .die,
-    #roll_dice_button {
-      background: #caa;
-      bborder: 1px solid #400;
-      font-size: 1.6em;
-      text-align: center;
-    }
-    
-    .die {
-      float: left;
-      width: 45px;
-      height: 45px;
-      margin: 10px 5px 10px 5px;
-
-    }
-    
-    #roll_dice_button {
-      position: absolute;
-      bottom: 10px;
-      right: 35px;
-      font-size: 0.8em;
-      width: 160px;
-      height: 40px;
-    }
-    
-    #measure {
-      position: absolute;
-      z-index: 9;
-      border: 1px dotted black;
-      width: 1022px;
-      height: 598px;
-    }
 */
+
+#game_dev {
+  position: relative;
+  z-index: 2;
+}
