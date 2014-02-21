@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Idle bug test</title>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script type="text/javascript">
+window.onload = function() {  
+  socket = io.connect('http://localhost:3250');
+  window.setInterval("socket.emit('foo');console.log(Date.now());", 2000);
+}
+</script>
+</head>
+<body>
+
+</body>
+</html>
