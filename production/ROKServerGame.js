@@ -201,6 +201,7 @@ ROKServerGame.prototype.snapState = function() {
   send_object.monster_order = this.monster_order;
   send_object.monsters = this.monsters;
   send_object.dice = this.dice;
+  send_object.winner = this.winner;
   
   // Loop through all players in this game and send them the data.
   for (var game_player_id in this.players) {

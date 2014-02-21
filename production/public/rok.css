@@ -6,7 +6,7 @@
 
 body {
   background: #fff;
-  color: #333;
+  color: #000;
   font-size: 1em;
   font-family: helvetica, arial, sans-serif;
 }
@@ -54,8 +54,6 @@ body {
   overflow: hidden;
 }
 
-
-
 #map {
   left: 0;
   top: 0;
@@ -70,6 +68,185 @@ body {
 
 #game.fivetosix #map {
   width: 800px;
+}
+
+div.monster_slot {
+  display: none;
+  position: absolute;
+  width: 214px;
+  height: 142px;
+  opacity: 0.35;
+  background-image: url('http://localhost:8080/monster_slot.png');
+  z-index: -1;
+}
+
+div.monster {
+  display: none;
+  position: absolute;
+  width: 214px;
+  height: 142px;
+  background-image: url('http://localhost:8080/monster_frames.png');
+  background-repeat: no-repeat;
+}
+
+#ms1 {
+  left: 10px;
+  top: 10px;
+}
+
+#ms2 {
+  display: none;
+  left: 50%;
+  margin: 0 0 0 -107px;
+  top: 10px;
+}
+
+#game.fivetosix #ms2 {
+  display: block;
+}
+
+#ms3 {
+  right: 10px;
+  top: 10px;
+}
+
+#ms4 {
+  left: 10px;
+  bottom: 10px;
+}
+
+#ms5 {
+  display: none;
+  left: 50%;
+  margin: 0 0 0 -107px;
+  bottom: 10px;
+}
+
+#game.fivetosix #ms5 {
+  display: block;
+}
+
+#ms6 {
+  right: 10px;
+  bottom: 10px;
+}
+
+#mskc {
+  display: block;
+  left: 150px;
+  top: 170px;
+}
+
+#mskb {
+  display: none;
+  right: 150px;
+  top: 170px;
+}
+
+#game.fivetosix #mskb {
+  display: block;
+}
+
+#m1 {
+  background-position: 0 0;
+}
+#m1.active {
+  background-position: -214px 0;
+}
+
+#m2 {
+  background-position: 0px -142px;
+}
+#m2.active {
+  background-position: -214px -142px;
+}
+    
+#m3 {
+  background-position: 0px -284px;
+}   
+#m3.active {
+  background-position: -214px -284px;
+}
+
+#m4 {
+  background-position: 0px -426px;
+}
+#m4.active {
+  background-position: -214px -426px;
+}
+
+#m5 {
+  background-position: 0px -568px;
+}
+#m5.active {
+  background-position: -214px -568px;
+}
+
+#m6 {
+  background-position: 0px -710px;
+}
+#m6.active {
+  background-position: -214px -710px;
+}
+
+.monster_stats {
+  padding: 2px;
+  position: absolute;    
+  font-family: cracked;
+  font-size: 28px;
+  padding: 0;
+  transform-origin: 0% 50%;
+  -webkit-transform-origin: 0% 50%;
+}
+
+.monster_health {
+  top: 2px;
+  left: 114px;
+  transform: rotate(16deg);
+  -webkit-transform: rotate(16deg);
+}
+
+.monster_victory_points {
+  top: 27px;
+  left: 61px;
+  transform: rotate(-51deg);
+  -webkit-transform: rotate(-51deg);
+}
+
+.monster_energy {
+  top: 35px;
+  left: 158px;
+  transform: rotate(75deg);
+  -webkit-transform: rotate(75deg);
+}
+
+#log {
+  top: 0;
+  right: 0;
+  background: #caa;
+  width: 504px;
+  overflow-y: scroll;
+}
+
+div#log p {
+  margin: 0;
+}
+
+/* TODO */
+#cards {
+  display: none;
+  width: 276px;
+  background: #aca;
+  bottom: 0px;
+  left: 244px;
+}
+
+/* TODO */    
+#cards img {
+  width: 56px;
+  height: 84px;
+  float: left;
+  margin: 20px 0 0 10px;
 }
 
 #dice_area {
@@ -88,6 +265,32 @@ body {
   top: 0px;
   width: 440px;
 
+}
+
+div#dice div.die {
+  height: 20px;
+  width: 20px;
+  text-align: center;
+}
+
+div#dice div.i {
+  background: #888;
+}
+
+div#dice div.r {
+  background: #cfc;
+}
+
+div#dice div.f {
+  background: #ccf;
+}
+
+div#dice div.k {
+  background: #fcc;
+}
+
+div#dice div.n {
+  background: #222;
 }
 
 #dice div,
@@ -118,86 +321,14 @@ body {
   margin: 0;
 }
 
-/* end production client rules */
-
-/* TODO dev client rules */
-
-
-
-
-
-
-#game table {
-  ddisplay: none;
-  position: relative;
-  z-index: 99999;
-  border-collapse: collapse;
-}
-
-#game table td {
-  border: 1px solid #ccc;
-}
-
+/* TODO */
 #monster_selection {
   display: none;
 }
 
-
-
+/* TODO */
 .monster_select_button.selected {
   border: 1px solid red;
-}
-
-
-div#dice div.die {
-  height: 20px;
-  width: 20px;
-  text-align: center;
-}
-
-div#dice div.i {
-  background: #888;
-}
-
-div#dice div.r {
-  background: #cfc;
-}
-
-div#dice div.f {
-  background: #ccf;
-}
-
-div#dice div.k {
-  background: #fcc;
-}
-
-div#dice div.n {
-  background: #222;
-}
-
-table#game_data {
-  float: left;
-}
-
-div#log {
-  background: #ccc;
-  height: 200px;
-  width: 350px;
-  float: left;
-  overflow-y: scroll;
-  overflow-x: hidden;
-}
-
-#game.fivetosix {
-  width: 100px;
-}
-
-div#log p {
-  margin: 0;
-}
-
-.monster_data.dead td {
-  background: #aaa;
 }
 
 .hidden {
@@ -205,220 +336,62 @@ div#log p {
   display: none;
 }
 
+/* end production client rules */
+
+
+
+
+
+/* TODO dev client rules */
+
+/* TODO move these to a debugger div */
+#game_dev {
+  position: absolute;
+  top: 350px;
+  right:0;
+  z-index: 2;
+  width:300px;
+}
+
+#game table {
+  position: absolute;
+  right:0;
+  z-index: 2;
+  border-collapse: collapse;
+}
+
+table#game_data {
+  top:0;
+}
+
+table#enemy_monsters {
+  top:200px;
+}
+
+table#own_monster {
+  top:300px;
+}
+
+#game table td {
+  border: 1px solid #ccc;
+}
+
+.monster_data.dead td {
+  background: #aaa;
+}
+
+
+
 /* TODO styles from layouts */
 
 
-  
-
-
-
+/* 
     
-
-
-    div.monster_slot {
-      ddisplay: none;
-      position: absolute;
-      width: 214px;
-      height: 142px;
-      bbackground: white;
-      opacity: 0.35;
-      background-image: url('http://localhost:8080/monster_slot.png');
-      z-index: -1;
-    }
-    
-    div.monster {
-      ddisplay: none;
-      position: absolute;
-      width: 214px;
-      height: 142px;
-      background-image: url('http://localhost:8080/monster_frames.png');
-      background-repeat: no-repeat;
-    }
-    
-    .monster_slot {
-      ddisplay: none;
-    }
-
-    #ms1 {
-      left: 10px;
-      top: 10px;
-      bborder: 2px solid red;
-    }
-
-    #ms2 {
-      display: none;
-      left: 50%;
-      margin: 0 0 0 -107px;
-      top: 10px;
-      bborder: 2px solid orange;
-    }
-    
-    #game.fivetosix #ms2 {
-      display: block;
-    }
-
-    #ms3 {
-      right: 10px;
-      top: 10px;
-      bborder: 2px solid yellow;
-    }
-
-    #ms4 {
-      left: 10px;
-      bottom: 10px;
-      bborder: 2px solid green;
-    }
-    
-    #ms5 {
-      display: none;
-      left: 50%;
-      margin: 0 0 0 -107px;
-      bottom: 10px;
-      bborder: 2px solid blue;
-    }
-
-    #game.fivetosix #ms5 {
-      display: block;
-    }
-
-    #ms6 {
-      right: 10px;
-      bottom: 10px;
-      bborder: 2px solid purple;
-    }
-
-    #mskc {
-      left: 150px;
-      top: 170px;
-    }
-  
-    #mskb {
-      display: none;
-      right: 150px;
-      top: 170px;
-    }
-
-    #game.fivetosix #mskb {
-      display: block;
-    }
-
-    
-    #m1 {
-      background-position: 0 0;
-    }
-    #m1.active {
-      background-position: -214px 0;
-    }
-    
-    #m2 {
-      background-position: 0px -142px;
-    }
-    #m2.active {
-      background-position: -214px -142px;
-    }
-        
-    #m3 {
-      background-position: 0px -284px;
-    }   
-    #m3.active {
-      background-position: -214px -284px;
-    }
-    
-    #m4 {
-      background-position: 0px -426px;
-    }
-    #m4.active {
-      background-position: -214px -426px;
-    }
-    
-    #m5 {
-      background-position: 0px -568px;
-    }
-    #m5.active {
-      background-position: -214px -568px;
-    }
-    
-    #m6 {
-      background-position: 0px -710px;
-    }
-    #m6.active {
-      background-position: -214px -710px;
-    }
- 
-    
-
-    .monster_stats {
-  
-      padding: 2px;
-      position: absolute;    
-      font-family: cracked;
-      font-size: 28px;
-      bbackground: white;
-      padding: 0;
-      -webkit-transform-origin: 0% 50%;
-    }
-
-    
-    .monster_health {
-      top: 2px;
-      left: 114px;
-      transform: rotate(16deg);
-      -webkit-transform: rotate(16deg);
-    }
-    
-    .monster_victory_points {
-      top: 27px;
-      left: 61px;
-      transform: rotate(-51deg);
-      -webkit-transform: rotate(-51deg);
-    }
-    
-    .monster_energy {
-      top: 35px;
-      left: 158px;
-      transform: rotate(75deg);
-      -webkit-transform: rotate(75deg);
-    }
-/*  
-    
-    #log {
-      top: 0;
-      right: 0;
-      background: #caa;
-      width: 504px;
-      overflow-y: scroll;
-    }
-    
-    #log p {
-      font-size: 0.9em;
-      margin: 0;
-    }
-    
-    
-    
-    #cards {
-      width: 276px;
-      background: #aca;
-      bottom: 0px;
-      left: 244px;
-    }
-    
-    #cards img {
-      width: 56px;
-      height: 84px;
-      float: left;
-      margin: 20px 0 0 10px;
-    }
     
 
     
 */
 
-#game_dev {
-  ddisplay: none;
-  position: relative;
-  z-index: 2;
-}
 
 p#disconnected {
   font-size: 2em;

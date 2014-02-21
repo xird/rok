@@ -144,9 +144,6 @@ $(document).ready(function() {
     <table id="enemy_monsters">
       <tr>
         <th></th>
-        <th>health</th>
-        <th>victory_points</th>
-        <th>energy</th>
         <th>in_kyoto_city</th>
         <th>in_kyoto_bay</th>
       </tr>
@@ -155,31 +152,28 @@ $(document).ready(function() {
     <table id="own_monster">
       <tr>
         <th></th>
-        <th>health</th>
-        <th>victory_points</th>
-        <th>energy</th>
         <th>in_kyoto_city</th>
         <th>in_kyoto_bay</th>
       </tr>
     </table>
     
     <div id="map">
-      <div id="ms1" class="monster_slot">
+      <div id="ms1" class="monster_slot monster_home">
       </div>
 
-      <div id="ms2" class="monster_slot">
+      <div id="ms2" class="monster_slot monster_home">
       </div>
 
-      <div id="ms3" class="monster_slot">
+      <div id="ms3" class="monster_slot monster_home">
       </div>
 
-      <div id="ms4" class="monster_slot">
+      <div id="ms4" class="monster_slot monster_home">
       </div>
 
-      <div id="ms5" class="monster_slot">
+      <div id="ms5" class="monster_slot monster_home">
       </div>
 
-      <div id="ms6" class="monster_slot">
+      <div id="ms6" class="monster_slot monster_home">
       </div>
       
       <div id="mskc" class="monster_slot">
@@ -189,22 +183,37 @@ $(document).ready(function() {
       </div>
                   
       <div id="m1" class="monster">
+        <div class="monster_stats monster_health" id="monsters__1__health">10</div>
+        <div class="monster_stats monster_victory_points" id="monsters__1__victory_points">0</div>
+        <div class="monster_stats monster_energy" id="monsters__1__energy">0</div>
       </div>
     
       <div id="m2" class="monster">
+        <div class="monster_stats monster_health" id="monsters__2__health">10</div>
+        <div class="monster_stats monster_victory_points" id="monsters__2__victory_points">0</div>
+        <div class="monster_stats monster_energy" id="monsters__2__energy">0</div>
       </div>
     
       <div id="m3" class="monster">
+        <div class="monster_stats monster_health" id="monsters__3__health">10</div>
+        <div class="monster_stats monster_victory_points" id="monsters__3__victory_points">0</div>
+        <div class="monster_stats monster_energy" id="monsters__3__energy">0</div>
       </div>
 
       <div id="m4" class="monster">
+        <div class="monster_stats monster_health" id="monsters__4__health">10</div>
+        <div class="monster_stats monster_victory_points" id="monsters__4__victory_points">0</div>
+        <div class="monster_stats monster_energy" id="monsters__4__energy">0</div>
       </div>
         
       <div id="m5" class="monster">
+        <div class="monster_stats monster_health" id="monsters__5__health">10</div>
+        <div class="monster_stats monster_victory_points" id="monsters__5__victory_points">0</div>
+        <div class="monster_stats monster_energy" id="monsters__5__energy">0</div>
       </div>
     
       <div id="m6" class="monster">
-        <div class="monster_stats monster_health" id="monsters__6__health">0</div>
+        <div class="monster_stats monster_health" id="monsters__6__health">10</div>
         <div class="monster_stats monster_victory_points" id="monsters__6__victory_points">0</div>
         <div class="monster_stats monster_energy" id="monsters__6__energy">0</div>
       </div>
@@ -222,11 +231,11 @@ $(document).ready(function() {
   
 
     <div id="cards">
-      <img id="card__0" src="extra_head.jpg" />
-      <img id="card__1" src="extra_head.jpg" />
+      <img id="card__0" src="http://localhost:8080/TODO_extra_head.jpg" />
+      <img id="card__1" src="http://localhost:8080/TODO_extra_head.jpg" />
 
-      <img id="card__2" src="extra_head.jpg" />
-      <img id="card__3" src="extra_head.jpg" />
+      <img id="card__2" src="http://localhost:8080/TODO_extra_head.jpg" />
+      <img id="card__3" src="http://localhost:8080/TODO_extra_head.jpg" />
     </div>
     
 

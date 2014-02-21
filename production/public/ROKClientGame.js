@@ -37,7 +37,8 @@ ROKGame.prototype.initClient = function() {
     game.monsters = data.monsters;
     game.dice = data.dice;
     game.this_monster = data.this_monster;
-    
+    game.winner = data.winner;
+    console.log(data);
     if (data.game_state == "lobby") {
       console.log('Lobby');
       // The player is still in the lobby.
@@ -64,6 +65,7 @@ ROKGame.prototype.initClient = function() {
       $('#game').show();
     
       // Write initial values to all UI elements.
+      // TODO These are all debug elements
       $('#this_monster').html(data.this_monster);
       $('#game_state').html(data.game_state);
       $('#turn_phase').html(data.turn_phase);
@@ -74,19 +76,17 @@ ROKGame.prototype.initClient = function() {
       
       // Place monsters starting from the monsters that's next in sequence from
       // the current player's monster. That one is shown on the top slot.
+      // Note that this generates the debugger monster table.
       var own_monster_index = game.monster_order.indexOf(game.this_monster);
       var first_monster_index = own_monster_index + 1;
       if (first_monster_index == game.monster_order.length) {
         first_monster_index = 0;
       }
-      
       var monsters_placed = 0;
       var index = first_monster_index;
       while (monsters_placed < game.monster_order.length) {
         console.log('Placing monster index ' + index + ", id " + game.monster_order[index]);
-
         monsters_placed++;
-
         // If we're placing the last monster, it must be the player's monster.
         if (monsters_placed != game.monster_order.length) {
           $("#enemy_monsters").json2html([{index: game.monster_order[index]}], transforms.monster_slots);
@@ -98,8 +98,81 @@ ROKGame.prototype.initClient = function() {
         if (index == game.monster_order.length) {
           index = 0;
         }
-
       }
+      
+      
+      // Show the appropriate monster slots for the number of players in game.
+      // The bottom left slot is always shown, as that's this player's slot.
+      $('#ms6').show();
+      switch (Object.keys(game.monsters).length) {
+        case 2:
+        $('#ms1').show();
+          break;
+         
+        case 3:
+          $('#ms2').show();
+          $('#ms4').show();
+          break;
+         
+        case 4:
+          $('#ms1').show();
+          $('#ms3').show();
+          $('#ms4').show();
+          break;
+         
+        case 5:
+          $('#ms1').show();
+          $('#ms2').show();
+          $('#ms3').show();
+          $('#ms4').show();
+          $('#mskb').show();
+          break;
+         
+        case 6:
+          $('.monster_slot').show();
+          break;
+      }
+      
+      // Place the playing monsters in the visible monster slots.
+      //
+      // TODO: This is now using monster_order, which won't work correctly if
+      // the page is reloaded after one of the monsters is killed. Since we want
+      // to be able to order the monsters the same way even after one of them
+      // has died, we need to keep a separate variable named 
+      // "original_monster_order". Or use a separate variable for 
+      // "playing_monsters".
+      console.log(game.monsters);
+      var index = first_monster_index;
+      $('.monster_home:visible').each(function(){
+        var msel = $(this);
+        console.log('slot id: ' + $(this).attr('id'));
+        console.log('index: ' + index);
+        var monster_id = game.monster_order[index];
+        console.log('monster id: ' + monster_id);
+        console.log('---');
+        var mel = $('#m' + monster_id);
+        mel.show();
+
+        // Mark this slot as the home for this monster.
+        msel.addClass('m' + monster_id + 'home');
+        
+        // Move the monster to its home, or to Kyoto if that's where it's at.
+        if (game.monsters[monster_id].in_kyoto_city) {
+          game.moveMonster(monster_id, "city");
+        }
+        else if (game.monsters[monster_id].in_kyoto_bay) {
+          game.moveMonster(monster_id, "bay");
+        }
+        else {
+          game.moveMonster(monster_id, "home");
+        }
+
+        index++;
+        if (index == game.monster_order.length) {
+          index = 0;
+        }
+      });
+      
       
       // The slots have been generated, now add the actual data.
       var monster_ids = Object.keys(data.monsters);
@@ -112,6 +185,8 @@ ROKGame.prototype.initClient = function() {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
       }
       
+      
+      // Dice.
       for (var i = 0; i < data.dice.length; i++) {
         $('#dice__' + i + '__value').html(data.dice[i].value);
         $('#dice__' + i + '__value').addClass(data.dice[i].state);
@@ -302,14 +377,40 @@ ROKGame.prototype.initClient = function() {
     'monster_slots': [
       {tag: "tr", id: "monsters__${index}", class: "monster_data", children: [
         {tag: "th", id: "monsters__${index}__name"},
-        {tag: "td", id: "monsters__${index}__health"},
-        {tag: "td", id: "monsters__${index}__victory_points"},
-        {tag: "td", id: "monsters__${index}__energy"},
         {tag: "td", id: "monsters__${index}__in_kyoto_city"},
         {tag: "td", id: "monsters__${index}__in_kyoto_bay"}
       ]}
     ]
   }
+}
+
+
+/**
+ * Function for moving the monster icon to another place on the board.
+ */
+ROKGame.prototype.moveMonster = function(monster_id, target) {
+  var mel = $('#m' + monster_id);
+  switch(target) {
+    case "home":
+      // Get this monsters home slot element:
+      var msel = $(".m" + monster_id + "home");
+      break;
+      
+    case "city":
+      var msel = $("#mskc");
+      break;
+      
+    case "bay":
+      var msel = $("#mskb");
+      break;
+  }
+  // Match the selected monster elements position attributes to that of 
+  // the selected monster slot.
+  //
+  // TODO Animate. But before that's going to work, all elements need to use the
+  // same origin (top left), otherwise we'd have to animate from top: 10px to
+  // bottom: 150px.
+  mel.css('top', msel.css('top')).css('right', msel.css('right')).css('bottom', msel.css('bottom')).css('left', msel.css('left'));
 }
 
 
@@ -363,6 +464,7 @@ ROKGame.prototype.handleUpdates = function(updates) {
 }
 
 ROKGame.prototype.addToLog = function(str) {
+  console.log("adding log message to game log");
   $('#log').append('<p>'+str+'<p>');
   $('#log').scrollTop($('#log')[0].scrollHeight);
 }
@@ -518,4 +620,16 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
 
     game.handleUpdates(updates);
   });
+}
+
+ROKGame.prototype.handle__monsters__in_kyoto_city = function(updates) {
+  var update = updates.shift();
+  var monster_id = update.id;
+  if (update.value == 0) {
+    this.moveMonster(monster_id, "home");
+  }
+  else if (update.value == 1) {
+    this.moveMonster(monster_id, "city");  
+  }
+  game.handleUpdates(updates);
 }
