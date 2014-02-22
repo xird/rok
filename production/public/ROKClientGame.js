@@ -407,9 +407,7 @@ ROKGame.prototype.moveMonster = function(monster_id, target) {
   // Match the selected monster elements position attributes to that of 
   // the selected monster slot.
   //
-  // TODO Animate. But before that's going to work, all elements need to use the
-  // same origin (top left), otherwise we'd have to animate from top: 10px to
-  // bottom: 150px.
+  // TODO Animate.
   mel.css('top', msel.css('top')).css('right', msel.css('right')).css('bottom', msel.css('bottom')).css('left', msel.css('left'));
 }
 
