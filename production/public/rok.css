@@ -197,32 +197,45 @@ div.monster {
 }
 
 .monster_stats {
-  padding: 2px;
-  position: absolute;    
   font-family: cracked;
   font-size: 28px;
-  padding: 0;
+  height: 40px;
+  padding-left: 15px;
+  padding-top: 10px;
+  position: absolute;
   transform-origin: 0% 50%;
   -webkit-transform-origin: 0% 50%;
+  width: 35px;
 }
 
 .monster_health {
-  top: 2px;
-  left: 114px;
+  top: -12px;
+  left: 100px;
   transform: rotate(16deg);
   -webkit-transform: rotate(16deg);
 }
 
+.monster_stats_bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-image: url('http://localhost:8080/stats-bg.png');
+  height: 50px;
+  opacity: 0;
+  width: 50px;
+  z-index: -1;
+}
+
 .monster_victory_points {
   top: 27px;
-  left: 61px;
+  left: 52px;
   transform: rotate(-51deg);
   -webkit-transform: rotate(-51deg);
 }
 
 .monster_energy {
-  top: 35px;
-  left: 158px;
+  top: 10px;
+  left: 155px;
   transform: rotate(75deg);
   -webkit-transform: rotate(75deg);
 }

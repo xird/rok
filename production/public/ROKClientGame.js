@@ -158,12 +158,15 @@ ROKGame.prototype.initClient = function() {
         
         // Move the monster to its home, or to Kyoto if that's where it's at.
         if (game.monsters[monster_id].in_kyoto_city) {
+          console.log(monster_id + ' init city');
           game.moveMonster(monster_id, "city");
         }
         else if (game.monsters[monster_id].in_kyoto_bay) {
+          console.log(monster_id + ' init bay');
           game.moveMonster(monster_id, "bay");
         }
         else {
+          console.log(monster_id + ' init home');
           game.moveMonster(monster_id, "home");
         }
 
@@ -566,9 +569,17 @@ ROKGame.prototype.handle__monsters__victory_points = function(updates) {
   var update = updates.shift();
   game.monsters[update.id].victory_points = update.value;
   var elid = "#monsters__" + update.id + "__victory_points";
+
+  // Make sure the highlight stays centered on the numbers regardless of the 
+  // number of numbers.
+  if (update.value.toString().length == 1) {
+    $(elid).parent().find('.monster_stats_bg').css('background-position', '95px 0');
+  }
+  else {
+    $(elid).parent().find('.monster_stats_bg').css('background-position', '100px 0');
+  }
   
-  var obc = $(elid).css('backgroundColor');
-  $(elid).css('backgroundColor', "yellow").html(update.value).animate({backgroundColor: obc}, 500, function() {
+  $(elid).html(update.value).parent().find('.monster_stats_bg').css('opacity', 1).animate({opacity: 0}, 1000, function() {
     game.handleUpdates(updates);
   });
 }
@@ -578,8 +589,16 @@ ROKGame.prototype.handle__monsters__energy = function(updates) {
   game.monsters[update.id].energy = update.value;
   var elid = "#monsters__" + update.id + "__energy";
   
-  var obc = $(elid).css('backgroundColor');
-  $(elid).css('backgroundColor', "green").html(update.value).animate({backgroundColor: obc}, 500, function() {
+  // Make sure the highlight stays centered on the numbers regardless of the 
+  // number of numbers.
+  if (update.value.toString().length == 1) {
+    $(elid).parent().find('.monster_stats_bg').css('background-position', '-5px 0');
+  }
+  else {
+    $(elid).parent().find('.monster_stats_bg').css('background-position', '0 0');
+  }
+    
+  $(elid).html(update.value).parent().find('.monster_stats_bg').css('opacity', 1).animate({opacity: 0}, 1000, function() {
     game.handleUpdates(updates);
   });
 }
@@ -598,24 +617,37 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
   var old_health = game.monsters[update.id].health;
   game.monsters[update.id].health = update.value;
   var elid = "#monsters__" + update.id + "__health";
-  
+
   if (old_health > update.value) {
-    var color = "red";
+    // Red.
+    // Make sure the highlight stays centered on the numbers regardless of the 
+    // number of numbers.
+    if (update.value.toString().length == 1) {
+      $(elid).parent().find('.monster_stats_bg').css('background-position', '145px 0');
+    }
+    else {
+      $(elid).parent().find('.monster_stats_bg').css('background-position', '150px 0');
+    }
   }
   else {
-    var color = "blue";
+    // Blue.
+    // Make sure the highlight stays centered on the numbers regardless of the 
+    // number of numbers.
+    if (update.value.toString().length == 1) {
+      $(elid).parent().find('.monster_stats_bg').css('background-position', '45px 0');
+    }
+    else {
+      $(elid).parent().find('.monster_stats_bg').css('background-position', '50px 0');
+    }
+
   }
   
-  console.log('bgcolor: ' + $(elid).css('backgroundColor'));
-  var obc = $(elid).css('backgroundColor');
-  $(elid).css('backgroundColor', color).html(update.value).animate({backgroundColor: obc}, 700, function() {
-    // Did the monster die?
+  $(elid).html(update.value).parent().find('.monster_stats_bg').css('opacity', 1).animate({opacity: 0}, 1000, function() {
     console.log('checking death: ' + update.value);
     if (update.value < 1) {
       console.log('mark monster dead');
-      $('#monsters__' + update.id).addClass("dead");
+      $('#m' + update.id).addClass("dead");
     }
-
     game.handleUpdates(updates);
   });
 }
