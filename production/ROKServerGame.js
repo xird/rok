@@ -87,9 +87,6 @@ ROKServerGame.prototype.init = function(player) {
     ];
     this.name = monster_names[id - 1];
   }
-  
-  // TODO Really not needed? This is run in the lobby!
-  //this.snapState();
 }
 
 
@@ -1097,11 +1094,6 @@ ROKServerGame.prototype.addPlayer = function(player) {
     // Update the game itself
     this.players[player.id] = player;
     this.player_ids[player.id] = player.id;
-    
-    // TODO is this needed? This seems to update the state when the game isn't
-    // visible yet, so one snapState after monster selection should be enough.
-    // No need to snap for monster selection?
-    //this.snapState();
   }
   else {
     console.log('ERROR: The player is already invited.');
