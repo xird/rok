@@ -196,6 +196,15 @@ div.monster {
   background-position: -214px -710px;
 }
 
+.monster.dead .dead {
+  position: absolute;
+  width: 214px;
+  height: 142px;
+  opacity: 1;
+  background-image: url('http://localhost:8080/dead.png');
+  z-index: 3;
+}
+
 .monster_stats {
   font-family: cracked;
   font-size: 28px;

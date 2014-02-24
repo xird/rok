@@ -151,9 +151,11 @@ ROKGame.prototype.initClient = function() {
         console.log('monster id: ' + monster_id);
 
         var mel = $('#m' + monster_id);
+        mel.removeClass('dead');
         mel.show();
 
         // Mark this slot as the home for this monster.
+        $('.monster_home').removeClass('m' + monster_id + 'home');
         msel.addClass('m' + monster_id + 'home');
         
         // Move the monster to its home, or to Kyoto if that's where it's at.
@@ -412,7 +414,7 @@ ROKGame.prototype.moveMonster = function(monster_id, target) {
   // the selected monster slot.
   //
   // TODO Animate.
-  mel.css('top', msel.css('top')).css('right', msel.css('right')).css('bottom', msel.css('bottom')).css('left', msel.css('left'));
+  mel.css('top', msel.css('top')).css('left', msel.css('left'));
 }
 
 
