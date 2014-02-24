@@ -2,7 +2,7 @@
  *
  * FIXME: confirming a game before invitation is accepted jams the game
  *
- * ROKClientGame.js:6: * FIXME If another player snaps status, this player get duplicate rows in monster tables
+ * ROKClientGame.js:6: * FIXME If another player snaps status, this player get duplicate rows in monster tables in dev client
  *
  * ROKClientGame.js:7: * TODO disable donebuying after click, make sure it gets re-enabled
  * 
@@ -10,21 +10,7 @@
  *
  * ROKServerLobby.js:4: * TODO: For UI reasons (keep the players from jumping up and down in the list),
  *
- * TODO: Send a message to idle players that causes them to reload the page, so
- * they stop sending the pings. This just for the debugging of the weird idle
- * browser bug that causes the pings to stop.
  *
- * /*
- TODO make the web fonts work:
- app.configure(function(){
-  app.use(function(req, res, next) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    return next();
-  });
-  app.use(express.static(path.join(application_root, "StaticPages")));
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-});
-
  *
  */
 
