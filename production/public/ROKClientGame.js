@@ -149,7 +149,7 @@ ROKGame.prototype.initClient = function() {
         console.log('index: ' + index);
         var monster_id = game.monster_order[index];
         console.log('monster id: ' + monster_id);
-        console.log('---');
+
         var mel = $('#m' + monster_id);
         mel.show();
 
@@ -174,6 +174,7 @@ ROKGame.prototype.initClient = function() {
         if (index == game.monster_order.length) {
           index = 0;
         }
+        console.log('---');
       });
       
       
