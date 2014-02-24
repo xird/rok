@@ -60,16 +60,7 @@ $(document).ready(function() {
 </script>
 </head>
 <body>
-<div id="debug">
-  <h4>Debug</h4>
-  <input id="log_lobby_state" type="button" value="Server lobby state"/>
-  <input id="log_game_state" type="button" value="Server game state"/>
-  <input id="log_players_state" type="button" value="Server players state"/>
-  <input id="client_log_lobby_state" type="button" value="Client lobby state"/>
-  <input id="client_log_game_state" type="button" value="Client game state"/>
-  <input id="quick_game" type="button" value="Quick game"/>
-  <hr/>
-</div>
+
 
 <!-- TODO dev client HTML - turn this into production HTML -->
 <div id="wrap">
@@ -104,58 +95,85 @@ $(document).ready(function() {
     <div id="monster_select_buttons"></div>
   </div>
   
+      <div id="debug">
+      <h4>Debug</h4>
+      <input id="log_lobby_state" type="button" value="Server lobby state"/>
+      <input id="log_game_state" type="button" value="Server game state"/>
+      <input id="log_players_state" type="button" value="Server players state"/>
+      <input id="client_log_lobby_state" type="button" value="Client lobby state"/>
+      <input id="client_log_game_state" type="button" value="Client game state"/>
+      <input id="quick_game" type="button" value="Quick game"/>
+      <hr/>
+    
+      <table id="game_data">
+        <tr>
+          <th>game_state</th>
+          <td id="game_state"></td>
+        </tr>
+        <tr>
+          <th>turn_phase</th>
+          <td id="turn_phase"></td>
+        </tr>
+        <tr>
+          <th>turn_monster</th>
+          <td id="turn_monster"></td>
+        </tr>
+        <tr>
+          <th>next_input_from_monster</th>
+          <td id="next_input_from_monster"></td>
+        </tr>
+        <tr>
+          <th>monster_order</th>
+          <td id="monster_order"></td>
+        </tr>
+        <tr>
+          <th>this_monster</th>
+          <td id="this_monster"></td>
+        </tr>
+        <tr>
+          <th>winner</th>
+          <td id="winner"></td>
+        </tr>
+      </table>
+
+      <hr/>    
+
+      <h4>Enemies:</h4>
+      <table id="enemy_monsters">
+        <tr>
+          <th></th>
+          <th>in_kyoto_city</th>
+          <th>in_kyoto_bay</th>
+        </tr>
+      </table>
+    
+      <hr/>
+    
+      <h4>Own:</h4>
+      <table id="own_monster">
+        <tr>
+          <th></th>
+          <th>in_kyoto_city</th>
+          <th>in_kyoto_bay</th>
+        </tr>
+      </table>
+
+      <hr/>
+    
+      <div id="game_dev">
+        <input type="button" value="Done buying" id="done_buying_button" disabled="disabled" />
+    
+        <input type="button" value="Yield Kyoto city" id="yield_kyoto_city_button" disabled="disabled" />
+        <input type="button" value="Stay in Kyoto city" id="stay_in_kyoto_city_button" disabled="disabled" />
+        <input type="button" value="Yield Kyoto bay" id="yield_kyoto_bay_button" disabled="disabled" />
+        <input type="button" value="Stay in Kyoto bay" id="stay_in_kyoto_bay_button" disabled="disabled" />
+        <input type="button" value="Leave game" id="leave_game_button" disabled="disabled" />
+      </div>
+    
+    </div>
   
   <div id="game" class="fivetosixx" tabindex="0">
     <h2>Game</h2>
-    <table id="game_data">
-      <tr>
-        <th>game_state</th>
-        <td id="game_state"></td>
-      </tr>
-      <tr>
-        <th>turn_phase</th>
-        <td id="turn_phase"></td>
-      </tr>
-      <tr>
-        <th>turn_monster</th>
-        <td id="turn_monster"></td>
-      </tr>
-      <tr>
-        <th>next_input_from_monster</th>
-        <td id="next_input_from_monster"></td>
-      </tr>
-      <tr>
-        <th>monster_order</th>
-        <td id="monster_order"></td>
-      </tr>
-      <tr>
-        <th>this_monster</th>
-        <td id="this_monster"></td>
-      </tr>
-      <tr>
-        <th>winner</th>
-        <td id="winner"></td>
-      </tr>
-    </table>
-    
-    <div id="log">
-    </div>
-    
-    <table id="enemy_monsters">
-      <tr>
-        <th></th>
-        <th>in_kyoto_city</th>
-        <th>in_kyoto_bay</th>
-      </tr>
-    </table>
-    
-    <table id="own_monster">
-      <tr>
-        <th></th>
-        <th>in_kyoto_city</th>
-        <th>in_kyoto_bay</th>
-      </tr>
-    </table>
     
     <div id="map">
       <div id="ms1" class="monster_slot monster_home">
@@ -298,8 +316,8 @@ $(document).ready(function() {
     
     </div>
 
-    
-  
+    <div id="log">
+    </div>
 
     <div id="cards">
       <img id="card__0" src="http://localhost:8080/TODO_extra_head.jpg" />
@@ -332,15 +350,7 @@ $(document).ready(function() {
     
     
 
-    <div id="game_dev">
-      <input type="button" value="Done buying" id="done_buying_button" disabled="disabled" />
-    
-      <input type="button" value="Yield Kyoto city" id="yield_kyoto_city_button" disabled="disabled" />
-      <input type="button" value="Stay in Kyoto city" id="stay_in_kyoto_city_button" disabled="disabled" />
-      <input type="button" value="Yield Kyoto bay" id="yield_kyoto_bay_button" disabled="disabled" />
-      <input type="button" value="Stay in Kyoto bay" id="stay_in_kyoto_bay_button" disabled="disabled" />
-      <input type="button" value="Leave game" id="leave_game_button" disabled="disabled" />
-    </div>
+
         
   </div>
 </div>
