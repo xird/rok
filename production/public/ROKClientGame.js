@@ -194,8 +194,8 @@ ROKGame.prototype.initClient = function() {
       
       // Dice.
       for (var i = 0; i < data.dice.length; i++) {
-        $('#dice__' + i + '__value').html(data.dice[i].value);
-        $('#dice__' + i + '__value').addClass(data.dice[i].state);
+        game.handle__dice__state([{value: data.dice[i].state, id: i}]);
+        game.handle__dice__value([{value: data.dice[i].value, id: i}]);
       }
       
       // Enable appropriate buttons for the current state.
@@ -553,19 +553,44 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
 ROKGame.prototype.handle__dice__state = function(updates) {
   var update = updates.shift();
   game.dice[update.id].state = update.value;
-  $("#dice__" + update.id + "__value").removeClass();
+  $("#dice__" + update.id + "__value").removeClass("r i f n k");
   $("#dice__" + update.id + "__value").addClass(update.value);
   this.handleUpdates(updates);
 }
 
 ROKGame.prototype.handle__dice__value = function(updates) {
   var update = updates.shift();
+
   game.dice[update.id].value = update.value;
   var elid = "#dice__" + update.id + "__value";
+
+  switch (update.value) {
+    case "p":
+      $(elid).css('opacity', 0).html("").removeClass('heal energy').addClass('punch').animate({opacity: 1}, 300, function() {
+        game.handleUpdates(updates);
+      });    
+      break;
+      
+    case "h":
+      $(elid).css('opacity', 0).html("").removeClass('punch energy').addClass('heal').animate({opacity: 1}, 300, function() {
+        game.handleUpdates(updates);
+      });    
+      break;
+      
+    case "e":
+      $(elid).css('opacity', 0).html("").removeClass('punch heal').addClass('energy').animate({opacity: 1}, 300, function() {
+        game.handleUpdates(updates);
+      });    
+      break;
+      
+    default:
+      $(elid).removeClass('punch heal energy').css('opacity', 0).html(update.value).animate({opacity: 1}, 300, function() {
+        game.handleUpdates(updates);
+      });    
+      break;
+  }
   
-  $(elid).css('opacity', 0).html(update.value).animate({opacity: 1}, 300, function() {
-    game.handleUpdates(updates);
-  });
+
 }
 
 ROKGame.prototype.handle__monsters__victory_points = function(updates) {

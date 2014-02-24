@@ -296,36 +296,31 @@ div#log p {
 
 }
 
-div#dice div.die {
-  height: 20px;
-  width: 20px;
-  text-align: center;
-}
+
 
 div#dice div.i {
-  background: #888;
+  background-color: #888;
 }
 
 div#dice div.r {
-  background: #cfc;
+  background-color: #cfc;
 }
 
 div#dice div.f {
-  background: #ccf;
+  background-color: #ccf;
 }
 
 div#dice div.k {
-  background: #fcc;
+  background-color: #fcc;
 }
 
 div#dice div.n {
-  background: #222;
+  background-color: #222;
 }
 
 #dice div,
 #roll_dice_button {
-  background: #caa;
-  font-size: 1.6em;
+  background-color: #caa;
   text-align: center;
 }
 
@@ -334,7 +329,24 @@ div#dice div.n {
   width: 45px;
   height: 45px;
   margin: 10px 5px 10px 5px;
+  font-family: cracked;
+  font-size: 2.4em;
+  text-transform: uppercase;
+}
 
+div#dice div.punch {
+  background-color: none;
+  background-image: url('http://localhost:8080/punch45.png');
+}
+
+div#dice div.heal {
+  background-color: none;
+  background-image: url('http://localhost:8080/heal45.png');
+}
+
+div#dice div.energy {
+  background-color: none;
+  background-image: url('http://localhost:8080/energy45.png');
 }
 
 #roll_dice_button {
