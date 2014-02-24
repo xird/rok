@@ -881,7 +881,7 @@ ROKServerGame.prototype.resolveEnergyDice = function(player) {
   var new_energy = old_energy + additional_energy;
   if (old_energy != new_energy) {
     var log_message = this.monsters[this.turn_monster].name + " gains " + additional_energy + " energy.";
-    this.updateState("monsters__" + player.monster_id + "__energy", old_energy + new_energy, log_message);
+    this.updateState("monsters__" + player.monster_id + "__energy", new_energy, log_message);
   }
 }
 
