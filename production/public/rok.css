@@ -14,7 +14,7 @@ body {
 #wrap {
   width: 1024px;
   height: 600px;
-  background: #ccc;
+  background: #888;
   position: relative;
   margin-left: auto;
   margin-right: auto;
@@ -36,27 +36,27 @@ body {
 }
 
 #map,
-#log,
+#log_wrap,
 #cards,
 #dice_area {
   position: absolute;
   oopacity: 0.5;
 }
 
-#map,
-#log {
-  height: 480px;
+#log_wrap,
+#map {
+  height: 458px;
 }
 
 #cards,
 #dice_area {
-  height: 120px;
+  height: 110px;
   overflow: hidden;
 }
 
 #map {
-  left: 0;
-  top: 0;
+  left: 10px;
+  top: 10px;
   background-color: #6a4;
   background-image: url("http://localhost:8080/map.png");
   background-repeat: no-repeat;
@@ -91,14 +91,14 @@ div.monster {
 }
 
 #ms1 {
-  left: 10px;
-  top: 10px;
+  left: 8px;
+  top: 8px;
 }
 
 #ms2 {
   display: none;
-  left: 296px;
-  top: 10px;
+  left: 293px;
+  top: 8px;
 }
 
 #game.fivetosix #ms2 {
@@ -106,23 +106,23 @@ div.monster {
 }
 
 #ms3 {
-  left: 296px;
-  top: 10px;
+  left: 298px;
+  top: 8px;
 }
 
 #game.fivetosix #ms3 {
-  left: 576px;
+  left: 578px;
 }
 
 #ms4 {
-  left: 10px;
-  top: 330px;
+  left: 8px;
+  top: 308px;
 }
 
 #ms5 {
   display: none;
-  left: 296px;
-  top: 330px;
+  left: 293px;
+  top: 308px;
 }
 
 #game.fivetosix #ms5 {
@@ -130,24 +130,24 @@ div.monster {
 }
 
 #ms6 {
-  left: 296px;
-  top: 330px;
+  left: 298px;
+  top: 308px;
 }
 
 #game.fivetosix #ms6 {
-  left: 576px;
+  left: 578px;
 }
 
 #mskc {
   display: block;
-  left: 153px;
-  top: 170px;
+  left: 151px;
+  top: 158px;
 }
 
 #mskb {
   display: none;
-  left: 437px;
-  top: 170px;
+  left: 436px;
+  top: 158px;
 }
 
 #game.fivetosix #mskb {
@@ -249,12 +249,17 @@ div.monster {
   -webkit-transform: rotate(75deg);
 }
 
+#log_wrap {
+  top: 10px;
+  right: 10px;
+  background-color: #ccc;
+  width: 474px;
+}
+
 #log {
-  top: 0;
-  right: 0;
-  background: #ccc;
-  width: 504px;
+  margin: 10px;
   overflow-y: scroll;
+  height: 438px;
 }
 
 div#log p {
@@ -263,11 +268,11 @@ div#log p {
 
 /* TODO */
 #cards {
-  display: none;
+  ddisplay: none;
   width: 276px;
-  background: #ccc;
-  bottom: 0px;
-  left: 244px;
+  background-color: #ccc;
+  bottom: 10px;
+  left: 254px;
 }
 
 /* TODO */    
@@ -279,11 +284,11 @@ div#log p {
 }
 
 #dice_area {
-  width: 504px;
-  background: #ccc;
+  width: 474px;
+  background-color: #ccc;
   position: absolute;
-  bottom: 0px;
-  right: 0px;
+  bottom: 10px;
+  right: 10px;
 }
 
 #dice {

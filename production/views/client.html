@@ -87,6 +87,9 @@ $(document).ready(function() {
     <input id="confirm_game_button" type="button" value="Start game" class="hidden" />
     
     <input type="button" value="Cancel game" id="cancel_game_button" class="hidden" />
+
+    <input id="quick_game" type="button" value="Quick game"/>
+
   </div>
 
 
@@ -95,6 +98,9 @@ $(document).ready(function() {
     <div id="monster_select_buttons"></div>
   </div>
   
+
+  
+  <div id="game" class="fivetosixx" tabindex="0">
       <div id="debug">
       <h4>Debug</h4>
       <input id="log_lobby_state" type="button" value="Server lobby state"/>
@@ -102,7 +108,7 @@ $(document).ready(function() {
       <input id="log_players_state" type="button" value="Server players state"/>
       <input id="client_log_lobby_state" type="button" value="Client lobby state"/>
       <input id="client_log_game_state" type="button" value="Client game state"/>
-      <input id="quick_game" type="button" value="Quick game"/>
+
       <hr/>
     
       <table id="game_data">
@@ -171,10 +177,7 @@ $(document).ready(function() {
       </div>
     
     </div>
-  
-  <div id="game" class="fivetosixx" tabindex="0">
-    <h2>Game</h2>
-    
+
     <div id="map">
       <div id="ms1" class="monster_slot monster_home">
       </div>
@@ -316,7 +319,9 @@ $(document).ready(function() {
     
     </div>
 
-    <div id="log">
+    <div id="log_wrap">
+      <div id="log">
+      </div>
     </div>
 
     <div id="cards">
