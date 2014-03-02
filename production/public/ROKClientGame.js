@@ -65,14 +65,6 @@ ROKGame.prototype.initClient = function() {
       $('#game').show();
     
       // Write initial values to all UI elements.
-      // TODO These are all debug elements
-      $('#this_monster').html(data.this_monster);
-      $('#game_state').html(data.game_state);
-      $('#turn_phase').html(data.turn_phase);
-      $('#turn_monster').html(data.turn_monster);
-      $('#next_input_from_monster').html(data.next_input_from_monster);
-      $('#roll_number').html(data.roll_number);
-      $('#monster_order').html(utils.dump(data.monster_order));
       
       // Place monsters starting from the monsters that's next in sequence from
       // the current player's monster. That one is shown on the top slot.

@@ -61,8 +61,6 @@ $(document).ready(function() {
 </head>
 <body>
 
-
-<!-- TODO dev client HTML - turn this into production HTML -->
 <div id="wrap">
   <div id="messages"></div>
     
@@ -101,75 +99,13 @@ $(document).ready(function() {
 
   
   <div id="game" class="fivetosixx" tabindex="0">
-      <div id="debug">
+    <div id="debug">
       <h4>Debug</h4>
       <input id="log_lobby_state" type="button" value="Server lobby state"/>
       <input id="log_game_state" type="button" value="Server game state"/>
       <input id="log_players_state" type="button" value="Server players state"/>
       <input id="client_log_lobby_state" type="button" value="Client lobby state"/>
-      <input id="client_log_game_state" type="button" value="Client game state"/>
-
-      <hr/>
-    
-      <table id="game_data">
-        <tr>
-          <th>game_state</th>
-          <td id="game_state"></td>
-        </tr>
-        <tr>
-          <th>turn_phase</th>
-          <td id="turn_phase"></td>
-        </tr>
-        <tr>
-          <th>turn_monster</th>
-          <td id="turn_monster"></td>
-        </tr>
-        <tr>
-          <th>next_input_from_monster</th>
-          <td id="next_input_from_monster"></td>
-        </tr>
-        <tr>
-          <th>monster_order</th>
-          <td id="monster_order"></td>
-        </tr>
-        <tr>
-          <th>this_monster</th>
-          <td id="this_monster"></td>
-        </tr>
-        <tr>
-          <th>winner</th>
-          <td id="winner"></td>
-        </tr>
-      </table>
-
-      <hr/>    
-
-      <h4>Enemies:</h4>
-      <table id="enemy_monsters">
-        <tr>
-          <th></th>
-          <th>in_kyoto_city</th>
-          <th>in_kyoto_bay</th>
-        </tr>
-      </table>
-    
-      <hr/>
-    
-      <h4>Own:</h4>
-      <table id="own_monster">
-        <tr>
-          <th></th>
-          <th>in_kyoto_city</th>
-          <th>in_kyoto_bay</th>
-        </tr>
-      </table>
-
-      <hr/>
-    
-      <div id="game_dev">
-
-      </div>
-    
+      <input id="client_log_game_state" type="button" value="Client game state"/>    
     </div>
 
     <div id="map">

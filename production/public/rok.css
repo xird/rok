@@ -20,7 +20,6 @@ body {
   margin-right: auto;
 }
 
-/* TODO Style this nicer */
 #messages {
   position: absolute;
   top: 30px;
@@ -29,6 +28,7 @@ body {
   padding: 5px;
   width: 500px;
   display: none;
+  z-index: -10;
 }
 
 #game {
@@ -266,16 +266,16 @@ div#log p {
   margin: 0;
 }
 
-/* TODO */
+/* TODO cards */
 #cards {
-  ddisplay: none;
+  display: none;
   width: 276px;
   background-color: #ccc;
   bottom: 10px;
   left: 254px;
 }
 
-/* TODO */    
+/* TODO cards img */    
 #cards img {
   width: 56px;
   height: 84px;
@@ -398,12 +398,12 @@ table#game_data {
 }
 /* End debugger */
 
-/* TODO */
+/* TODO monster selection */
 #monster_selection {
   display: none;
 }
 
-/* TODO */
+/* TODO monster selected */
 .monster_select_button.selected {
   border: 1px solid red;
 }
@@ -412,27 +412,6 @@ table#game_data {
   border: 2px solid red;
   display: none;
 }
-
-/* end production client rules */
-
-
-
-
-
-/* TODO dev client rules */
-
-
-
-/* TODO styles from layouts */
-
-
-/* 
-    
-    
-
-    
-*/
-
 
 p#disconnected {
   font-size: 2em;
