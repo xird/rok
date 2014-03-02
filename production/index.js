@@ -1,12 +1,6 @@
 /**
  *
  * FIXME: confirming a game before invitation is accepted jams the game
- * 
- * ROKClientLobby.js:6: * TODO add "leave game" button for invited users
- *
- * ROKServerLobby.js:4: * TODO: For UI reasons (keep the players from jumping up and down in the list),
- *
- *
  *
  */
 
