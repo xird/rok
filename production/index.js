@@ -406,8 +406,8 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
       // If the game can be successfully confirmed, remove the players from the
       // lobby.
       if (games[player.game_id].confirmGame(player)) {
-        // TODO: Shouldn't need to snap here, since we're just moving to monster
-        // selection?
+        // This is the first game state snap. In this case, showing the monsters
+        // to be selected.
         games[player.game_id].snapState();
         for (var p in games[player.game_id].players) {
           lobby.removePlayer(p);

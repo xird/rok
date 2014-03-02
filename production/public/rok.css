@@ -31,6 +31,80 @@ body {
   z-index: -10;
 }
 
+/* Monster selection */
+
+#monster_selection {
+  background: #ccc;
+  display: none;
+  height: 520px;
+  left: 20px;
+  padding: 20px;
+  position: absolute;
+  top: 20px;
+  width: 944px;
+  text-align: center;
+}
+
+#monster_selection h2 {
+  font-family: cracked;
+  font-size: 2em;
+  margin: 10px 0 20px 0;
+  text-transform: uppercase;
+}
+
+.monster_select_button {
+  background-image: url('http://localhost:8080/monster_frames.png');
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 142px;
+  margin: 20px;
+  width: 214px;
+}
+
+#monster_select_button_1 {
+  background-position: 0 0;
+}
+#monster_select_button_1.selected {
+  background-position: -214px 0;
+}
+
+#monster_select_button_2 {
+  background-position: 0px -142px;
+}
+#monster_select_button_2.selected {
+  background-position: -214px -142px;
+}
+    
+#monster_select_button_3 {
+  background-position: 0px -284px;
+}   
+#monster_select_button_3.selected {
+  background-position: -214px -284px;
+}
+
+#monster_select_button_4 {
+  background-position: 0px -426px;
+}
+#monster_select_button_4.selected {
+  background-position: -214px -426px;
+}
+
+#monster_select_button_5 {
+  background-position: 0px -568px;
+}
+#monster_select_button_5.selected {
+  background-position: -214px -568px;
+}
+
+#monster_select_button_6 {
+  background-position: 0px -710px;
+}
+#monster_select_button_6.selected {
+  background-position: -214px -710px;
+}
+
+/* Game */
+
 #game {
   display: none;
 }
@@ -40,7 +114,6 @@ body {
 #cards,
 #dice_area {
   position: absolute;
-  oopacity: 0.5;
 }
 
 #log_wrap,
@@ -402,16 +475,6 @@ table#game_data {
   background: #aaa;
 }
 /* End debugger */
-
-/* TODO monster selection */
-#monster_selection {
-  display: none;
-}
-
-/* TODO monster selected */
-.monster_select_button.selected {
-  border: 1px solid red;
-}
 
 .hidden {
   border: 2px solid red;

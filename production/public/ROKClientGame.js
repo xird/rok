@@ -6,7 +6,7 @@
  * FIXME If another player snaps status, this player get duplicate rows in monster tables
  * FIXME initial load roll number is wrong
  * TODO figure out a way to "disable" link based buttons after click to prevent double clicks.
- *
+ * TODO: highlight active monster
  */
 ROKGame.prototype.initClient = function() {
   console.log("ROKGame.prototype.initClient");
@@ -404,7 +404,7 @@ ROKGame.prototype.initClient = function() {
   
   var transforms = {
     'monster_select_buttons': [
-      {tag: "input", type: "button", id: "monster_select_button_${id}", class: "monster_select_button", "data-monster_id": "${id}", value: "Select ${id}"}
+      {tag: "div", id: "monster_select_button_${id}", class: "monster_select_button", "data-monster_id": "${id}", value: "Select ${id}"}
     ],
     'monster_slots': [
       {tag: "tr", id: "monsters__${index}", class: "monster_data", children: [
