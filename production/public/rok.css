@@ -212,14 +212,14 @@ div.monster {
   padding-left: 15px;
   padding-top: 10px;
   position: absolute;
-  transform-origin: 0% 50%;
-  -webkit-transform-origin: 0% 50%;
   width: 35px;
 }
 
 .monster_health {
   top: -12px;
   left: 100px;
+  transform-origin: 0% 50%;
+  -webkit-transform-origin: 0% 50%;
   transform: rotate(16deg);
   -webkit-transform: rotate(16deg);
 }
@@ -238,6 +238,8 @@ div.monster {
 .monster_victory_points {
   top: 27px;
   left: 52px;
+  transform-origin: 0% 50%;
+  -webkit-transform-origin: 0% 50%;
   transform: rotate(-51deg);
   -webkit-transform: rotate(-51deg);
 }
@@ -245,6 +247,9 @@ div.monster {
 .monster_energy {
   top: 10px;
   left: 155px;
+  /* Note the different origin settings for Chrome / Firefox */
+  transform-origin: 0% 50%;
+  -webkit-transform-origin: 0% 46%;
   transform: rotate(75deg);
   -webkit-transform: rotate(75deg);
 }

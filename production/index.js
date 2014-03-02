@@ -1,10 +1,6 @@
 /**
  *
  * FIXME: confirming a game before invitation is accepted jams the game
- *
- * ROKClientGame.js:6: * FIXME If another player snaps status, this player get duplicate rows in monster tables in dev client
- *
- * ROKClientGame.js:7: * TODO disable donebuying after click, make sure it gets re-enabled
  * 
  * ROKClientLobby.js:6: * TODO add "leave game" button for invited users
  *
@@ -317,9 +313,6 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
     // Confirm game. If the game can be successfully confirmed, remove the
     // players from the lobby.
     if (game.confirmGame(player)) {
-      // TODO is there any need to snap the game state when we're just showing 
-      // monster selection?
-      game.snapState();
       for (var p in game.players) {
         lobby.removePlayer(p);
       }

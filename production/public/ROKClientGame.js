@@ -153,15 +153,15 @@ ROKGame.prototype.initClient = function() {
         // Move the monster to its home, or to Kyoto if that's where it's at.
         if (game.monsters[monster_id].in_kyoto_city) {
           console.log(monster_id + ' init city');
-          game.moveMonster(monster_id, "city");
+          game.moveMonster(monster_id, "city", "immediate");
         }
         else if (game.monsters[monster_id].in_kyoto_bay) {
           console.log(monster_id + ' init bay');
-          game.moveMonster(monster_id, "bay");
+          game.moveMonster(monster_id, "bay", "immediate");
         }
         else {
           console.log(monster_id + ' init home');
-          game.moveMonster(monster_id, "home");
+          game.moveMonster(monster_id, "home", "immediate");
         }
 
         index++;
@@ -420,7 +420,7 @@ ROKGame.prototype.initClient = function() {
 /**
  * Function for moving the monster icon to another place on the board.
  */
-ROKGame.prototype.moveMonster = function(monster_id, target) {
+ROKGame.prototype.moveMonster = function(monster_id, target, immediate) {
   var mel = $('#m' + monster_id);
   switch(target) {
     case "home":
@@ -439,8 +439,12 @@ ROKGame.prototype.moveMonster = function(monster_id, target) {
   // Match the selected monster elements position attributes to that of 
   // the selected monster slot.
   //
-  // TODO Animate.
-  mel.css('top', msel.css('top')).css('left', msel.css('left'));
+  if (!immediate) {
+    mel.animate({top: msel.css('top'), left: msel.css('left')}, 500);
+  }
+  else {
+    mel.css('top', msel.css('top')).css('left', msel.css('left'));  
+  }
 }
 
 
