@@ -394,6 +394,12 @@ ROKGame.prototype.initClient = function() {
         $('#stay_in_kyoto_bay_button').click();      
       }
     }
+    else if (e.keyCode == 76) {
+      // [l]eave
+      if (game.game_state == 'over') {
+        $('#leave_game_button').click();
+      }
+    }
   });
   
   var transforms = {
