@@ -219,10 +219,10 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
       lobby.snapState();
     }
     else {
-      // The game must be in progress, so dump all the game data.
-      // TODO: Only to the player connecting! The others already have/will have
-      // the same data.
-      games[player.game_id].snapState();
+      // The game must be in progress, so dump all the game data. Send only to
+      // the player connecting, since the others already have/will have the same
+      // data.
+      games[player.game_id].snapState(player.id);
     }
   }
   else {

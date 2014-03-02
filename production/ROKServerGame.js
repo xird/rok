@@ -183,8 +183,12 @@ ROKServerGame.prototype.updateState = function(field, value, log) {
  * Sends the whole game state to the client. The client should update all of the
  * UI without the handler functions, i.e. "snap" all the data on screen. This is
  * used at the very beginning of the game.
+ *
+ * @param Optional Integer player_id
+ *   If given, the state is only snapped to the given player.
+ *
  */
-ROKServerGame.prototype.snapState = function() {
+ROKServerGame.prototype.snapState = function(player_id) {
   console.log("ROKServerGame.prototype.snapState");
   
   // Generate an object to be sent instead of "this", as the game object
@@ -202,10 +206,14 @@ ROKServerGame.prototype.snapState = function() {
   
   // Loop through all players in this game and send them the data.
   for (var game_player_id in this.players) {
-    send_object.this_monster = this.players[game_player_id].monster_id;
-    var player_object = this.players[game_player_id];
-    var target_socket = io.sockets.socket(player_object.socket_id);
-    target_socket.emit("snap_state", send_object);
+    // Send to this player if no player id was given, or if the currently looped
+    // player is the given player.
+    if (typeof player_id == "undefined" || game_player_id == player_id) {
+      send_object.this_monster = this.players[game_player_id].monster_id;
+      var player_object = this.players[game_player_id];
+      var target_socket = io.sockets.socket(player_object.socket_id);
+      target_socket.emit("snap_state", send_object);    
+    }
   }
   
   // Clean up the change log, as all the changes have now been transmitted.
