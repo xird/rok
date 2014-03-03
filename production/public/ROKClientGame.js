@@ -5,8 +5,8 @@
  *
  * FIXME If another player snaps status, this player get duplicate rows in monster tables
  * FIXME initial load roll number is wrong
+ * FIXME leave game button is never hidden?
  * TODO figure out a way to "disable" link based buttons after click to prevent double clicks.
- * TODO: highlight active monster
  */
 ROKGame.prototype.initClient = function() {
   console.log("ROKGame.prototype.initClient");
@@ -183,6 +183,8 @@ ROKGame.prototype.initClient = function() {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
       }
       
+      // Highlight the active monster
+      $('#m' + game.next_input_from_monster).addClass('active'); 
       
       // Dice.
       for (var i = 0; i < data.dice.length; i++) {
@@ -510,7 +512,7 @@ ROKGame.prototype.handle__game_state = function(updates) {
   var update = updates.shift();
   console.log("ROKGame.prototype.handle__game_state to " + update.value);
   this.game_state = update.value;
-  $('#game_state').html(update.value);
+  //$('#game_state').html(update.value);
   if (update.value == "select_monsters") {
     $("#lobby").hide();
     $("#monster_selection").show();
@@ -519,6 +521,18 @@ ROKGame.prototype.handle__game_state = function(updates) {
     console.log('Game over man, game over!');
     $('#leave_game_button').show();
   }
+  this.handleUpdates(updates);
+}
+
+
+ROKGame.prototype.handle__next_input_from_monster = function(updates) {
+  var update = updates.shift();
+  console.log("ROKGame.prototype.handle__next_input_from_monster to " + update.value);
+  this.next_input_from_monster = update.value;
+
+  $('.monster').removeClass('active');
+  $('#m' + update.value).addClass('active');
+  
   this.handleUpdates(updates);
 }
 
