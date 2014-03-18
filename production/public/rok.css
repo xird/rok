@@ -317,7 +317,7 @@ div.monster {
   -webkit-transform: rotate(-51deg);
 }
 
-.monster_energy {
+.monster_snot {
   top: 10px;
   left: 155px;
   /* Note the different origin settings for Chrome / Firefox */
@@ -420,14 +420,29 @@ div#dice div.punch {
   background-image: url('http://localhost:8080/punch45.png');
 }
 
+div#dice div.punchInactive {
+  background-color: none;
+  background-image: url('http://localhost:8080/punch45inactive.png');
+}
+
 div#dice div.heal {
   background-color: none;
   background-image: url('http://localhost:8080/heal45.png');
 }
 
-div#dice div.energy {
+div#dice div.healInactive {
   background-color: none;
-  background-image: url('http://localhost:8080/energy45.png');
+  background-image: url('http://localhost:8080/heal45inactive.png');
+}
+
+div#dice div.snot {
+  background-color: none;
+  background-image: url('http://localhost:8080/snot45.png');
+}
+
+div#dice div.snotInactive {
+  background-color: none;
+  background-image: url('http://localhost:8080/snot45inactive.png');
 }
 
 #roll_dice_button {

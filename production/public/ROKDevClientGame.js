@@ -103,7 +103,7 @@ ROKGame.prototype.initClient = function() {
       for (var i = 0; i < monster_ids.length; i++) {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__health').html(data.monsters[monster_ids[i]].health);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__victory_points').html(data.monsters[monster_ids[i]].victory_points);
-        $('#monsters__' + data.monsters[monster_ids[i]].id + '__energy').html(data.monsters[monster_ids[i]].energy);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__snot').html(data.monsters[monster_ids[i]].snot);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_city').html(data.monsters[monster_ids[i]].in_kyoto_city);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_bay').html(data.monsters[monster_ids[i]].in_kyoto_bay);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
@@ -291,7 +291,7 @@ ROKGame.prototype.initClient = function() {
         {tag: "th", id: "monsters__${index}__name"},
         {tag: "td", id: "monsters__${index}__health"},
         {tag: "td", id: "monsters__${index}__victory_points"},
-        {tag: "td", id: "monsters__${index}__energy"},
+        {tag: "td", id: "monsters__${index}__snot"},
         {tag: "td", id: "monsters__${index}__in_kyoto_city"},
         {tag: "td", id: "monsters__${index}__in_kyoto_bay"}
       ]}
@@ -457,10 +457,10 @@ ROKGame.prototype.handle__monsters__victory_points = function(updates) {
   });
 }
 
-ROKGame.prototype.handle__monsters__energy = function(updates) {
+ROKGame.prototype.handle__monsters__snot = function(updates) {
   var update = updates.shift();
-  game.monsters[update.id].energy = update.value;
-  var elid = "#monsters__" + update.id + "__energy";
+  game.monsters[update.id].snot = update.value;
+  var elid = "#monsters__" + update.id + "__snot";
   
   $(elid).css('backgroundColor', "green").html(update.value).animate({backgroundColor: "white"}, 500, function() {
     game.handleUpdates(updates);

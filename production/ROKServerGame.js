@@ -70,7 +70,7 @@ ROKServerGame.prototype.init = function(player) {
     this.player_id = 0;
     this.health = 10;
     this.victory_points = 0;
-    this.energy = 0;
+    this.snot = 0;
     this.in_kyoto_city = 0;
     this.in_kyoto_bay = 0;
     this.id = id;
@@ -86,7 +86,13 @@ ROKServerGame.prototype.init = function(player) {
       "Squid"
     ];
     this.name = monster_names[id - 1];
+
+//    this.cards = []   	// Cards owned by this monser
   }
+  
+//  Monster.prototype.number_of_rolls = function () {
+//    return 3;
+//  };
 }
 
 
@@ -336,7 +342,7 @@ ROKServerGame.prototype.endTurn = function() {
     next_monster_index = 0;
   }
   
-  log_message = this.monsters[this.monster_order[next_monster_index]].name + " begins their turn.";
+  log_message = this.monsters[this.monster_order[next_monster_index]].name + "'s turn.";
   this.updateState("turn_monster", this.monster_order[next_monster_index], log_message);
   this.updateState("next_input_from_monster", this.monster_order[next_monster_index]);
     
@@ -406,7 +412,7 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
             
             log_message += this.dice[i].value + (i < 5 ? ", " : "");
 
-            if (this.roll_number != monster.number_of_rolls) {
+            if (this.roll_number < monster.number_of_rolls) {
               // If there are more rerolls, set dice to "r", except for kept
               // dice, which should be kept as "k".
               if (this.dice[i].state != 'k') {
@@ -468,7 +474,7 @@ ROKServerGame.prototype.resolveDice = function(player) {
   console.log('ROKServerGame.prototype.resolveDice');
   this.updateState("turn_phase", 'resolve');
   
-  this.resolveEnergyDice(player);
+  this.resolveSnotDice(player);
   this.resolveHealthDice(player);
   this.resolveVictoryPointDice(player);
   this.resolveAttackDice(player);
@@ -616,8 +622,6 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
       else {
         console.log("No room in Kyoto");
       }
-      
-      
     }
     
     if (this.checkWin()) {
@@ -716,8 +720,8 @@ ROKServerGame.prototype.checkWin = function() {
   // Check if anyone got to 20 victory points
   for (var i = 0; i < this.monster_order.length; i++) {
     var victory_points = this.monsters[this.monster_order[i]].victory_points;
-    if (victory_points > 19) {
-      log_message = this.monsters[this.monster_order[i]].name + " has won by getting to " + victory_points + " victory points.";
+    if (victory_points >= 20) {
+      log_message = this.monsters[this.monster_order[i]].name + " has taken a 'soft win' by getting to " + victory_points + " victory points.";
       this.updateState(false, false, log_message);
       log_message = this.monsters[this.monster_order[i]].name + " wins!";
       this.updateState("game_state", "over", log_message);
@@ -870,26 +874,25 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
  
 
 /**
- * Resolve energy dice.
+ * Resolve snot cubes.
  */
-ROKServerGame.prototype.resolveEnergyDice = function(player) {
-  console.log("ROKServerGame.prototype.resolveEnergyDice");
+ROKServerGame.prototype.resolveSnotDice = function(player) {
+  console.log("ROKServerGame.prototype.resolveSnotDice");
   // CARDS: take cards into account: "Friend of children", etc.
-  var additional_energy = 0;
+  var additional_snot = 0;
   for (var i = 0; i < this.dice.length; i++) {
-    if (this.dice[i].state == 'f' && this.dice[i].value == 'e') {
-      additional_energy++;
+    if (this.dice[i].state == 'f' && this.dice[i].value == 's') {
+      additional_snot++;
     }
   }
-  console.log('additional_energy: ' + additional_energy);
-  var old_energy = this.monsters[player.monster_id].energy;
-  var new_energy = old_energy + additional_energy;
-  if (old_energy != new_energy) {
-    var log_message = this.monsters[this.turn_monster].name + " gains " + additional_energy + " energy.";
-    this.updateState("monsters__" + player.monster_id + "__energy", new_energy, log_message);
+  console.log('additional_snot: ' + additional_snot);
+  var old_snot = this.monsters[player.monster_id].snot;
+  var new_snot = old_snot + additional_snot;
+  if (old_snot != new_snot) {
+    var log_message = this.monsters[this.turn_monster].name + " gains " + additional_snot + " snot cube" + ((additional_snot > 1) ? "s." : ".");
+    this.updateState("monsters__" + player.monster_id + "__snot", new_snot, log_message);
   }
 }
-
 
 /**
  * Resolve health dice.
@@ -1005,7 +1008,7 @@ ROKServerGame.prototype.selectMonster = function (player, selected_monster_id) {
           // Separately, because snapState() doesn't know what to do with log
           // messages.
           this.updateState(false, false, "The game begins.");
-          this.updateState(false, false, this.monsters[this.turn_monster].name + " begins their turn.");
+          this.updateState(false, false, this.monsters[this.turn_monster].name + "'s turn.");
           this.sendStateChanges();
         }
         else {

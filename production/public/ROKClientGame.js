@@ -177,7 +177,7 @@ ROKGame.prototype.initClient = function() {
       for (var i = 0; i < monster_ids.length; i++) {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__health').html(data.monsters[monster_ids[i]].health);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__victory_points').html(data.monsters[monster_ids[i]].victory_points);
-        $('#monsters__' + data.monsters[monster_ids[i]].id + '__energy').html(data.monsters[monster_ids[i]].energy);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__snot').html(data.monsters[monster_ids[i]].snot);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_city').html(data.monsters[monster_ids[i]].in_kyoto_city);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_bay').html(data.monsters[monster_ids[i]].in_kyoto_bay);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
@@ -608,25 +608,25 @@ ROKGame.prototype.handle__dice__value = function(updates) {
 
   switch (update.value) {
     case "p":
-      $(elid).css('opacity', 0).html("").removeClass('heal energy').addClass('punch').animate({opacity: 1}, 300, function() {
+      $(elid).css('opacity', 0).html("").removeClass('heal snot').addClass('punch').animate({opacity: 1}, 300, function() {
         game.handleUpdates(updates);
       });    
       break;
       
     case "h":
-      $(elid).css('opacity', 0).html("").removeClass('punch energy').addClass('heal').animate({opacity: 1}, 300, function() {
+      $(elid).css('opacity', 0).html("").removeClass('punch snot').addClass('heal').animate({opacity: 1}, 300, function() {
         game.handleUpdates(updates);
       });    
       break;
       
-    case "e":
-      $(elid).css('opacity', 0).html("").removeClass('punch heal').addClass('energy').animate({opacity: 1}, 300, function() {
+    case "s":
+      $(elid).css('opacity', 0).html("").removeClass('punch heal').addClass('snot').animate({opacity: 1}, 300, function() {
         game.handleUpdates(updates);
       });    
       break;
       
     default:
-      $(elid).removeClass('punch heal energy').css('opacity', 0).html(update.value).animate({opacity: 1}, 300, function() {
+      $(elid).removeClass('punch heal snot').css('opacity', 0).html(update.value).animate({opacity: 1}, 300, function() {
         game.handleUpdates(updates);
       });    
       break;
@@ -654,10 +654,10 @@ ROKGame.prototype.handle__monsters__victory_points = function(updates) {
   });
 }
 
-ROKGame.prototype.handle__monsters__energy = function(updates) {
+ROKGame.prototype.handle__monsters__snot = function(updates) {
   var update = updates.shift();
-  game.monsters[update.id].energy = update.value;
-  var elid = "#monsters__" + update.id + "__energy";
+  game.monsters[update.id].snot = update.value;
+  var elid = "#monsters__" + update.id + "__snot";
   
   // Make sure the highlight stays centered on the numbers regardless of the 
   // number of numbers.
