@@ -140,15 +140,15 @@ ROKServerGame.prototype.init = function(player) {
       17: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[Star]."},
       18: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[Star]."},
       19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card."},
-      20: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: false, description: "You get 1 extra die."},
-      21: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: false, description: "You get 1 extra die."},
+      20: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die."},
+      21: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die."},
       22: {name: "Fire Blast",                    cost: 3, keep: false, set: "original", implemented: false, description: "Deal 2 damage to all other monsters."},
       23: {name: "Fire Breathing",                cost: 4, keep: true,  set: "original", implemented: false, description: "Your neighbors take 1 extra damage when you deal damage"},
       24: {name: "Freeze Time",                   cost: 5, keep: true,  set: "original", implemented: false, description: "On a turn where you score [1][1][1], you can take another turn with one less die."},
       25: {name: "Frenzy",                        cost: 7, keep: false, set: "original", implemented: false, description: "When you purchase this card Take another turn immediately after this one."},
       26: {name: "Friend of Children",            cost: 3, keep: true,  set: "original", implemented: false, description: "When you gain any [Snot] gain 1 extra [Snot]."},
       27: {name: "Gas Refinery",                  cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[Star] and deal 3 damage to all other monsters."},
-      28: {name: "Giant Brain",                   cost: 5, keep: true,  set: "original", implemented: false, description: "You have one extra reroll each turn."},
+      28: {name: "Giant Brain",                   cost: 5, keep: true,  set: "original", implemented: true,  description: "You have one extra reroll each turn."},
       29: {name: "Gourmet",                       cost: 4, keep: true,  set: "original", implemented: false, description: "When scoring [1][1][1] gain 2 extra [Star]."},
       30: {name: "Heal",                          cost: 3, keep: false, set: "original", implemented: false, description: "Heal 2 damage."},
       31: {name: "Healing Ray",                   cost: 4, keep: true,  set: "original", implemented: false, description: "You can heal other monsters with your [Heart] results. They must pay you 2[Snot] for each damage you heal (or their remaining [Snot] if they haven't got enough."},
@@ -277,8 +277,7 @@ ROKServerGame.prototype.init = function(player) {
       this.cards_owned.push(cards.GIANT_BRAIN);
       console.log("I've got an GIANT BRAIN");
     }
-    
-    */
+	*/
   }
   
   Monster.prototype.max_health = function () {
@@ -616,7 +615,7 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
           // Flag variable for detecting situation where the monster keeps all
           // the dice
           var keep_all = true;
-          for (var i = 0; i < 6; i++) {
+          for (var i = 0; i < monster.number_of_dice(); i++) {
             console.log('        Rolling?');
             // Roll only dice that are not kept
             if (keep_dice_ids.indexOf(i) == -1) {
@@ -629,7 +628,7 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
               this.updateState("dice__" + i + "__state", 'k', this.monsters[player.monster_id].name + " keeps " + this.dice[i].value);
             }
             
-            log_message += this.dice[i].value + (i < 5 ? ", " : "");
+            log_message += this.dice[i].value + (i < monster.number_of_dice()-1 ? ", " : "");
 
             if (this.roll_number < monster.number_of_rolls()) {
               // If there are more rerolls, set dice to "r", except for kept
