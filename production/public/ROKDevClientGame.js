@@ -107,6 +107,13 @@ ROKGame.prototype.initClient = function() {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_city').html(data.monsters[monster_ids[i]].in_kyoto_city);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_bay').html(data.monsters[monster_ids[i]].in_kyoto_bay);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__poision_counters').html(data.monsters[monster_ids[i]].poision_counters);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__shrink_ray_counters').html(data.monsters[monster_ids[i]].shrink_ray_counters);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__smoke_counters').html(data.monsters[monster_ids[i]].smoke_counters);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__alian_counters').html(data.monsters[monster_ids[i]].alian_counters);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__UFO_counters').html(data.monsters[monster_ids[i]].UFO_counters);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__mimic').html(data.monsters[monster_ids[i]].mimic);
+
       }
       
       for (var i = 0; i < data.dice.length; i++) {
@@ -293,7 +300,13 @@ ROKGame.prototype.initClient = function() {
         {tag: "td", id: "monsters__${index}__victory_points"},
         {tag: "td", id: "monsters__${index}__snot"},
         {tag: "td", id: "monsters__${index}__in_kyoto_city"},
-        {tag: "td", id: "monsters__${index}__in_kyoto_bay"}
+        {tag: "td", id: "monsters__${index}__in_kyoto_bay"},
+        {tag: "td", id: "monsters__${index}__poision_counters"},
+        {tag: "td", id: "monsters__${index}__shrink_ray_counters"},
+        {tag: "td", id: "monsters__${index}__smoke_counters"},
+        {tag: "td", id: "monsters__${index}__alian_counters"},
+        {tag: "td", id: "monsters__${index}__UFO_counters"},
+        {tag: "td", id: "monsters__${index}__mimic"}
       ]}
     ]
   }
