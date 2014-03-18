@@ -203,9 +203,10 @@ ROKServerGame.prototype.init = function(player) {
   };
   
   if (Object.freeze)  // Not all browsers support 'Object.freeze(...)'
+  {
     Object.freeze(monster_names);
     Object.freeze(cards);
-
+  }
 
 
   var game_id = uuid.v4();
@@ -252,15 +253,29 @@ ROKServerGame.prototype.init = function(player) {
     this.in_kyoto_bay = 0;
 	
     // Card effects:
-	this.poision = 0;
-	this.shrink_ray = 0;
+	this.poision_counters = 0;
+	this.shrink_ray_counters = 0;
 	this.emulate = [];
 	
     this.id = id;
     this.name = monster_names[id-1];
-
 	
-    this.cards = []   	// Cards owned by this monser
+    this.cards_owned = []   	// Cards owned by this monser
+
+    /*****************************************************************
+     * Giving a couple of monsters cards from the offset for testing *
+	 *****************************************************************
+    if (this.name == "Alien") {
+      this.cards_owned.push(cards.EXTRA_HEAD_X1);
+      console.log("I've got an EXTRA HEAD");
+    }
+
+    if(this.name == "Rabbot") {
+      this.cards_owned.push(cards.GIANT_BRAIN);
+      console.log("I've got an GIANT BRAIN");
+    }
+	
+	*/
   }
   
   Monster.prototype.max_health = function () {
@@ -272,12 +287,26 @@ ROKServerGame.prototype.init = function(player) {
   Monster.prototype.number_of_rolls = function () {
     var rv = 3;
     // Can be increased by "Giant Brain".
+	
+    if (this.cards_owned.indexOf(cards.GIANT_BRAIN) != -1) {
+      console.log("Yay, Giant Brain!");
+      rv++;
+    }
     return rv;
   };
   
   Monster.prototype.number_of_dice = function () {
     var rv = 6;
     // Can be increased by "Extra Head" and decreased by "Shrink Ray".
+
+	// Note there are 2 extra heads.
+	if (this.cards_owned.indexOf(cards.EXTRA_HEAD_X1) != -1) {
+	  console.log("Yay, Extra Head!");
+      rv++;
+	}
+	if (this.cards_owned.indexOf(cards.EXTRA_HEAD_X2) != -1) rv++;
+
+	rv -= this.shrink_ray_counters;
     return rv;
   };
 
