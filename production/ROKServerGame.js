@@ -31,6 +31,183 @@ var utils = new ROKUtils();
 ROKServerGame.prototype.init = function(player) {
   console.log("ROKServerGame.prototype.init");
   
+  // Names of the monsters.
+  var monster_names = [
+    "Alien",
+    "Dragon",
+    "Kong",
+    "Rabbot",
+    "Rex",
+    "Squid"
+  ];
+  
+  var cards = {
+    ACID_ATTACK:                   1,
+    ALIEN_METABOLISM:              2,
+    ALPHA_MONSTER:                 3,
+    APARTMENT_BUILDING:            4,
+    ARMOR_PLATING:                 5,
+    BACKGROUND_DWELLER:            6,
+    BURROWING:                     7,
+    CAMOUFLAGE:                    8,
+    COMMUTER_TRAIN:                9,
+    COMPLETE_DESTRUCTION:         10,
+    CORNER_STORE:                 11,
+    DEDICATED_NEWS_TEAM:          12,
+    DROP_FROM_HIGH_ALTITUDE:      13,
+    EATER_OF_THE_DEAD:            14,
+    ENERGIZE:                     15,
+    ENERGY_HOARDER:               16,
+    EVACUATION_ORDERS_X1:         17,
+    EVACUATION_ORDERS_X2:         18,
+    EVEN_BIGGER:                  19,
+    EXTRA_HEAD_X1:                20,
+    EXTRA_HEAD_X2:                21,
+    FIRE_BLAST:                   22,
+    FIRE_BREATHING:               23,
+    FREEZE_TIME:                  24,
+    FRENZY:                       25,
+    FRIEND_OF_CHILDREN:           26,
+    GAS_REFINERY:                 27,
+    GIANT_BRAIN:                  28,
+    GOURMET:                      29,
+    HEAL:                         30,
+    HEALING_RAY:                  31,
+    HERBIVORE:                    32,
+    HERD_CULLER:                  33,
+    HIGH_ALTITUDE_BOMBING:        34,
+    IT_HAS_A_CHILD:               35,
+    JET_FIGHTERS:                 36,
+    JETS:                         37,
+    MADE_IN_A_LAB:                38,
+    METAMORPH:                    39,
+    MIMIC:                        40,
+    MONSTER_BATTERIES:            41,
+    NATIONAL_GUARD:               42,
+    NOVA_BREATH:                  43,
+    NUCLEAR_POWER_PLANT:          44,
+    OMNIVORE:                     45,
+    OPPORTUNIST:                  46,
+    PARASITIC_TENTACLES:          47,
+    PLOT_TWIST:                   48,
+    POISON_QUILLS:                49,
+    POISON_SPIT:                  50,
+    PSYCHIC_PROBE:                51,
+    RAPID_HEALING:                52,
+    REGENERATION:                 53,
+    ROOTING_FOR_THE_UNDERDOG:     54,
+    SHRINK_RAY:                   55,
+    SKYSCRAPER:                   56,
+    SMOKE_CLOUD:                  57,
+    SOLAR_POWERED:                58,
+    SPIKED_TAIL:                  59,
+    STRETCHY:                     60,
+    TANKS:                        61,
+    TELEPATH:                     62,
+    URBAVORE:                     63,
+    VAST_STORM:                   64,
+    WERE_ONLY_MAKING_IT_STRONGER: 65,
+    WINGS:                        66,
+    AMUSEMENT_PARK:               67,
+    ARMY:                         68,
+    CANNIBALISTIC:                69,
+    INTIMIDATING_ROAR:            70,
+    MONSTER_SIDEKICK:             71,
+    REFLECTIVE_HIDE:              72,
+    SLEEP_WALKER:                 73,
+    SUPER_JUMP:                   74,
+    THROW_A_TANKER:               75,
+    THUNDER_STOMP:                76,
+    UNSTABLE_DNA:                 77,
+  
+    properties: {
+       1: {name: "Acid Attack",                   cost: 6, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage each turn (even when you don't otherwise attack)."},
+       2: {name: "Alien Metabolism",              cost: 3, keep: true,  set: "original", implemented: false, description: "Buying cards costs you 1 less [Energy]."},
+       3: {name: "Alpha Monster",                 cost: 5, keep: true,  set: "original", implemented: false, description: "Gain 1[Star] when you attack."},
+       4: {name: "Apartment Building",            cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]"},
+       5: {name: "Armor Plating",                 cost: 4, keep: true,  set: "original", implemented: false, description: "Ignore damage of 1."},
+       6: {name: "Background Dweller",            cost: 4, keep: true,  set: "original", implemented: false, description: "You can always reroll any [3] you have."},
+       7: {name: "Burrowing",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it."},
+       8: {name: "Camouflage",                    cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point."},
+       9: {name: "Commuter Train",                cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]"},
+      10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Energy] gain 9[Star] in addition to the regular results."},
+      11: {name: "Corner Store",                  cost: 3, keep: false, set: "original", implemented: false, description: "+ 1[Star]"},
+      12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: false, description: "Gain 1[Star] whenever you buy a card."},
+      13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[Star] and take control of Tokyo if you don't already control it."},
+      14: {name: "Eater of the Dead",             cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 3[Star] every time a monster's [Heart] goes to 0."},
+      15: {name: "Energize",                      cost: 8, keep: false, set: "original", implemented: false, description: "+ 9[Energy]"},
+      16: {name: "Energy Hoarder",                cost: 3, keep: true,  set: "original", implemented: false, description: "You gain 1[Star] for every 6[Energy] you have at the end of your turn."},
+      17: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[Star]."},
+      18: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[Star]."},
+      19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card."},
+      20: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: false, description: "You get 1 extra die."},
+      21: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: false, description: "You get 1 extra die."},
+      22: {name: "Fire Blast",                    cost: 3, keep: false, set: "original", implemented: false, description: "Deal 2 damage to all other monsters."},
+      23: {name: "Fire Breathing",                cost: 4, keep: true,  set: "original", implemented: false, description: "Your neighbors take 1 extra damage when you deal damage"},
+      24: {name: "Freeze Time",                   cost: 5, keep: true,  set: "original", implemented: false, description: "On a turn where you score [1][1][1], you can take another turn with one less die."},
+      25: {name: "Frenzy",                        cost: 7, keep: false, set: "original", implemented: false, description: "When you purchase this card Take another turn immediately after this one."},
+      26: {name: "Friend of Children",            cost: 3, keep: true,  set: "original", implemented: false, description: "When you gain any [Energy] gain 1 extra [Energy]."},
+      27: {name: "Gas Refinery",                  cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[Star] and deal 3 damage to all other monsters."},
+      28: {name: "Giant Brain",                   cost: 5, keep: true,  set: "original", implemented: false, description: "You have one extra reroll each turn."},
+      29: {name: "Gourmet",                       cost: 4, keep: true,  set: "original", implemented: false, description: "When scoring [1][1][1] gain 2 extra [Star]."},
+      30: {name: "Heal",                          cost: 3, keep: false, set: "original", implemented: false, description: "Heal 2 damage."},
+      31: {name: "Healing Ray",                   cost: 4, keep: true,  set: "original", implemented: false, description: "You can heal other monsters with your [Heart] results. They must pay you 2[Energy] for each damage you heal (or their remaining [Energy] if they haven't got enough."},
+      32: {name: "Herbivore",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Gain 1[Star] on your turn if you don't damage anyone."},
+      33: {name: "Herd Culler",                   cost: 3, keep: true,  set: "original", implemented: false, description: "You can change one of your dice to a [1] each turn."},
+      34: {name: "High Altitude Bombing",         cost: 4, keep: false, set: "original", implemented: false, description: "All monsters (including you) take 3 damage."},
+      35: {name: "It Has a Child",                cost: 7, keep: true,  set: "original", implemented: false, description: "If you are eliminated discard all your cards and lose all your [Star], Heal to 10[Heart] and start again."},
+      36: {name: "Jet Fighters",                  cost: 5, keep: false, set: "original", implemented: false, description: "+ 5[Star] and take 4 damage"},
+      37: {name: "Jets",                          cost: 5, keep: true,  set: "original", implemented: false, description: "You suffer no damage when yielding Tokyo."},
+      38: {name: "Made in a Lab",                 cost: 2, keep: true,  set: "original", implemented: false, description: "When purchasing cards you can peek at and purchase the top card of the deck."},
+      39: {name: "Metamorph",                     cost: 3, keep: true,  set: "original", implemented: false, description: "At the end of your turn you can discard any keep cards you have to receive the [Energy] they were purchased for."},
+      40: {name: "Mimic",                         cost: 8, keep: true,  set: "original", implemented: false, description: "Choose a card any monster has in play and put a mimic counter on it. This card counts as a duplicate of that card as if it just had been bought. Spend 1[Energy] at the start of your turn to change the power you are mimicking."},
+      41: {name: "Monster Batteries",             cost: 2, keep: true,  set: "original", implemented: false, description: "When you purchase this put as many [Energy] as you want on it from your reserve. Match this from the bank. At the start of each turn take 2[Energy] off and add them to your reserve. When there are no [Energy] left discard this card."},
+      42: {name: "National Guard",                cost: 3, keep: false, set: "original", implemented: false, description: "+ 2[Star] and take 2 damage."},
+      43: {name: "Nova Breath",                   cost: 7, keep: true,  set: "original", implemented: false, description: "Your attacks damage all other monsters."},
+      44: {name: "Nuclear Power Plant",           cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[Star] and heal 3 damage."},
+      45: {name: "Omnivore",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Once each turn you can score [1][2][3] for 2[Star]. You can use these dice in other combinations."},
+      46: {name: "Opportunist",                   cost: 3, keep: true,  set: "original", implemented: false, description: "Whenever a new card is revealed you have the option of purchasing it as soon as it is revealed."},
+      47: {name: "Parasitic Tentacles",           cost: 4, keep: true,  set: "original", implemented: false, description: "You can purchase cards from other monsters. Pay them the [Energy] cost."},
+      48: {name: "Plot Twist",                    cost: 3, keep: true,  set: "original", implemented: false, description: "Change one die to any result. Discard when used."},
+      49: {name: "Poison Quills",                 cost: 3, keep: true,  set: "original", implemented: false, description: "When you score [2][2][2] also deal 2 damage."},
+      50: {name: "Poison Spit",                   cost: 4, keep: true,  set: "original", implemented: false, description: "When you deal damage to monsters give them a poison counter. Monsters take 1 damage for each poison counter they have at the end of their turn. You can get rid of a poison counter with a [Heart] (that [Heart] doesn't heal a damage also)."},
+      51: {name: "Psychic Probe",                 cost: 3, keep: true,  set: "original", implemented: false, description: "You can reroll a die of each other monster once each turn. If the reroll is [Heart] discard this card."},
+      52: {name: "Rapid Healing",                 cost: 3, keep: true,  set: "original", implemented: false, description: "Spend 2[Energy] at any time to heal 1 damage."},
+      53: {name: "Regeneration",                  cost: 4, keep: true,  set: "original", implemented: false, description: "When you heal, heal 1 extra damage."},
+      54: {name: "Rooting for the Underdog",      cost: 3, keep: true,  set: "original", implemented: false, description: "At the end of a turn when you have the fewest [Star] gain 1 [Star]."},
+      55: {name: "Shrink Ray",                    cost: 6, keep: true,  set: "original", implemented: false, description: "When you deal damage to monsters give them a shrink counter. A monster rolls one less die for each shrink counter. You can get rid of a shrink counter with a [Heart] (that [Heart] doesn't heal a damage also)."},
+      56: {name: "Skyscraper",                    cost: 6, keep: false, set: "original", implemented: false, description: "+ 4[Star]"},
+      57: {name: "Smoke Cloud",                   cost: 4, keep: true,  set: "original", implemented: false, description: "This card starts with 3 charges. Spend a charge for an extra reroll. Discard this card when all charges are spent."},
+      58: {name: "Solar Powered",                 cost: 2, keep: true,  set: "original", implemented: false, description: "At the end of your turn gain 1[Energy] if you have no [Energy]."},
+      59: {name: "Spiked Tail",                   cost: 5, keep: true,  set: "original", implemented: false, description: "When you attack deal 1 extra damage."},
+      60: {name: "Stretchy",                      cost: 3, keep: true,  set: "original", implemented: false, description: "You can spend 2[Energy] to change one of your dice to any result."},
+      61: {name: "Tanks",                         cost: 4, keep: false, set: "original", implemented: false, description: "+ 4[Star] and take 3 damage."},
+      62: {name: "Telepath",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Spend 1[Energy] to get 1 extra reroll."},
+      63: {name: "Urbavore",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 1 extra [Star] when beginning the turn in Tokyo. Deal 1 extra damage when dealing any damage from Tokyo."},
+      64: {name: "Vast Storm",                    cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[Star]. All other monsters lose 1[Energy] for every 2[Energy] they have."},
+      65: {name: "We're Only Making It Stronger", cost: 3, keep: true,  set: "original", implemented: false, description: "When you lose 2[Heart] or more gain 1[Energy]."},
+      66: {name: "Wings",                         cost: 6, keep: true,  set: "original", implemented: false, description: "Spend 2[Energy] to negate damage to you for a turn."},
+
+      67: {name: "Amusement Park",                cost: 6, keep: false, set: "promo",    implemented: false, description: "+ 4[Star]"},
+      68: {name: "Army",                          cost: 2, keep: false, set: "promo",    implemented: false, description: "(+ 1[Star] and suffer one damage) for each card you have."},
+      69: {name: "Cannibalistic",                 cost: 5, keep: true,  set: "promo",    implemented: false, description: "When you do damage gain 1[Heart]."},
+      70: {name: "Intimidating Roar",             cost: 3, keep: true,  set: "promo",    implemented: false, description: "The monsters in Tokyo must yield if you damage them."},
+      71: {name: "Monster Sidekick",              cost: 4, keep: true,  set: "promo",    implemented: false, description: "If someone kills you, Go back to 10[Heart] and lose all your [Star]. If either of you or your killer win, or all other players are eliminated then you both win. If your killer is eliminated then you are also. If you are eliminated a second time this card has no effect."},
+      72: {name: "Reflective Hide",               cost: 6, keep: true,  set: "promo",    implemented: false, description: "If you suffer damage the monster that inflicted the damage suffers 1 as well."},
+      73: {name: "Sleep Walker",                  cost: 3, keep: true,  set: "promo",    implemented: false, description: "Spend 3[Energy] to gain 1[Star]."},
+      74: {name: "Super Jump",                    cost: 4, keep: true,  set: "promo",    implemented: false, description: "Once each turn you may spend 1[Energy] to negate 1 damage you are receiving."},
+      75: {name: "Throw a Tanker",                cost: 4, keep: true,  set: "promo",    implemented: false, description: "On a turn you deal 3 or more damage gain 2[Star]."},
+      76: {name: "Thunder Stomp",                 cost: 3, keep: true,  set: "promo",    implemented: false, description: "If you score 4[Star] in a turn, all players roll one less die until your next turn."},
+      77: {name: "Unstable DNA",                  cost: 3, keep: true,  set: "promo",    implemented: false, description: "If you yield Tokyo you can take any card the recipient has and give him this card."},
+    }
+  };
+  
+  if (Object.freeze)  // Not all browsers support 'Object.freeze(...)'
+    Object.freeze(monster_names);
+    Object.freeze(cards);
+
+
+
   var game_id = uuid.v4();
   this.id = game_id;
   player.game_id = game_id;
@@ -73,26 +250,42 @@ ROKServerGame.prototype.init = function(player) {
     this.snot = 0;
     this.in_kyoto_city = 0;
     this.in_kyoto_bay = 0;
+	
+    // Card effects:
+	this.poision = 0;
+	this.shrink_ray = 0;
+	this.emulate = [];
+	
     this.id = id;
-    this.number_of_rolls = 3;
-  
-    // The name of the monster.
-    var monster_names = [
-      "Alien",
-      "Dragon",
-      "Kong",
-      "Rabbot",
-      "Rex",
-      "Squid"
-    ];
-    this.name = monster_names[id - 1];
+    this.name = monster_names[id-1];
 
-//    this.cards = []   	// Cards owned by this monser
+	
+    this.cards = []   	// Cards owned by this monser
   }
   
-//  Monster.prototype.number_of_rolls = function () {
-//    return 3;
-//  };
+  Monster.prototype.max_health = function () {
+    var rv = 10;
+    // There is a card for this but I can't remember it off hand.
+    return rv;
+  };
+  
+  Monster.prototype.number_of_rolls = function () {
+    var rv = 3;
+    // Can be increased by "Giant Brain".
+    return rv;
+  };
+  
+  Monster.prototype.number_of_dice = function () {
+    var rv = 6;
+    // Can be increased by "Extra Head" and decreased by "Shrink Ray".
+    return rv;
+  };
+
+  Monster.prototype.can_heal_in_kyoto = function () {
+    var rv = false;
+	// There is a card for this but I can't remember it off hand.
+	return rv;
+  };
 }
 
 
@@ -310,22 +503,6 @@ ROKServerGame.prototype.doneBuying = function(player) {
 ROKServerGame.prototype.endTurn = function() {
   console.log('ROKServerGame.prototype.endTurn');
 
-  // Reset dice
-  for (var i = 0; i < 8; i++) {
-    if (i < 6) {
-      this.updateState("dice__" + i + "__state", 'i');
-    }
-    else {
-      // CARDS if the next monster has extra dice, enable them
-      if (false) {
-        this.updateState("dice__" + i + "__state", 'i');
-      }
-      else {
-        this.updateState("dice__" + i + "__state", 'n');
-      }
-    }
-  }
-
   // Turn end.
   var log_message = this.monsters[this.turn_monster].name + " ends their turn.";
   this.updateState("turn_phase", 'end', log_message);
@@ -337,7 +514,7 @@ ROKServerGame.prototype.endTurn = function() {
   this.updateState("roll_number", 1);
   
   var current_monster_index = this.monster_order.indexOf(this.turn_monster);
-  var next_monster_index = current_monster_index + 1;
+  var next_monster_index = current_monster_index + 1;  // does this account for monster deaths?  Note 'next_monster_index' was used for setting active dice above.  Perhaps 'next_monster_index' should be a method rather than a varable.
   if (typeof this.monster_order[next_monster_index] == 'undefined') {
     next_monster_index = 0;
   }
@@ -347,7 +524,17 @@ ROKServerGame.prototype.endTurn = function() {
   this.updateState("next_input_from_monster", this.monster_order[next_monster_index]);
     
     
-  // Beginning of a player's turn.
+  // Beginning of new player's turn.
+  // Reset dice
+  for (var i = 0; i < 8; i++) {
+    if (i < this.monsters[this.turn_monster].number_of_dice()) {
+      this.updateState("dice__" + i + "__state", 'i');
+    }
+    else {
+      this.updateState("dice__" + i + "__state", 'n');
+    }
+  }
+  
   // If in Kyoto, increment VP.
   if (this.monsters[this.turn_monster].in_kyoto_city || this.monsters[this.turn_monster].in_kyoto_city) {
     // CARDS: Resolve card effects: Urbavore
@@ -389,7 +576,7 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
       console.log('    phase roll');
       if (this.turn_monster == player.monster_id) {
         console.log("      It's this monster's turn");
-        if (this.roll_number <= monster.number_of_rolls) {
+        if (this.roll_number <= monster.number_of_rolls()) {
           console.log('        monster has rolls');
           // CARDS: take into account possible extra dice
           log_message = this.monsters[player.monster_id].name + " gets ";
@@ -412,7 +599,7 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
             
             log_message += this.dice[i].value + (i < 5 ? ", " : "");
 
-            if (this.roll_number < monster.number_of_rolls) {
+            if (this.roll_number < monster.number_of_rolls()) {
               // If there are more rerolls, set dice to "r", except for kept
               // dice, which should be kept as "k".
               if (this.dice[i].state != 'k') {
@@ -424,7 +611,7 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
           
           // Go to the next roll if there are more rolls and the monster isn't
           // keeping all the dice.
-          if (this.roll_number < monster.number_of_rolls && keep_all != true) {
+          if (this.roll_number < monster.number_of_rolls() && keep_all != true) {
             var new_roll_number = this.roll_number + 1;
             this.updateState("roll_number", new_roll_number);
           }
@@ -900,6 +1087,7 @@ ROKServerGame.prototype.resolveSnotDice = function(player) {
 ROKServerGame.prototype.resolveHealthDice = function(player) {
   console.log("ROKServerGame.prototype.resolveHealthDice");
 
+  var thisMonster = this.monsters[player.monster_id];
   var additional_health = 0;
   for (var i = 0; i < this.dice.length; i++) {
     if (this.dice[i].state == 'f' && this.dice[i].value == 'h') {
@@ -907,16 +1095,17 @@ ROKServerGame.prototype.resolveHealthDice = function(player) {
     }
   }
   console.log('additional_health: ' + additional_health);
-  var old_health = this.monsters[player.monster_id].health;
+  var old_health = thisMonster.health;
   var new_health = old_health + additional_health;
-  if (new_health > 10) {
+  var max_health = thisMonster.max_health()
+  if (new_health > max_health) {
     // CARDS: If max health is over 10, allow going over 10.
-    new_health = 10;
+    new_health = max_health;
   }
   if (new_health != old_health) {
     // Can't heal in Kyoto.
-    if (!this.monsters[this.turn_monster].in_kyoto_city && !this.monsters[this.turn_monster].in_kyoto_city) {
-      var log_message = this.monsters[this.turn_monster].name + " gains " + additional_health + " health.";
+    if (thisMonster.can_heal_in_kyoto() || !thisMonster.in_kyoto_city && !thisMonster.in_kyoto_bay) {
+      var log_message = thisMonster.name + " gains " + new_health - old_health + " health.";  // Use new-old health instead of additional incase limited by max health.
       this.updateState("monsters__" + player.monster_id + "__health", new_health, log_message);
     }
     else {

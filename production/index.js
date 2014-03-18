@@ -251,7 +251,7 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
     else {
       // Everything is ok, the player hasn't been removed.
       var now = Date.now();
-      console.log('keeping ' + player.name +' alive at ' + new Date().getSeconds());
+//      console.log('keeping ' + player.name +' alive at ' + new Date().getSeconds());
       player.last_seen = now;    
     }
 
