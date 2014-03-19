@@ -120,12 +120,14 @@ ROKServerGame.prototype.init = function(player) {
     THUNDER_STOMP:                76,
     UNSTABLE_DNA:                 77,
   
+    // This properties table has been adopted from Maltize's KingOfTokyo-CardList project on GitHub
+    // https://github.com/maltize/KingOfTokyo-CardList
     properties: {
-       1: {name: "Acid Attack",                   cost: 6, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage each turn (even when you don't otherwise attack)."},
+       1: {name: "Acid Attack",                   cost: 6, keep: true,  set: "original", implemented: true,  description: "Deal 1 extra damage each turn (even when you don't otherwise attack)."},
        2: {name: "Alien Metabolism",              cost: 3, keep: true,  set: "original", implemented: false, description: "Buying cards costs you 1 less [Snot]."},
        3: {name: "Alpha Monster",                 cost: 5, keep: true,  set: "original", implemented: false, description: "Gain 1[Star] when you attack."},
        4: {name: "Apartment Building",            cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]"},
-       5: {name: "Armor Plating",                 cost: 4, keep: true,  set: "original", implemented: false, description: "Ignore damage of 1."},
+       5: {name: "Armor Plating",                 cost: 4, keep: true,  set: "original", implemented: true,  description: "Ignore damage of 1."},
        6: {name: "Background Dweller",            cost: 4, keep: true,  set: "original", implemented: false, description: "You can always reroll any [3] you have."},
        7: {name: "Burrowing",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it."},
        8: {name: "Camouflage",                    cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point."},
@@ -208,6 +210,36 @@ ROKServerGame.prototype.init = function(player) {
     Object.freeze(cards);
   }
 
+  var card_deck = [];      // Cards in the deck (yet to be played)
+  var cards_available = [] // The three cards that can be purchaced.
+
+  // Put all the cards in the deck
+  for (var card in cards) {
+    if (cards[card] != cards.properties) {
+      card_deck.push(card);
+    }
+  }
+
+  // Shuffel the deck (Fisher–Yates shuffle)
+  for (var i=card_deck.length-1 ; i>0 ; i--) {
+    var rand = Math.floor(Math.random()*(i+1));  // Random number (0,i)
+    
+    // Swap rand and i
+    var temp = card_deck[rand];
+    card_deck[rand] = card_deck[i];
+    card_deck[i] = temp;
+  }
+
+  //for (var i=0 ; i<card_deck.length ; i++) {
+  //  var card = card_deck[i];
+  //  console.log(cards[card] + ": " + card + ": \"" + cards.properties[cards[card]].name + "\"");
+  //}
+
+  // Make three cards available
+  cards_available.push(card_deck.pop());
+  cards_available.push(card_deck.pop());
+  cards_available.push(card_deck.pop());
+
 
   var game_id = uuid.v4();
   this.id = game_id;
@@ -265,19 +297,16 @@ ROKServerGame.prototype.init = function(player) {
 
     this.cards_owned = []   	// Cards owned by this monser
 
-    /*****************************************************************
-     * Giving a couple of monsters cards from the offset for testing *
-     *****************************************************************
+    /*****************************************************
+     * Giving a couple of the monsters cards for testing *
+     *****************************************************
     if (this.name == "Alien") {
-      this.cards_owned.push(cards.EXTRA_HEAD_X1);
-      console.log("I've got an EXTRA HEAD");
+      this.cards_owned.push(cards.ARMOR_PLATING);
     }
 
     if(this.name == "Rabbot") {
-      this.cards_owned.push(cards.GIANT_BRAIN);
-      console.log("I've got an GIANT BRAIN");
-    }
-	*/
+      this.cards_owned.push(cards.ACID_ATTACK);
+    }*/
   }
   
   Monster.prototype.max_health = function () {
@@ -301,17 +330,32 @@ ROKServerGame.prototype.init = function(player) {
     var rv = 6;
     // Can be increased by "Extra Head" and decreased by "Shrink Ray".
 
-    // Note there are 2 extra heads.
-    if (this.cards_owned.indexOf(cards.EXTRA_HEAD_X1) != -1) {
-      console.log("Yay, Extra Head!");
-      rv++;
-    }
+    // Note there are 2 extra heads (X1 and X2).
+    if (this.cards_owned.indexOf(cards.EXTRA_HEAD_X1) != -1) rv++;
     if (this.cards_owned.indexOf(cards.EXTRA_HEAD_X2) != -1) rv++;
 
     rv -= this.shrink_ray_counters;
     return rv;
   };
 
+  Monster.prototype.apply_damage = function (amount) {
+    if (    this.cards_owned.indexOf(cards.ARMOR_PLATING) != -1
+         && amount == 1) {
+      return;
+    }
+    
+    this.health -= amount;
+  };
+  
+  Monster.prototype.additional_damage = function () {
+    rv = 0
+    
+    // Acid Attak causes additonal damage even if no claws were rolled
+    if (this.cards_owned.indexOf(cards.ACID_ATTACK) != -1) rv ++;
+
+    return rv;
+  };
+  
   Monster.prototype.can_heal_in_kyoto = function () {
     var rv = false;
     // There is a card for this but I can't remember it off hand.
@@ -704,15 +748,22 @@ ROKServerGame.prototype.resolveDice = function(player) {
  */
 ROKServerGame.prototype.resolveAttackDice = function(player) {
   console.log("ROKServerGame.prototype.resolveAttackDice");
+
   var log_message = "";
   // Calculate damage.
   // CARDS: Take into account extra damage cards.
   var damage = 0;
+  var attack = false; // Cards can cause damage without an attack
   for (var i = 0; i < 8; i++) {
     if (this.dice[i].state == 'f' && this.dice[i].value == "p") {
       damage++;
+      attack = true;  // If claws are rolled than an attack is instigated
     }
   }
+  
+  // Add additional damage (usually from cards).
+  damage += this.monsters[player.monster_id].additional_damage()
+ 
   console.log('damage: ' + damage);
   
   // If the attacking monster is in Kyoto, target all monsters outside Kyoto.
@@ -770,31 +821,25 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     // Targets monsters are now defined in an array, loop through and:
     for (var i = 0; i < target_monsters.length; i++) {
       var old_health = this.monsters[target_monsters[i]].health;
-
-      // CARDS: 
-      // - cards with damage reactions, like "lightning armor"
-      // - cards that reduce damage, like "armor plating"
-      var monster_specific_damage = damage;
-      var new_health = old_health - monster_specific_damage;
+      this.monsters[target_monsters[i]].apply_damage(damage)
+      var new_health = this.monsters[target_monsters[i]].health;
       
-      if (monster_specific_damage > 0) {
-        log_message = this.monsters[target_monsters[i]].name + " takes " + damage + " damage.";
-        this.updateState("monsters__" + target_monsters[i] + '__health', old_health - damage, log_message);
-      }
-      else {
-        // CARDS: Add log message noting any negated damage
+      if (old_health != new_health) {
+        log_message = this.monsters[target_monsters[i]].name + " takes " + (old_health-new_health) + " damage.";
+        this.updateState("monsters__" + target_monsters[i] + '__health', new_health, log_message);
       }
 
-      // Damaged monster in Kyoto? -> Make note to get yield input once we've
+      // Attacking Kyoto? -> Make note to get yield input once we've
       // looped through all monsters.
-      if (monster_specific_damage > 0 && !attacker_in_kyoto) {
+      // Note mossters don't need to be damaged to yeild, they just need to be attacked.
+      if (attack && !attacker_in_kyoto) {
         if (this.monsters[target_monsters[i]].in_kyoto_city) {
           this.monster_to_yield_kyoto_city = target_monsters[i];
-          console.log("    This monster took damage in Kyoto city");
+          console.log("    This monster was attacked in Kyoto city");
         }
         else if (this.monsters[target_monsters[i]].in_kyoto_city) {
           this.monster_to_yield_kyoto_bay = target_monsters[i];
-          console.log("    This monster took damage in Kyoto bay");
+          console.log("    This monster was attacked in Kyoto bay");
         }
         else {
           // Should never end up in this branch
@@ -867,7 +912,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     console.log('  no target monsters');
     // No target monsters, so no-one takes damage and the playing monster enters
     // Kyoto. At least one punch is still needed.
-    if (damage) {
+    if (attack) {
       this.updateState("monsters__" + player.monster_id + "__in_kyoto_city", 1);
       var old_victory_points = this.monsters[player.monster_id].victory_points;
       log_message = this.monsters[this.turn_monster].name + " takes Kyoto city for 1 VP.";
@@ -1136,7 +1181,7 @@ ROKServerGame.prototype.resolveHealthDice = function(player) {
   if (new_health != old_health) {
     // Can't heal in Kyoto.
     if (thisMonster.can_heal_in_kyoto() || !thisMonster.in_kyoto_city && !thisMonster.in_kyoto_bay) {
-      var log_message = thisMonster.name + " gains " + new_health - old_health + " health.";  // Use new-old health instead of additional incase limited by max health.
+      var log_message = thisMonster.name + " gains " + (new_health - old_health) + " health.";  // Use new-old health instead of additional incase limited by max health.
       this.updateState("monsters__" + player.monster_id + "__health", new_health, log_message);
     }
     else {
