@@ -124,7 +124,7 @@ ROKServerGame.prototype.init = function(player) {
     // https://github.com/maltize/KingOfTokyo-CardList
     properties: {
        1: {name: "Acid Attack",                   cost: 6, keep: true,  set: "original", implemented: true,  description: "Deal 1 extra damage each turn (even when you don't otherwise attack)."},
-       2: {name: "Alien Metabolism",              cost: 3, keep: true,  set: "original", implemented: false, description: "Buying cards costs you 1 less [Snot]."},
+       2: {name: "Alien Metabolism",              cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Buying cards costs you 1 less [Snot]."},
        3: {name: "Alpha Monster",                 cost: 5, keep: true,  set: "original", implemented: false, description: "Gain 1[Star] when you attack."},
        4: {name: "Apartment Building",            cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]"},
        5: {name: "Armor Plating",                 cost: 4, keep: true,  set: "original", implemented: true,  description: "Ignore damage of 1."},
@@ -134,7 +134,7 @@ ROKServerGame.prototype.init = function(player) {
        9: {name: "Commuter Train",                cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]"},
       10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results."},
       11: {name: "Corner Store",                  cost: 3, keep: false, set: "original", implemented: false, description: "+ 1[Star]"},
-      12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: false, description: "Gain 1[Star] whenever you buy a card."},
+      12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[Star] whenever you buy a card."},
       13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[Star] and take control of Tokyo if you don't already control it."},
       14: {name: "Eater of the Dead",             cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 3[Star] every time a monster's [Heart] goes to 0."},
       15: {name: "Energize",                      cost: 8, keep: false, set: "original", implemented: false, description: "+ 9[Snot]"},
@@ -306,56 +306,199 @@ ROKServerGame.prototype.init = function(player) {
 
     if(this.name == "Rabbot") {
       this.cards_owned.push(cards.ACID_ATTACK);
-    }*/
+    }
+    */
   }
-  
-  Monster.prototype.max_health = function () {
+
+  /**
+   * Modifyer method for adjustifying health
+   **
+   * @param amount int The amount to adjust the health by (+ inclease, - decrease)
+   * 
+   * @return int The amount the health was set to.
+   * 
+   **/
+  Monster.prototype.modify_health = function (amount) {
+    console.log("Monster.prototype.modify_health(" + amount + ")");
+
+  if (amount != 0) {
+    var old_health = this.health;
+    this.health += amount;
+    this.health = Math.min(this.health, this.max_health());
+
+    if (this.health != old_health) {
+      // TODO: Save new health
+      // TODO: Check for death
+    }
+  }
+
+  // Return new/current health
+  return this.health;
+};
+   
+  /**
+   * Modifyer method for adjustifying VPs
+   **
+   * @param amount int The amount to adjust the VPs by (+ inclease, - decrease)
+   * 
+   * @return int The amount the PVs was set to.
+   * 
+   **/
+   Monster.prototype.modify_victory_points = function (amount) {
+    if (amount != 0) {
+      var old_VPs = this.VPs;
+      this.VPs += amount
+
+      if (this.VPs != old_VPs) {
+        // TODO: Save new VPs
+        // TODO: Check for win
+      }
+    }
+
+    // Return new/current VPs
+    return this.victory_points;
+   };
+   
+  /**
+   * Modifyer method for adjustifying snot
+   **
+   * @param amount int The amount to adjust the snot by (+ inclease, - decrease)
+   * 
+   * @return int The amount the snot was set to.
+   **/
+   Monster.prototype.modify_snot = function (amount) {
+    if (amount != 0) {
+      var old_snot = this.snot;
+      this.snot += amount
+      this.snot = Math.max(this.snot, 0);
+
+      if (this.snot != old_snot) {
+        // TODO: Save new snot level
+      }
+    }
+
+    // Return new/current amount of snot
+    return this.snot;
+  };
+   
+   /**
+    * Fetcher method for retrieving the maximum amount of health this monster can attain
+    **
+    * @return int The amount of health the monster can attain
+    **/
+   Monster.prototype.max_health = function () {
     var rv = 10;
     // There is a card for this but I can't remember it off hand.
     return rv;
   };
-  
+
+  /**
+   * Fetcher method for retrieving the number of dice rolls the monster is allowed
+   **
+   * @return int The number of rolls the monster is allowed
+   **/
   Monster.prototype.number_of_rolls = function () {
     var rv = 3;
+
     // Can be increased by "Giant Brain".
-    
-    if (this.cards_owned.indexOf(cards.GIANT_BRAIN) != -1) {
-      console.log("Yay, Giant Brain!");
-      rv++;
-    }
+    if (this.cards_owned.indexOf(cards.GIANT_BRAIN) != -1) rv++;
+ 
     return rv;
   };
   
-  Monster.prototype.number_of_dice = function () {
+  /**
+   * Fetcher method for retrieving the number of dice this monster rolls with
+   **
+   * @return int The number of dice the monster rolls with.
+   **/
+   Monster.prototype.number_of_dice = function () {
     var rv = 6;
-    // Can be increased by "Extra Head" and decreased by "Shrink Ray".
 
-    // Note there are 2 extra heads (X1 and X2).
+    // Can be increased by "Extra Head" and decreased by "Shrink Ray".
+    // Note: There are 2 extra heads (X1 and X2).
     if (this.cards_owned.indexOf(cards.EXTRA_HEAD_X1) != -1) rv++;
     if (this.cards_owned.indexOf(cards.EXTRA_HEAD_X2) != -1) rv++;
 
+    // Number of dice is reduced by "Shrink Ray" counters
     rv -= this.shrink_ray_counters;
-    return rv;
+
+    return Math.max(rv, 0); // Just incase ;)
   };
 
-  Monster.prototype.apply_damage = function (amount) {
+  /**
+   * Modifyer method for adjustifying applying damage
+   **
+   * @param amount int The amount to adjust the snot by (+ inclease, - decrease)
+   * 
+   * @return int The amount the snot was set to.
+   **
+   * This method does not modify the health directly, rather it delagets the taks to "modify_health(...)
+   * this is to provent this method needing to check for deaths and save the hew health level
+   **/
+   Monster.prototype.apply_damage = function (amount) {
+
+    // "Armor Plating" allows monsters to ignore inflictions of 1 damage
     if (    this.cards_owned.indexOf(cards.ARMOR_PLATING) != -1
          && amount == 1) {
       return;
     }
     
-    this.health -= amount;
+    this.modify_health(-amount);
   };
   
-  Monster.prototype.additional_damage = function () {
-    rv = 0
+  /**
+   * Fetcher method for retrieving any additional damage this monster inflicts
+   *
+   * @param amount int The amount of attack the monster is doing
+   **
+   * @return int The amount of damage the monster will inflict
+   **
+   * As per the rules cards can be used to implement additinal damage however cards do not instigate an attack
+   * The subtle difference between attacks and damage is that while monsters in Kyoto can be dammaged bu 'dammage' they can only yeald Kyoto if they are attacked
+   **/
+   Monster.prototype.total_damage = function (attack) {
+    rv = attack;
     
-    // Acid Attak causes additonal damage even if no claws were rolled
+    // "Acid Attak" causes additonal damage even if no claws were rolled (ie. there is no attack)
     if (this.cards_owned.indexOf(cards.ACID_ATTACK) != -1) rv ++;
 
     return rv;
   };
   
+  /**
+   * Method for purchacing cards
+   *
+   * @param card Card The card the monster wishes to purchace
+   **
+   * @return bool Indicates wether the card was baught sucsfully or not
+   **
+   * A monster can attempt to buy cards they can't affors but the purchace will be denyed
+   **/
+   Monster.prototype.buy_card = function (card) {
+    var rv = false;
+    var cost = cards.properties[cards[card]].cost;
+
+    // "Alian Matabolism" reduces the cost of cards by 1 snot cube
+    if (this.cards_owned.indexOf(cards.ALIEN_METABOLISM) != -1) cost--;
+
+    if (cost < this.snot) {
+      console.log("Does this look like a charity.  Come back when you have more snot!");
+      return rv;
+    }
+
+    this.snot -= cost;
+    cards_owned.push(card)
+    rv = true;
+
+    // "Dedicated News Team" gives the monster a Vip each time they purchace a card
+    if (this.cards_owned.indexOf(cards.DEDICATED_NEWS_TEAM) != -1) {
+      this.modify_victory_points(+1);
+    }
+
+    // return wether the purchace was sucsful
+    return rv;
+  };
+
   Monster.prototype.can_heal_in_kyoto = function () {
     var rv = false;
     // There is a card for this but I can't remember it off hand.
@@ -750,19 +893,17 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
   console.log("ROKServerGame.prototype.resolveAttackDice");
 
   var log_message = "";
-  // Calculate damage.
-  // CARDS: Take into account extra damage cards.
-  var damage = 0;
-  var attack = false; // Cards can cause damage without an attack
+  // Calculate attack.
+  var attack = 0; // Note: Cards can cause damage without an attack
+
   for (var i = 0; i < 8; i++) {
     if (this.dice[i].state == 'f' && this.dice[i].value == "p") {
-      damage++;
-      attack = true;  // If claws are rolled than an attack is instigated
+      attack++;
     }
   }
   
   // Add additional damage (usually from cards).
-  damage += this.monsters[player.monster_id].additional_damage()
+  var damage = this.monsters[player.monster_id].total_damage(attack)
  
   console.log('damage: ' + damage);
   
@@ -832,7 +973,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
       // Attacking Kyoto? -> Make note to get yield input once we've
       // looped through all monsters.
       // Note mossters don't need to be damaged to yeild, they just need to be attacked.
-      if (attack && !attacker_in_kyoto) {
+      if (attack>0 && !attacker_in_kyoto) {
         if (this.monsters[target_monsters[i]].in_kyoto_city) {
           this.monster_to_yield_kyoto_city = target_monsters[i];
           console.log("    This monster was attacked in Kyoto city");
@@ -912,7 +1053,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     console.log('  no target monsters');
     // No target monsters, so no-one takes damage and the playing monster enters
     // Kyoto. At least one punch is still needed.
-    if (attack) {
+    if (attack>0) {
       this.updateState("monsters__" + player.monster_id + "__in_kyoto_city", 1);
       var old_victory_points = this.monsters[player.monster_id].victory_points;
       log_message = this.monsters[this.turn_monster].name + " takes Kyoto city for 1 VP.";
