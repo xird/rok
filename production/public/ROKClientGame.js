@@ -183,10 +183,10 @@ ROKGame.prototype.initClient = function() {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_city').html(data.monsters[monster_ids[i]].in_kyoto_city);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_bay').html(data.monsters[monster_ids[i]].in_kyoto_bay);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
-        $('#monsters__' + data.monsters[monster_ids[i]].id + '__poision_counters').html(data.monsters[monster_ids[i]].poision_counters);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__poison_counters').html(data.monsters[monster_ids[i]].poison_counters);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__shrink_ray_counters').html(data.monsters[monster_ids[i]].shrink_ray_counters);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__smoke_counters').html(data.monsters[monster_ids[i]].smoke_counters);
-        $('#monsters__' + data.monsters[monster_ids[i]].id + '__alian_counters').html(data.monsters[monster_ids[i]].alian_counters);
+        $('#monsters__' + data.monsters[monster_ids[i]].id + '__alien_counters').html(data.monsters[monster_ids[i]].alien_counters);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__UFO_counters').html(data.monsters[monster_ids[i]].UFO_counters);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__mimic').html(data.monsters[monster_ids[i]].mimic);
       }

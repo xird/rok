@@ -214,7 +214,7 @@ ROKServerGame.prototype.init = function(player) {
   }
 
   var card_deck = [];      // Cards in the deck (yet to be played)
-  var cards_available = [] // The three cards that can be purchaced.
+  var cards_available = [] // The three cards that can be purchased.
 
   // Put all the cards in the deck
   for (var card in cards) {
@@ -223,7 +223,7 @@ ROKServerGame.prototype.init = function(player) {
     }
   }
 
-  // Shuffel the deck (Fisher–Yates shuffle)
+  // Shuffle the deck (Fisher–Yates shuffle)
   for (var i=card_deck.length-1 ; i>0 ; i--) {
     var rand = Math.floor(Math.random()*(i+1));  // Random number (0,i)
     
@@ -295,12 +295,12 @@ ROKServerGame.prototype.init = function(player) {
     this.in_kyoto_bay = 0;
     
     // Card effects:
-    this.poision_counters = 0;
+    this.poison_counters = 0;
     this.shrink_ray_counters = 0;
     this.smoke_counters = 0;
-    this.alian_counters = 0; // Not sure what these are for but there in the box.
-    this.UFO_counters = 0;   // Not sure what these are for but there in the box.
-    this.mimic = null;       // Probably what the 'target' token if for.
+    this.alien_counters = 0; // Not sure what these are for but they're in the box.
+    this.UFO_counters = 0;   // Not sure what these are for but they're in the box.
+    this.mimic = null;       // Probably what the 'target' token is for.
 
     this.id = id;
     this.name = monster_names[id-1];
@@ -321,9 +321,9 @@ ROKServerGame.prototype.init = function(player) {
   }
 
   /**
-   * Modifyer method for adjustifying health
+   * Modifier method for adjusting health
    **
-   * @param amount int The amount to adjust the health by (+ inclease, - decrease)
+   * @param amount int The amount to adjust the health by (+ increase, - decrease)
    * 
    * @return int The amount the health was set to.
    * 
@@ -347,9 +347,9 @@ ROKServerGame.prototype.init = function(player) {
 };
    
   /**
-   * Modifyer method for adjustifying VPs
+   * Modifier method for adjusting VPs
    **
-   * @param amount int The amount to adjust the VPs by (+ inclease, - decrease)
+   * @param amount int The amount to adjust the VPs by (+ increase, - decrease)
    * 
    * @return int The amount the PVs was set to.
    * 
@@ -370,9 +370,9 @@ ROKServerGame.prototype.init = function(player) {
    };
    
   /**
-   * Modifyer method for adjustifying snot
+   * Modifier method for adjusting snot
    **
-   * @param amount int The amount to adjust the snot by (+ inclease, - decrease)
+   * @param amount int The amount to adjust the snot by (+ increase, - decrease)
    * 
    * @return int The amount the snot was set to.
    **/
@@ -436,17 +436,17 @@ ROKServerGame.prototype.init = function(player) {
   };
 
   /**
-   * Modifyer method for adjustifying applying damage
+   * Modifier method for adjusting applying damage
    **
    * @param amount int The amount to adjust the snot by (+ inclease, - decrease)
    * 
    * @return int The amount the snot was set to.
    **
-   * This method does not modify the health directly, rather it delagets the taks to "modify_health(...)
-   * this is to provent this method needing to check for deaths and save the hew health level
+   * This method does not modify the health directly, rather it delegates the
+   * task to "modify_health(...). This is to prevent this method needing to
+   * check for deaths and save the new health level.
    **/
    Monster.prototype.apply_damage = function (amount) {
-
     // "Armor Plating" allows monsters to ignore inflictions of 1 damage
     if (    this.cards_owned.indexOf(cards.ARMOR_PLATING) != -1
          && amount == 1) {
@@ -463,8 +463,10 @@ ROKServerGame.prototype.init = function(player) {
    **
    * @return int The amount of damage the monster will inflict
    **
-   * As per the rules cards can be used to implement additinal damage however cards do not instigate an attack
-   * The subtle difference between attacks and damage is that while monsters in Kyoto can be dammaged bu 'dammage' they can only yeald Kyoto if they are attacked
+   * As per the rules cards can be used to implement additional damage, however
+   * cards do not instigate an attack. The subtle difference between attacks and
+   * damage is that while monsters in Kyoto can be damaged by 'damage' they can
+   * only yield Kyoto if they are 'attacked'.
    **/
    Monster.prototype.total_damage = function (attack) {
     rv = attack;
