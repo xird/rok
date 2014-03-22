@@ -346,20 +346,32 @@ div#log p {
 
 /* TODO cards */
 #cards {
-  display: none;
-  width: 276px;
+  width: 520px;
   background-color: #ccc;
   bottom: 10px;
-  left: 254px;
+  left: 10px;
 }
 
-/* TODO cards img */    
-#cards img {
-  width: 56px;
-  height: 84px;
+
+
+.card,
+#card_deck {
   float: left;
-  margin: 20px 0 0 10px;
+  height: 91px;
+  margin: 10px 0 0 10px;
+  width: 117px;
 }
+
+#card_deck {
+  background: #666;
+}
+
+.card {
+  background: #eee;
+  font-size: 0.4em;
+}
+
+/* Dice */
 
 #dice_area {
   width: 474px;

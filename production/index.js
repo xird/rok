@@ -480,6 +480,14 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
 
 
   /**
+   * Player buys a card.
+   */
+  socket.on("buy_card", function gameBuyCard(available_card_index) {
+    games[player.game_id].buyCard(player, available_card_index);
+  });
+
+
+  /**
    * Player is done buying cards.
    */
   socket.on("done_buying", function gameDoneBuying(args) {

@@ -5,8 +5,8 @@
  *
  * FIXME If another player snaps status, this player get duplicate rows in monster tables
  * FIXME initial load roll number is wrong
- * FIXME leave game button is never hidden?
  * TODO figure out a way to "disable" link based buttons after click to prevent double clicks.
+ * TODO Prevent buying of cards when it's not time to buy cards
  */
 ROKGame.prototype.initClient = function() {
   console.log("ROKGame.prototype.initClient");
@@ -27,6 +27,7 @@ ROKGame.prototype.initClient = function() {
    */
   socket.on('snap_state', function socketSnapState(data) {
     console.log("snapping game state");
+    console.log(utils.dump(data));
     
     game.game_state = data.game_state;
     game.turn_phase = data.turn_phase;
@@ -38,6 +39,7 @@ ROKGame.prototype.initClient = function() {
     game.dice = data.dice;
     game.this_monster = data.this_monster;
     game.winner = data.winner;
+    game.cards_available = data.cards_available;
     console.log(data);
     if (data.game_state == "lobby") {
       console.log('Lobby');
@@ -77,7 +79,7 @@ ROKGame.prototype.initClient = function() {
       var monsters_placed = 0;
       var index = first_monster_index;
       while (monsters_placed < game.monster_order.length) {
-        console.log('Placing monster index ' + index + ", id " + game.monster_order[index]);
+        //console.log('Placing monster index ' + index + ", id " + game.monster_order[index]);
         monsters_placed++;
         // If we're placing the last monster, it must be the player's monster.
         if (monsters_placed != game.monster_order.length) {
@@ -133,14 +135,14 @@ ROKGame.prototype.initClient = function() {
       // has died, we need to keep a separate variable named 
       // "original_monster_order". Or use a separate variable for 
       // "playing_monsters".
-      console.log(game.monsters);
+      //console.log(game.monsters);
       var index = first_monster_index;
       $('.monster_home:visible').each(function(){
         var msel = $(this);
-        console.log('slot id: ' + $(this).attr('id'));
-        console.log('index: ' + index);
+        //console.log('slot id: ' + $(this).attr('id'));
+        //console.log('index: ' + index);
         var monster_id = game.monster_order[index];
-        console.log('monster id: ' + monster_id);
+        //console.log('monster id: ' + monster_id);
 
         var mel = $('#m' + monster_id);
         mel.removeClass('dead');
@@ -152,15 +154,15 @@ ROKGame.prototype.initClient = function() {
         
         // Move the monster to its home, or to Kyoto if that's where it's at.
         if (game.monsters[monster_id].in_kyoto_city) {
-          console.log(monster_id + ' init city');
+          //console.log(monster_id + ' init city');
           game.moveMonster(monster_id, "city", "immediate");
         }
         else if (game.monsters[monster_id].in_kyoto_bay) {
-          console.log(monster_id + ' init bay');
+          //console.log(monster_id + ' init bay');
           game.moveMonster(monster_id, "bay", "immediate");
         }
         else {
-          console.log(monster_id + ' init home');
+          //console.log(monster_id + ' init home');
           game.moveMonster(monster_id, "home", "immediate");
         }
 
@@ -168,7 +170,7 @@ ROKGame.prototype.initClient = function() {
         if (index == game.monster_order.length) {
           index = 0;
         }
-        console.log('---');
+        //console.log('---');
       });
       
       
@@ -198,12 +200,16 @@ ROKGame.prototype.initClient = function() {
         game.handle__dice__value([{value: data.dice[i].value, id: i}]);
       }
       
+      // Cards
+      game.handle__cards_available([{value: data.cards_available}]);
+      
       // Enable appropriate buttons for the current state.
       if (game.game_state == 'over') {
         console.log('over');
         $('#leave_game_button').show();
       }
       else {
+        $('#leave_game_button').hide();      
         if (game.next_input_from_monster == game.this_monster) {
           if (game.turn_phase == 'roll') {
             $('#roll_dice_button').show();
@@ -315,6 +321,11 @@ ROKGame.prototype.initClient = function() {
     }
   });
   
+  // Buy cards
+  $('#game').on("click", ".card", function clickBuyCard() {
+    console.log("clickBuyCard " + $(this).data("available_card_index"));
+    socket.emit("buy_card", $(this).data("available_card_index"));
+  });
   
   // Finish buying cards.
   $('#game').on("click", "#done_buying_button", function clickDoneBuying(){
@@ -737,5 +748,20 @@ ROKGame.prototype.handle__monsters__in_kyoto_city = function(updates) {
   else if (update.value == 1) {
     this.moveMonster(monster_id, "city");  
   }
+  game.handleUpdates(updates);
+}
+
+/**
+ * Show the cards currently available for purchase.
+ */
+ROKGame.prototype.handle__cards_available = function(updates) {
+  var update = updates.shift();
+
+  console.log("ROKGame.prototype.handle__cards_available");
+  console.log(update.value);
+  for (var i = 0; i < update.value.length; i++) {
+    $('#card__' + i).html(update.value[i]);
+  }
+
   game.handleUpdates(updates);
 }

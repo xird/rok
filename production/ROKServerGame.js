@@ -41,6 +41,8 @@ ROKServerGame.prototype.init = function(player) {
     "Squid"
   ];
   
+  // TODO: Have the card properties available in the cards_available array. We
+  // need to be able to show the card details to the players. 
   var cards = {
     ACID_ATTACK:                   1,
     ALIEN_METABOLISM:              2,
@@ -204,8 +206,9 @@ ROKServerGame.prototype.init = function(player) {
     }
   };
   
-  if (Object.freeze)  // Not all browsers support 'Object.freeze(...)'
-  {
+  // Not all browsers support 'Object.freeze(...)'
+  // No, but this is _server_side_ code, so it shouldn't matter. -E
+  if (Object.freeze) {
     Object.freeze(monster_names);
     Object.freeze(cards);
   }
@@ -239,6 +242,12 @@ ROKServerGame.prototype.init = function(player) {
   cards_available.push(card_deck.pop());
   cards_available.push(card_deck.pop());
   cards_available.push(card_deck.pop());
+
+  // Add references to the card arrays to the game object as we need to be able
+  // to send the data to the players.
+  this.cards = cards;
+  this.card_deck = card_deck;
+  this.cards_available = cards_available;
 
 
   var game_id = uuid.v4();
@@ -280,7 +289,8 @@ ROKServerGame.prototype.init = function(player) {
     this.player_id = 0;
     this.health = 10;
     this.victory_points = 0;
-    this.snot = 0;
+    // FIXME adding some initial snot to test buying cards.
+    this.snot = 10;
     this.in_kyoto_city = 0;
     this.in_kyoto_bay = 0;
     
@@ -465,40 +475,6 @@ ROKServerGame.prototype.init = function(player) {
     return rv;
   };
   
-  /**
-   * Method for purchacing cards
-   *
-   * @param card Card The card the monster wishes to purchace
-   **
-   * @return bool Indicates wether the card was baught sucsfully or not
-   **
-   * A monster can attempt to buy cards they can't affors but the purchace will be denyed
-   **/
-   Monster.prototype.buy_card = function (card) {
-    var rv = false;
-    var cost = cards.properties[cards[card]].cost;
-
-    // "Alian Matabolism" reduces the cost of cards by 1 snot cube
-    if (this.cards_owned.indexOf(cards.ALIEN_METABOLISM) != -1) cost--;
-
-    if (cost < this.snot) {
-      console.log("Does this look like a charity.  Come back when you have more snot!");
-      return rv;
-    }
-
-    this.snot -= cost;
-    cards_owned.push(card)
-    rv = true;
-
-    // "Dedicated News Team" gives the monster a Vip each time they purchace a card
-    if (this.cards_owned.indexOf(cards.DEDICATED_NEWS_TEAM) != -1) {
-      this.modify_victory_points(+1);
-    }
-
-    // return wether the purchace was sucsful
-    return rv;
-  };
-
   Monster.prototype.can_heal_in_kyoto = function () {
     var rv = false;
     // There is a card for this but I can't remember it off hand.
@@ -620,6 +596,7 @@ ROKServerGame.prototype.snapState = function(player_id) {
   send_object.monsters = this.monsters;
   send_object.dice = this.dice;
   send_object.winner = this.winner;
+  send_object.cards_available = this.cards_available;
   
   // Loop through all players in this game and send them the data.
   for (var game_player_id in this.players) {
@@ -689,6 +666,60 @@ ROKServerGame.prototype.buyCards = function() {
   this.updateState("turn_phase", 'buy', log_message);
   // Reset NIFP, in case yield resolution has changed it.
   this.updateState("next_input_from_monster", this.turn_monster);
+  this.sendStateChanges();
+}
+
+/**
+ * A player is trying to buy a card.
+ * 
+ * @param player Object The player buying the card.
+ * @param available_card_index Integer
+ *   The index of the card to be bought in the cards_available array.
+ * 
+ * NOTE: The function was moved here from the Monster class since the Monster
+ * object doesn't have a Game reference, and thus can't access the card data.
+ */
+ROKServerGame.prototype.buyCard = function(player, available_card_index) {
+  console.log("ROKServerGame.prototype.buyCard");
+  console.log("player:");
+  console.log(player);
+  console.log("available_card_index:");
+  console.log(available_card_index);
+
+  var card = this.cards[this.cards_available[available_card_index]];
+  console.log("card:");
+  console.log(card)
+  var monster = this.monsters[player.monster_id];
+  var cost = this.cards.properties[card].cost;
+
+  // "Alien Metabolism" reduces the cost of cards by 1 snot cube.
+  if (monster.cards_owned.indexOf(this.cards.ALIEN_METABOLISM) != -1) {
+    cost--;
+  }
+
+  // A monster can attempt to buy cards they can't afford but the purchace
+  // will be denied.
+  // TODO prevent this in the browser as well.
+  if (cost > monster.snot) {
+    console.log("Does this look like a charity.  Come back when you have more snot!");
+    return;
+  }
+
+  // Deduct the money from the monster.
+  var new_snot = monster.snot - cost;
+  this.updateState("monsters__" + monster.id + "__snot", new_snot);
+
+  // "Dedicated News Team" gives the monster a Vip each time they purchace a 
+  // card, but not when they're buying the "Dedicated news team".
+  if (monster.cards_owned.indexOf(this.cards.DEDICATED_NEWS_TEAM) != -1) {
+    monster.modify_victory_points(+1);
+  }
+  
+  // Add the card to the monster/
+  var monster_cards = monster.cards_owned;
+  monster_cards.push(card)
+  this.updateState("monsters__" + monster.id + "__cards_owned", monster_cards);
+  
   this.sendStateChanges();
 }
 
