@@ -475,7 +475,7 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
    * Player rolling dice.
    */
   socket.on("roll_dice", function gameRollDice(keep_dice_ids) {
-    games[player.game_id].rollDice(player, keep_dice_ids);
+    games[player.game_id].rollDiceClicked(player, keep_dice_ids);
   });
 
 

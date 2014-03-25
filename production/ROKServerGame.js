@@ -815,11 +815,75 @@ ROKServerGame.prototype.endTurn = function() {
  * @param keep_dice_ids array The ids of the dice that are not to be
  * re-rolled.
  */
-ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
-  console.log('ROKServerGame.prototype.rollDice');
+ROKServerGame.prototype.rollDiceClicked = function (player, keep_dice_ids) {
+  console.log('ROKServerGame.prototype.rollClicked');
   
-  var monster = this.monsters[player.monster_id];
-  var log_message = "";
+  if (this.checkRollState(player)) {
+    var monster = this.monsters[player.monster_id];
+    var log_message = "";
+  }
+
+  // Allways roll atleast once
+  this.rollDice(this.monsters[player.monster_id], keep_dice_ids);
+
+  // Check for end of rolling condition
+  if (this.roll_number > monster.number_of_rolls() || keep_dice_ids.length == monster.number_of_dice()) {
+    console.log('      monster ends rolls');
+
+    // Set the state of all dice to 'f' (final)
+    for (var i = 0; i < this.dice.length; i++) {
+      if (this.dice[i].state != 'n') {
+        this.updateState("dice__" + i + "__state", 'f');
+      }
+    }
+
+    // Advance to next turn phase: resolve
+    // Note that we're not sending state changes here, since there will
+    // be more changes after the rolls are resolved.  We will send the state upon returning
+    this.resolveDice(player);
+    // Calling 'resolveDice(...)' means the next call to 'sendStateChanges()' at the end of the method will display a prompt that will ultimatly lead us away from this method.
+  }
+  // else the player will prompted to roll again
+
+  this.sendStateChanges();  // Get another click.
+                            // The click will either bring us back here (roll again)
+                            // or lead us to the nest phase (buy cards).
+}
+
+ROKServerGame.prototype.rollDice = function (player_monster, keep_dice_ids) {
+  console.log('ROKServerGame.prototype.rollDice');
+
+  log_message = player_monster.name + " gets ";
+  
+  // Flag variable for detecting situation where the monster keeps all
+  // the dice
+  for (var i = 0; i < player_monster.number_of_dice(); i++) {
+    console.log('        Rolling?');
+    // Roll only dice that are not kept
+    if (keep_dice_ids.indexOf(i) == -1) {
+      console.log('          Rolling.');
+      var roll = utils.dieRoll();
+      this.updateState("dice__" + i + "__value", roll, player_monster.name + " rolls " + roll);
+    }
+    else {
+      this.updateState("dice__" + i + "__state", 'k', player_monster.name + " keeps " + this.dice[i].value);
+    }
+    
+    log_message += this.dice[i].value + (i < player_monster.number_of_dice()-1 ? ", " : "");
+
+    if (this.roll_number < player_monster.number_of_rolls()) {
+      // If there are more rerolls, set dice to "r", except for kept
+      // dice, which should be kept as "k".
+      if (this.dice[i].state != 'k') {
+        this.updateState("dice__" + i + "__state", "r");
+      }
+    }
+  }
+  this.updateState("roll_number", this.roll_number + 1, log_message);
+}
+
+ROKServerGame.prototype.checkRollState = function(player) {
+  var rv = false;
 
   if (this.game_state == 'play') {
     console.log('  state play');
@@ -827,62 +891,8 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
       console.log('    phase roll');
       if (this.turn_monster == player.monster_id) {
         console.log("      It's this monster's turn");
-        if (this.roll_number <= monster.number_of_rolls()) {
-          console.log('        monster has rolls');
-          // CARDS: take into account possible extra dice
-          log_message = this.monsters[player.monster_id].name + " gets ";
-          
-          // Flag variable for detecting situation where the monster keeps all
-          // the dice
-          var keep_all = true;
-          for (var i = 0; i < monster.number_of_dice(); i++) {
-            console.log('        Rolling?');
-            // Roll only dice that are not kept
-            if (keep_dice_ids.indexOf(i) == -1) {
-              keep_all = false;
-              console.log('          Rolling.');
-              var roll = utils.dieRoll();
-              this.updateState("dice__" + i + "__value", roll, this.monsters[player.monster_id].name + " rolls " + roll);
-            }
-            else {
-              this.updateState("dice__" + i + "__state", 'k', this.monsters[player.monster_id].name + " keeps " + this.dice[i].value);
-            }
-            
-            log_message += this.dice[i].value + (i < monster.number_of_dice()-1 ? ", " : "");
 
-            if (this.roll_number < monster.number_of_rolls()) {
-              // If there are more rerolls, set dice to "r", except for kept
-              // dice, which should be kept as "k".
-              if (this.dice[i].state != 'k') {
-                this.updateState("dice__" + i + "__state", "r");
-              }
-            }
-          }
-          this.updateState(false, false, log_message);
-          
-          // Go to the next roll if there are more rolls and the monster isn't
-          // keeping all the dice.
-          if (this.roll_number < monster.number_of_rolls() && keep_all != true) {
-            var new_roll_number = this.roll_number + 1;
-            this.updateState("roll_number", new_roll_number);
-          }
-          else {
-            // Advance to next turn phase: resolve
-            // Note that we're not sending state changes here, since there will
-            // be more changes after the rolls are resolved.
-            // Mark dice to the final state.
-            for (var i = 0; i < this.dice.length; i++) {
-              if (this.dice[i].state != 'n') {
-                this.updateState("dice__" + i + "__state", 'f');              
-              }
-            }
-            this.resolveDice(player);
-          }
-
-        }
-        else {
-          console.log('      monster out of rolls');
-        }
+        rv = true;
       }
       else {
         console.log("ERROR: Not this monster's turn");
@@ -898,8 +908,8 @@ ROKServerGame.prototype.rollDice = function (player, keep_dice_ids) {
     console.log('ERROR: game not being played');
     player.getSocket().emit('game_message', "Game not being played.");
   }
-    
-  this.sendStateChanges();
+  
+  return rv;
 }
 
 
