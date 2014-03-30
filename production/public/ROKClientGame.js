@@ -19,7 +19,6 @@ ROKGame.prototype.initClient = function() {
    */
   window.setInterval("socket.emit('keep_alive');", 2000);
 
-
   // Socket event handlers.
 
   /**
@@ -36,6 +35,8 @@ ROKGame.prototype.initClient = function() {
     game.roll_number = data.roll_number;
     game.monster_order = data.monster_order;
     game.monsters = data.monsters;
+    game.monster_in_kyoto_city = data.monster_in_kyoto_city;
+    game.monster_in_kyoto_bay  = data.monster_in_kyoto_bay;
     game.dice = data.dice;
     game.this_monster = data.this_monster;
     game.winner = data.winner;
@@ -153,11 +154,11 @@ ROKGame.prototype.initClient = function() {
         msel.addClass('m' + monster_id + 'home');
         
         // Move the monster to its home, or to Kyoto if that's where it's at.
-        if (game.monsters[monster_id].in_kyoto_city) {
+        if (game.monster_in_kyoto_city == monster_id) {
           //console.log(monster_id + ' init city');
           game.moveMonster(monster_id, "city", "immediate");
         }
-        else if (game.monsters[monster_id].in_kyoto_bay) {
+        else if (game.monster_in_kyoto_bay == monster_id) {
           //console.log(monster_id + ' init bay');
           game.moveMonster(monster_id, "bay", "immediate");
         }
@@ -180,8 +181,8 @@ ROKGame.prototype.initClient = function() {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__health').html(data.monsters[monster_ids[i]].health);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__victory_points').html(data.monsters[monster_ids[i]].victory_points);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__snot').html(data.monsters[monster_ids[i]].snot);
-        $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_city').html(data.monsters[monster_ids[i]].in_kyoto_city);
-        $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_bay').html(data.monsters[monster_ids[i]].in_kyoto_bay);
+//        $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_city').html(data.monsters[monster_ids[i]].in_kyoto_city);
+//        $('#monsters__' + data.monsters[monster_ids[i]].id + '__in_kyoto_bay').html(data.monsters[monster_ids[i]].in_kyoto_bay);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__name').html(data.monsters[monster_ids[i]].name);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__poison_counters').html(data.monsters[monster_ids[i]].poison_counters);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__shrink_ray_counters').html(data.monsters[monster_ids[i]].shrink_ray_counters);
@@ -190,6 +191,12 @@ ROKGame.prototype.initClient = function() {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__UFO_counters').html(data.monsters[monster_ids[i]].UFO_counters);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__mimic').html(data.monsters[monster_ids[i]].mimic);
       }
+
+      $('#board__monster_in_kyoto_city').html(data.monster_in_kyoto_city);
+      $('#board__monster_in_kyoto_bay').html(data.monster_in_kyoto_bay);
+
+
+
       
       // Highlight the active monster
       $('#m' + game.next_input_from_monster).addClass('active'); 
@@ -648,8 +655,6 @@ ROKGame.prototype.handle__dice__value = function(updates) {
       });    
       break;
   }
-  
-
 }
 
 ROKGame.prototype.handle__monsters__victory_points = function(updates) {
@@ -739,15 +744,19 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
   });
 }
 
-ROKGame.prototype.handle__monsters__in_kyoto_city = function(updates) {
+ROKGame.prototype.handle__monsters__in_kyoto = function(updates) {
   var update = updates.shift();
   var monster_id = update.id;
-  if (update.value == 0) {
-    this.moveMonster(monster_id, "home");
+  if (game.monster_in_kyoto_city == monster_id) {
+    this.moveMonster(monster_id, "city");
   }
-  else if (update.value == 1) {
-    this.moveMonster(monster_id, "city");  
+  if (game.monster_in_kyoto_bay == monster_id) {
+    this.moveMonster(monster_id, "bay");  
   }
+  else {
+    this.moveMonster(monster_id, "home");  
+  }
+
   game.handleUpdates(updates);
 }
 

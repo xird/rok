@@ -37,8 +37,11 @@ function ROKGame(player) {
   this.dice = [];
   this.updates = [];
   this.winner = 0;
-  this.monster_to_yield_kyoto_city = 0;
-  this.monster_to_yield_kyoto_bay = 0;
+  this.monster_in_kyoto_city = [];
+  this.monster_in_kyoto_bay = [];
+  this.cards_available = [];
+//  this.monster_to_yield_kyoto_city = 0;
+//  this.monster_to_yield_kyoto_bay = 0;
   for (var i = 0; i < 6; i++) {
     this.dice.push({
       value: 0,
@@ -67,6 +70,10 @@ function ROKGame(player) {
       that.initClient();
     }
   }(this, player)
+}
+
+ROKGame.prototype.inKyoto = function(monster) {
+  return (monster.id == this.monster_in_kyoto_city || monster.id == this.monster_in_kyoto_bay);
 }
 
 // Only export to the node.js exports object if we're serverside.
