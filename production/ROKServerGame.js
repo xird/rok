@@ -386,8 +386,8 @@ ROKServerGame.prototype.init = function(player) {
    **/
    Monster.prototype.addVictoryPoints = function (that, amount, log_message) {
     if (amount != 0) {
-      var old_VPs = this.VPs;
-      this.VPs += amount
+      var old_VPs = this.victory_points;
+      this.victory_points += amount;
 
       if (this.VPs != old_VPs) {
         if (!log_message) {
@@ -1444,8 +1444,8 @@ ROKServerGame.prototype.resolveVictoryPointDice = function(player) {
 
   console.log("additional_victory_points: " + additional_victory_points);
 
-  var log_message = this.monsters[this.turn_monster].name + " rolls " + additional_victory_points + " VP.";
-  this.monsters[this.turn_monster].addVictoryPoints(this, additional_victory_points, log_message);
+  var log_message = _this_turn_monster.name + " rolls " + additional_victory_points + " VP.";
+  _this_turn_monster.addVictoryPoints(this, additional_victory_points, log_message);
 
   // CARDS: Take number roll modifier cards into account ("111 counts as 333")
 }
