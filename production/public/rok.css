@@ -1,7 +1,7 @@
 /* Production client confirmed CSS rules */
 @font-face {
   font-family: cracked;
-  src: url("http://localhost:8080/cracked.woff");
+  src: url("/cracked.woff");
 }
 
 body {
@@ -53,7 +53,7 @@ body {
 }
 
 .monster_select_button {
-  background-image: url('http://localhost:8080/monster_frames.png');
+  background-image: url('/monster_frames.png');
   background-repeat: no-repeat;
   display: inline-block;
   height: 142px;
@@ -131,7 +131,7 @@ body {
   left: 10px;
   top: 10px;
   background-color: #6a4;
-  background-image: url("http://localhost:8080/map.png");
+  background-image: url("/map.png");
   background-repeat: no-repeat;
   background-position: 0px 100px;
   z-index: 2;
@@ -149,7 +149,7 @@ div.monster_slot {
   width: 214px;
   height: 142px;
   opacity: 0.35;
-  background-image: url('http://localhost:8080/monster_slot.png');
+  background-image: url('/monster_slot.png');
   background-repeat: no-repeat;
   z-index: -1;
 }
@@ -159,7 +159,7 @@ div.monster {
   position: absolute;
   width: 214px;
   height: 142px;
-  background-image: url('http://localhost:8080/monster_frames.png');
+  background-image: url('/monster_frames.png');
   background-repeat: no-repeat;
 }
 
@@ -274,7 +274,7 @@ div.monster {
   width: 214px;
   height: 142px;
   opacity: 1;
-  background-image: url('http://localhost:8080/dead.png');
+  background-image: url('/dead.png');
   z-index: 3;
 }
 
@@ -301,7 +301,7 @@ div.monster {
   position: absolute;
   top: 0;
   left: 0;
-  background-image: url('http://localhost:8080/stats-bg.png');
+  background-image: url('/stats-bg.png');
   height: 50px;
   opacity: 0;
   width: 50px;
@@ -429,32 +429,32 @@ div#dice div.n {
 
 div#dice div.punch {
   background-color: none;
-  background-image: url('http://localhost:8080/punch45.png');
+  background-image: url('/punch45.png');
 }
 
 div#dice div.punchInactive {
   background-color: none;
-  background-image: url('http://localhost:8080/punch45inactive.png');
+  background-image: url('/punch45inactive.png');
 }
 
 div#dice div.heal {
   background-color: none;
-  background-image: url('http://localhost:8080/heal45.png');
+  background-image: url('/heal45.png');
 }
 
 div#dice div.healInactive {
   background-color: none;
-  background-image: url('http://localhost:8080/heal45inactive.png');
+  background-image: url('/heal45inactive.png');
 }
 
 div#dice div.snot {
   background-color: none;
-  background-image: url('http://localhost:8080/snot45.png');
+  background-image: url('/snot45.png');
 }
 
 div#dice div.snotInactive {
   background-color: none;
-  background-image: url('http://localhost:8080/snot45inactive.png');
+  background-image: url('/snot45inactive.png');
 }
 
 #roll_dice_button {

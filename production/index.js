@@ -47,15 +47,15 @@ var SessionSockets = require('session.socket.io')
  */
 app.get('/', function getHandler(req, res) {
   console.log("Client page load");
-  res.render('client.html');
+  res.render('client.html', {hostname: req.headers.host});
 });
 app.get('/dev', function getHandler(req, res) {
   console.log("Dev client page load");
-  res.render('dev_client.html');
+  res.render('dev_client.html', {hostname: req.headers.host});
 });
 app.get('/disconnected', function getHandler(req, res) {
   console.log("disconnected page load");
-  res.render('disconnected.html');
+  res.render('disconnected.html', {hostname: req.headers.host});
 });
 
 var games = {};
@@ -63,7 +63,7 @@ var players = {};
 var lobby = new ROKServerLobby();
 var utils = new ROKUtils();
 
-server.listen(3250);
+server.listen(80);
 
 
 /**
@@ -203,7 +203,7 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
   // Create a new player (returns an existing player if one exists for this
   // session).
   var player = addPlayer(socket, sessid);
-  console.log(player);
+  //console.log(player);
   player.status = "connected";
 
   // Depending on the user's status, either update the lobby or the game.

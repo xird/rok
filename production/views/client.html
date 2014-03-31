@@ -3,18 +3,17 @@
 <head>
 <title>ROK</title>
 
-<link rel="stylesheet" href="//localhost:8080/rok.css" type="text/css" media="all" />
+<link rel="stylesheet" href="//<%= hostname %>:8080/rok.css" type="text/css" media="all" />
 
-<!-- TODO make the server dynamic -->
-<script src="//localhost:8080/jquery-2.1.0.min.js"></script>
-<script src="//localhost:8080/jquery.json2html.js"></script>
-<script src="//localhost:8080/jquery.color-2.1.2.min.js"></script>
-<script src="//localhost:8080/json2html.js"></script>
-<script src="//localhost:8080/ROKGame.js"></script>
-<script src="//localhost:8080/ROKUtils.js"></script>
-<script src="//localhost:8080/ROKClientGame.js"></script>
-<script src="//localhost:8080/ROKLobby.js"></script>
-<script src="//localhost:8080/ROKClientLobby.js"></script>
+<script src="//<%= hostname %>:8080/jquery-2.1.0.min.js"></script>
+<script src="//<%= hostname %>:8080/jquery.json2html.js"></script>
+<script src="//<%= hostname %>:8080/jquery.color-2.1.2.min.js"></script>
+<script src="//<%= hostname %>:8080/json2html.js"></script>
+<script src="//<%= hostname %>:8080/ROKGame.js"></script>
+<script src="//<%= hostname %>:8080/ROKUtils.js"></script>
+<script src="//<%= hostname %>:8080/ROKClientGame.js"></script>
+<script src="//<%= hostname %>:8080/ROKLobby.js"></script>
+<script src="//<%= hostname %>:8080/ROKClientLobby.js"></script>
 
 <script src="/socket.io/socket.io.js"></script>
 
@@ -23,7 +22,7 @@
 
 $(document).ready(function() {
   // Connect to the socket.
-  socket = io.connect('http://localhost:3250');
+  socket = io.connect('http://<%= hostname %>');
   
   // Set up utilities
   utils = new ROKUtils();
