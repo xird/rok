@@ -35,8 +35,8 @@ ROKGame.prototype.initClient = function() {
     game.roll_number = data.roll_number;
     game.monster_order = data.monster_order;
     game.monsters = data.monsters;
-    game.monster_in_kyoto_city = data.monster_in_kyoto_city;
-    game.monster_in_kyoto_bay  = data.monster_in_kyoto_bay;
+    game.monster_in_kyoto_city_id = data.monster_in_kyoto_city_id;
+    game.monster_in_kyoto_bay_id  = data.monster_in_kyoto_bay_id;
     game.dice = data.dice;
     game.this_monster = data.this_monster;
     game.winner = data.winner;
@@ -154,11 +154,11 @@ ROKGame.prototype.initClient = function() {
         msel.addClass('m' + monster_id + 'home');
         
         // Move the monster to its home, or to Kyoto if that's where it's at.
-        if (game.monster_in_kyoto_city == monster_id) {
+        if (game.monster_in_kyoto_city_id == monster_id) {
           //console.log(monster_id + ' init city');
           game.moveMonster(monster_id, "city", "immediate");
         }
-        else if (game.monster_in_kyoto_bay == monster_id) {
+        else if (game.monster_in_kyoto_bay_id == monster_id) {
           //console.log(monster_id + ' init bay');
           game.moveMonster(monster_id, "bay", "immediate");
         }
@@ -192,8 +192,8 @@ ROKGame.prototype.initClient = function() {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__mimic').html(data.monsters[monster_ids[i]].mimic);
       }
 
-      $('#board__monster_in_kyoto_city').html(data.monster_in_kyoto_city);
-      $('#board__monster_in_kyoto_bay').html(data.monster_in_kyoto_bay);
+      $('#board_monster_in_kyoto_city_id').html(data.monster_in_kyoto_city_id);
+      $('#board_monster_in_kyoto_bay_id').html(data.monster_in_kyoto_bay_id);
 
 
 
@@ -435,8 +435,6 @@ ROKGame.prototype.initClient = function() {
     'monster_slots': [
       {tag: "tr", id: "monsters__${index}", class: "monster_data", children: [
         {tag: "th", id: "monsters__${index}__name"},
-        {tag: "td", id: "monsters__${index}__in_kyoto_city"},
-        {tag: "td", id: "monsters__${index}__in_kyoto_bay"}
       ]}
     ]
   }
@@ -593,24 +591,22 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
     $('#done_buying_button').hide();
   }
   
-  if (update.value == 'yield_kyoto_city' && game.next_input_from_monster == game.this_monster) {
-    console.log('enable yield city');
-    $('#yield_kyoto_city_button').show();
-    $('#stay_in_kyoto_city_button').show();
+  if (update.value == 'yield_kyoto' && game.next_input_from_monster == game.this_monster) {
+    console.log('enable yield');
+
+    if (game.monster_in_kyoto_city_id == game.next_input_from_monster) {
+      $('#yield_kyoto_city_button').show();
+      $('#stay_in_kyoto_city_button').show();
+    }
+    else {
+      $('#yield_kyoto_bay_button').show();
+      $('#stay_in_kyoto_bay_button').show();
+    }
   }
   else {
     console.log('disable yield city');
     $('#yield_kyoto_city_button').hide();
     $('#stay_in_kyoto_city_button').hide();
-  }
-  
-  if (update.value == 'yield_kyoto_bay' && game.next_input_from_monster == game.this_monster) {
-    $('#yield_kyoto_bay_button').show();
-    $('#stay_in_kyoto_bay_button').show();
-  }
-  else {
-    $('#yield_kyoto_bay_button').hide();
-    $('#stay_in_kyoto_bay_button').hide();
   }
   
   game.handleUpdates(updates); 
@@ -744,19 +740,35 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
   });
 }
 
-ROKGame.prototype.handle__monsters__in_kyoto = function(updates) {
+ROKGame.prototype.handle__board_monster_in_kyoto_city_id = function(updates) {
+  console.log("handle__board_monster_in_kyoto_city_id");
+  
   var update = updates.shift();
-  var monster_id = update.id;
-  if (game.monster_in_kyoto_city == monster_id) {
-    this.moveMonster(monster_id, "city");
-  }
-  if (game.monster_in_kyoto_bay == monster_id) {
-    this.moveMonster(monster_id, "bay");  
+  
+  if (update.value != null) {
+    this.moveMonster(update.value, "city");
   }
   else {
-    this.moveMonster(monster_id, "home");  
+    this.moveMonster(game.monster_in_kyoto_city_id, "home");  
   }
 
+  game.monster_in_kyoto_city_id = update.value;
+  game.handleUpdates(updates);
+}
+
+ROKGame.prototype.handle__board_monster_in_kyoto_bay_id = function(updates) {
+  console.log("handle__board_monster_in_kyoto_bay_id");
+  
+  var update = updates.shift();
+  
+  if (update.value != null) {
+    this.moveMonster(update.value, "bay");
+  }
+  else {
+    this.moveMonster(game.monster_in_kyoto_bay_id, "home");  
+  }
+
+  game.monster_in_kyoto_bay_id = update.value;
   game.handleUpdates(updates);
 }
 

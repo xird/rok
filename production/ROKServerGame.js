@@ -286,8 +286,6 @@ ROKServerGame.prototype.init = function(player) {
     this.victory_points = 0;
     // FIXME adding some initial snot to test buying cards.
     this.snot = 10;
-    this.in_kyoto_city = 0;
-    this.in_kyoto_bay = 0;
     
     // Card effects:
     this.poison_counters = 0;
@@ -353,7 +351,7 @@ ROKServerGame.prototype.init = function(player) {
            **/
            log_message = this.name
                          + ((this.health - old_health) > 0 ? " gains " : " takes ")
-                         +  (this.health - old_health)
+                         +  Math.abs(this.health - old_health)
                          + ((this.health - old_health) > 0 ? " health." : " damage.");
         }
         
@@ -384,28 +382,25 @@ ROKServerGame.prototype.init = function(player) {
    **
    * The 'that' object is requiered if we want to 'updateState(...)' from within this method. 
    **/
-   Monster.prototype.addVictoryPoints = function (that, amount, log_message) {
+  Monster.prototype.addVictoryPoints = function (that, amount, log_message) {
     if (amount != 0) {
-      var old_VPs = this.victory_points;
       this.victory_points += amount;
 
-      if (this.VPs != old_VPs) {
-        if (!log_message) {
-          log_message = this.name
-                        + ((this.victory_points - old_VPs) > 0 ? " gains " : " looses ")
-                        + ((this.victory_points - old_VPs) + " victory point")
-                        + ((this.victory_points - old_VPs) > 1 ? "s." : ".");
-        }
-
-        that.updateState("monsters__" + this.id + "__victory_points", this.victory_points, log_message);
-
-        // TODO: Check for win
+      if (!log_message) {
+        log_message = this.name
+          + (amount > 0 ? " gains " : " looses ")
+          +  Math.asb(amount) + " victory point"
+          + (amount > 1 ? "s." : ".");
       }
+
+      that.updateState("monsters__" + this.id + "__victory_points", this.victory_points, log_message);
+
+      // TODO: Check for win
     }
 
     // Return new/current VPs
     return this.victory_points;
-   };
+  };
    
 
   /**
@@ -438,9 +433,9 @@ ROKServerGame.prototype.init = function(player) {
            * from other players cards) a cosmome message will need to be suplied
            **/
           log_message = this.name
-                        + ((this.snot - old_snot) > 0 ? " gains " : " spends ")
-                        + ((this.snot - old_snot) + " snot cube")
-                        + ((this.snot - old_snot) > 1 ? "s." : ".");
+                        + (amount > 0 ? " gains " : " spends ")
+                        + Math.abs(amount) + " snot cube"
+                        + (amount > 1 ? "s." : ".");
         }
 
         that.updateState("monsters__" + this.id + "__snot", this.snot, log_message);
@@ -454,19 +449,67 @@ ROKServerGame.prototype.init = function(player) {
 
   /**
    * Method called upon entering Kyoto
+   **
+   * @param that ROKServerGame The 'this' object from the calling method
+   **
+   * The 'that' object is requiered if we want to 'updateState(...)' from within addVictoryPoints. 
    **/
-  Monster.prototype.enterKyoto = function () {
-    var additional_vips = 1;  // May be more depending on cards
+  Monster.prototype.enterKyoto = function (that) {
+    console.log("Monster.prototype.entrKyoto");
 
-    log_message = this.monsters[this.turn_monster].name
-                 + " takes Kyoto "
-                 + ROKGame.monster_in_kyoto_city == this.id ? "City" : "Bay"
-                 + " for " + additional_vips
-                 + (additional_vips) > 0 ? "s." : ".";
+    var entry_vips = 1;  // May be more depending on cards
+    var city_or_bay = (that.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
+    var log_message = this.name
+                      + " takes Kyoto " + city_or_bay + " for " + entry_vips
+                      + " victory point" + ((entry_vips) > 1 ? "s." : ".");
 
-    return this.monsters[this.turn_monster].addVictoryPoints(this, additional_vips, log_message);
+    that.updateState("board_monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", this.id);
+    return this.addVictoryPoints(that, entry_vips, log_message);
   };
     
+
+  /**
+   * Method called upon yielding Kyoto
+   **
+   * @param that ROKServerGame The 'this' object from the calling method
+   **
+   * The 'that' object is requiered if we want to 'updateState(...)' from within addVictoryPoints. 
+   **/
+  Monster.prototype.yieldKyoto = function (that) {
+    console.log("Monster.prototype.yieldKyoto");
+
+    var city_or_bay = (that.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
+
+    if (that.monster_in_kyoto_city_id == this.id ) {
+      that.monster_in_kyoto_city_id = null;
+    }
+    else if (that.monster_in_kyoto_bay_id == this.id ) {
+      that.monster_in_kyoto_bay_id = null;
+    }
+    else {
+      console.log('ERROR: This monster is teither in Kyoto City or Kyoto Bay.');
+      player.getSocket().emit('game_message', "Can't leave Kyoto if you're not there."); 
+    }  
+
+    log_message = this.name + " yields Kyoto " + city_or_bay + ".";
+    that.updateState("board_monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", null, log_message);
+  };
+    
+  /**
+   * Method hen monster holds Kyoto
+   **
+   * @param that ROKServerGame The 'this' object from the calling method
+   **
+   * The 'that' object is requiered if we want to 'updateState(...)' from within addVictoryPoints. 
+   **/
+  Monster.prototype.kyotoHeld = function (that) {
+    var hold_VPs = 2;
+    // CARDS: Resolve card effects: Urbavore
+ 
+    var log_message = this.name + " gets " + hold_VPs + " VP for starting the turn in Kyoto.";
+    this.addVictoryPoints(that, hold_VPs, log_message);
+  }
+ 
 
   /**
    * Fetcher method for retrieving the maximum amount of health this monster can attain
@@ -513,24 +556,27 @@ ROKServerGame.prototype.init = function(player) {
   };
 
   /**
-   * Modifier method for adjusting applying damage
+   * Modifier method for applying damage
    **
+   * @param that ROKServerGame The 'this' object from the calling method
    * @param amount int The amount to adjust the snot by (+ inclease, - decrease)
    * 
    * @return int The amount the snot was set to.
    **
+   * The 'that' object is requiered if we want to 'updateState(...)' from within this method. 
+   *
    * This method does not modify the health directly, rather it delegates the
    * task to "addHealth(...). This is to prevent this method needing to
    * check for deaths and save the new health level.
    **/
-   Monster.prototype.applyDamage = function (amount) {
+   Monster.prototype.applyDamage = function (that, amount) {
     // "Armor Plating" allows monsters to ignore inflictions of 1 damage
     if (    this.cards_owned.indexOf(cards.ARMOR_PLATING) != -1
          && amount == 1) {
       return;
     }
     
-    return this.addHealth(this, -amount);
+    return this.addHealth(that, -amount);
   };
   
   /**
@@ -669,8 +715,8 @@ ROKServerGame.prototype.snapState = function(player_id) {
   send_object.monsters = this.monsters;
   send_object.dice = this.dice;
   send_object.winner = this.winner;
-  send_object.monster_in_kyoto_city = this.monster_in_kyoto_city;
-  send_object.monster_in_kyoto_bay = this.monster_in_kyoto_bay;
+  send_object.monster_in_kyoto_city_id = this.monster_in_kyoto_city_id;
+  send_object.monster_in_kyoto_bay_id = this.monster_in_kyoto_bay_id;
   send_object.cards_available = this.cards_available;
   
   // Loop through all players in this game and send them the data.
@@ -848,7 +894,7 @@ ROKServerGame.prototype.endTurn = function() {
   log_message = this.monsters[this.monster_order[next_monster_index]].name + "'s turn.";
   this.updateState("turn_monster", this.monster_order[next_monster_index], log_message);
   this.updateState("next_input_from_monster", this.monster_order[next_monster_index]);
-    
+  _this_turn_monster = this.monsters[this.turn_monster];
     
   // Beginning of new player's turn.
   // Reset dice
@@ -862,13 +908,8 @@ ROKServerGame.prototype.endTurn = function() {
   }
   
   // If in Kyoto, increment VP.
-  if (ROKGame.prototype.inKyoto(_this_turn_monster)) {
-    // CARDS: Resolve card effects: Urbavore
-    var additional_victory_points = 2;
-    var old_victory_points = _this_turn_monster.victory_points;
-    var new_victory_points = old_victory_points + additional_victory_points;
-    log_message = _this_turn_monster.name + " gets 2 VP for starting the turn in Kyoto.";
-    this.updateState('monsters__' + this.turn_monster + '__victory_points', new_victory_points, log_message);
+  if (this.inKyoto(_this_turn_monster)) {
+    _this_turn_monster.kyotoHeld(this);
   }
   
   if (this.checkWin()) {
@@ -1021,7 +1062,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     }
   }
   
-  // Add additional damage (usually from cards).
+  // Add additional damage from cards.
   var damage = this.monsters[player.monster_id].getTotalDamage(attack)
  
   console.log('damage: ' + damage);
@@ -1032,32 +1073,23 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
 
   // Fill target monster array
   for (var mid in this.monsters) {
-    if (ROKGame.prototype.inKyoto(this.monsters[mid]) != ROKGame.prototype.inKyoto(_this_turn_monster)) {
-        target_monsters.push(mid);        
+    if (this.inKyoto(this.monsters[mid]) != this.inKyoto(_this_turn_monster)) {
+        target_monsters.push(mid);
     }
   }
   
   console.log("Target monsters: " + utils.dump(target_monsters));
-  
-  // Check if there are any target monsters. There's only one stage in the game
-  // when that can be untrue; At the beginning of the game when no one has yet
-  // entered Kyoto.
-  // CARDS: That's not true; If a monster is eliminated by a card Kyoto can be
-  // left empty.
-  if (target_monsters.length > 0) {
-    console.log('  got target monsters');
-    
-    // Targets monsters are now defined in an array, loop through and apply damage:
-    for (var i = 0; i < target_monsters.length; i++) {
-      this.monsters[target_monsters[i]].applyDamage(damage);
-    }
-      
-    // Check deaths
-    this.checkDeaths(); // If a monster in Kyoto died, it vacaites its post.
+
+  // Targets monsters are now defined in an array, loop through and apply damage:
+  for (var i = 0; i < target_monsters.length; i++) {
+    this.monsters[target_monsters[i]].applyDamage(this, damage);
   }
 
-  if (ROKGame.prototype.inKyoto(_this_turn_monster) && attack > 0) {
-    this.askYeild();
+  // Check deaths
+  this.checkDeaths(); // If a monster in Kyoto died, it vacaites its post.
+
+  if (!this.inKyoto(_this_turn_monster) && attack > 0) {
+    this.askBayYield();
   }
   else {
     console.log('    No-one to yield');
@@ -1065,58 +1097,42 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     // Progress to the next phase
     this.buyCards();
   }
-
-/*
-  // This will be handeled seperatly
-  else {
-    console.log('  no target monsters');
-    // No target monsters, so no-one takes damage and the playing monster enters
-    // Kyoto. At least one punch is still needed.
-    if (attack>0) {
-      this.updateState("monsters__" + player.monster_id + "__in_kyoto_city", 1);
-      var old_victory_points = this.monsters[player.monster_id].victory_points;
-      log_message = _this_turn_monster.name + " takes Kyoto city for 1 VP.";
-      this.updateState("monsters__" + player.monster_id + "__victory_points", old_victory_points + 1, log_message);
-      // Check win, in case kyoto is empty because a card eliminated the
-      // previous tennant.
-    }
-
-    if (this.checkWin()) {
-      this.finishGame();
-    }
-    else {
-      this.buyCards();    
-    }
-  }
-*/
 }
 
+
 /**
- * Ask for yeild from Kyoto Bay
+ * Ask for yield from Kyoto Bay
+ **
+ * If Kyoto Bay is empty we will advance to asking about Kyoto City
+ * If Kyoto Bay is occupied the 'resolveYeild(...)' will advance to asking about Kyoto City
  **/
 ROKServerGame.prototype.askBayYield = function() {
   console.log("ROKServerGame.prototype.askBayYield");
 
-  if (ROKGame.monster_in_kyoto_bay != []) {
-    this.updateState('next_input_from_monster', ROKGame.monster_in_kyoto_bay);
-    var log_message = this.monsters[this.monster_to_yield_kyoto_city].name + " can yield Kyoto Bay.";
+  if (this.monster_in_kyoto_bay_id != null) {
+    this.updateState('next_input_from_monster', this.monster_in_kyoto_bay_id);
+    var log_message = this.monsters[this.monster_in_kyoto_bay_id].name + " can yield Kyoto Bay.";
     this.updateState('turn_phase', 'yield_kyoto', log_message);
     this.sendStateChanges();
   }
   else {
-    this.askCityYeild();
+    this.askCityYield();
   }
 }
 
+
 /**
- * Ask for yeild from Kyoto City
+ * Ask for yield from Kyoto City
+ **
+ * If Kyoto City is empty we will advance to attempting to enter Kyoto
+ * If Kyoto City is occupied the 'resolveYeild(...)' will advance to attempting to enter Kyoto
  **/
 ROKServerGame.prototype.askCityYield = function() {
   console.log("ROKServerGame.prototype.askCityYield");
 
-  if (ROKGame.monster_in_kyoto_city != []) {
-    this.updateState('next_input_from_monster', ROKGame.monster_in_kyoto_city);
-    var log_message = this.monsters[this.monster_to_yield_kyoto_city].name + " can yield Kyoto City.";
+  if (this.monster_in_kyoto_city_id != null) {
+    this.updateState('next_input_from_monster', this.monster_in_kyoto_city_id);
+    var log_message = this.monsters[this.monster_in_kyoto_city_id].name + " can yield Kyoto City.";
     this.updateState('turn_phase', 'yield_kyoto', log_message);
     this.sendStateChanges();
   }
@@ -1125,29 +1141,30 @@ ROKServerGame.prototype.askCityYield = function() {
   }
 }
 
-
 /**
- * 
- **/
-ROKServerGame.prototype.resolveYeild = function(part_of_kyoto, yeilding) {
-  if (part_of_tokyo == "bay") {
-    if (yeilding) {
-      ROKGame.monster_in_kyoto_bay = [];
-    }
+ * Handle responce to monsters reply to yield question.
+ *
+ * CARDS: "Jets" - Don't decrement health when yielding
+ */
+ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
+  console.log("ROKServerGame.prototype.resolveYield");
+  console.log("part: " + part_of_kyoto + ', yielding: ' + yielding);
 
-    this.askCityYeild();
+  if (yielding) {
+    this.monsters[this.next_input_from_monster].yieldKyoto(this);
+    this.monster_in_kyoto_bay_id = null;
   }
-  else if (part_of_tokyo == "city"){
-    if (yeilding) {
-      ROKGame.monster_in_kyoto_city = [];
-    }
 
+  if (part_of_kyoto == "bay") {
+    this.askCityYield();
+  }
+  else if (part_of_kyoto == "city"){
     this.checkEnterKyoto();
   }
   else {
     // Should never end up in this branch
     console.log(this);
-    console.log("FATAL ERROR: ResolveYeild in neither City or the Bay\npart_of_kyoto: " + part_of_kyoto);
+    console.log("FATAL ERROR: ResolveYield in neither City or the Bay\npart_of_kyoto: " + part_of_kyoto);
     process.quit();
   }
 }
@@ -1155,19 +1172,24 @@ ROKServerGame.prototype.resolveYeild = function(part_of_kyoto, yeilding) {
 
 /**
  * Enter Kyoto (if available)
+ **
+ * This method ends by advancing us to the "Buy Cards" phase
  **/
 ROKServerGame.prototype.checkEnterKyoto = function() {
   console.log("ROKServerGame.prototype.checkEnterKyoto");
+  console.log("this.monster_in_kyoto_city_id : " + this.monster_in_kyoto_city_id);
 
-  if (ROKGame.monster_in_kyoto_city != []) {
-    ROKGame.monster_in_kyoto_city = this.monsters[this.turn_monster].id;
-    this.monsters[this.turn_monster].enterKyoto();
+  _this_turn_monster = this.monsters[this.turn_monster];
+
+  if (this.monster_in_kyoto_city_id == null) {
+    this.monster_in_kyoto_city_id = _this_turn_monster.id;
+    _this_turn_monster.enterKyoto(this);
   }
   else if (    Object.keys(this.monsters).length > 4
-            && ROKGame.monster_in_kyoto_bay != []) {
+            && this.monster_in_kyoto_bay_id == null) {
 
-    ROKGame.monster_in_kyoto_city = this.monsters[this.turn_monster].id;
-    this.monsters[this.turn_monster].enterKyoto();
+    ROKG.monster_in_kyoto_city_id = _this_turn_monster.id;
+    _this_turn_monster.enterKyoto(this);
   }
 
   // Progress to the next phase
@@ -1251,8 +1273,8 @@ ROKServerGame.prototype.finishGame = function() {
 /**
  * Gets yield input from monster in Kyoto city
  */
-ROKServerGame.prototype.yieldKyoto = function() {
-  console.log("ROKServerGame.prototype.yieldKyoto");
+ROKServerGame.prototype.askYieldKyoto = function() {
+  console.log("ROKServerGame.prototype.askYyieldKyoto");
   this.updateState('next_input_from_monster', this.monster_to_yield_kyoto_city);
   var log_message = this.monsters[this.monster_to_yield_kyoto_city].name + " can yield Kyoto city.";
   this.updateState('turn_phase', 'yield_kyoto', log_message);
@@ -1263,104 +1285,14 @@ ROKServerGame.prototype.yieldKyoto = function() {
 /**
  * Gets yield input from monster in Kyoto bay
  */
-ROKServerGame.prototype.yieldKyotoBay = function(player) {
-  console.log("ROKServerGame.prototype.yieldKyotoBay");
+ROKServerGame.prototype.askYieldKyotoBay = function(player) {
+  console.log("ROKServerGame.prototype.andYieldKyotoBay");
   this.updateState('next_input_from_monster', this.monster_to_yield_kyoto_bay);
   var log_message = this.monsters[this.monster_to_yield_kyoto_bay].name + " can yield Kyoto bay.";
   this.updateState('turn_phase', 'yield_kyoto_bay', log_message);
   this.sendStateChanges();
 }
 
-
-/**
- * Handle reply to monsters reply to yield question.
- *
- * CARDS: "Jets" - Don't decrement health when yielding
- */
-ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
-  console.log("ROKServerGame.prototype.resolveYield");
-  var _this_turn_monster = this.monsters[this.turn_monster];
-
-  console.log("part: " + part_of_kyoto + ', yielding: ' + yielding);
-  var log_message = "";
-  if (part_of_kyoto == 'city' && this.turn_phase == 'yield_kyoto_city') {
-    if (yielding) {
-      // The monster yields Kyoto city.
-      log_message = this.monsters[this.next_input_from_monster].name + " yields Kyoto city.";
-      this.updateState('monsters__' + this.next_input_from_monster + '__in_kyoto_city', 0, log_message);
-      log_message = _this_turn_monster.name + " takes Kyoto city for 1 VP.";
-      this.updateState('monsters__' + this.turn_monster + '__in_kyoto_city', 1, log_message);
-
-      // Add victory points for taking Kyoto city
-      var additional_victory_points = 1;
-      var old_victory_points = _this_turn_monster.victory_points;
-      var new_victory_points = old_victory_points + additional_victory_points;
-      this.updateState('monsters__' + this.turn_monster + '__victory_points', new_victory_points);
-      if(this.checkWin()) {
-        this.finishGame();
-      }
-      else {
-        this.updateState('monster_to_yield_kyoto_city', 0);
-        // Since the monster gets to go to city, there's no reason to resolve
-        // yielding the bay.
-        this.updateState('monster_to_yield_kyoto_bay', 0);
-        this.buyCards();      
-      }
-    }
-    else {
-      // The monster in the city is not yielding, so nothing happens, unless
-      // we're looking for an answer from a monster in the bay, as well.
-      log_message = this.monsters[this.monster_to_yield_kyoto_city].name + " stays in Kyoto city.";
-      this.updateState('monster_to_yield_kyoto_city', 0, log_message);
-      
-      if (this.monster_to_yield_kyoto_bay) {
-        this.yieldKyotoBay();
-      }
-      else if (this.monster_order.length > 4) {
-        // There's no monster yielding the bay, but there are 5-6 players.
-        
-        this.buyCards();
-      }
-      else {
-        // Yield resolved, move to next phase
-        this.buyCards();
-      }
-    }
-  }
-  else if (part_of_kyoto == 'bay' && this.turn_phase == 'yield_kyoto_bay') {
-    if (yielding) {
-      // The monster yields Kyoto bay.
-      log_message = this.monsters[this.next_input_from_monster].name + " yields Kyoto bay.";
-      this.updateState('monsters__' + this.next_input_from_monster + '__in_kyoto_bay', 0, log_message);
-      log_message = _this_turn_monster.name + " takes Kyoto bay for 1 VP.";
-      this.updateState('monsters__' + this.turn_monster + '__in_kyoto_bay', 1, log_message);
-
-      // Add victory points for taking Kyoto bay
-      var additional_victory_points = 1;
-      var old_victory_points = _this_turn_monster.victory_points;
-      var new_victory_points = old_victory_points + additional_victory_points;
-      this.updateState('monsters__' + this.turn_monster + '__victory_points', new_victory_points);
-      if (this.checkWin()) {
-        this.finishGame();
-      }
-      else {
-        this.updateState('monster_to_yield_kyoto_bay', 0);      
-      }
-    }
-    else {
-      // The monster in the bay is not yielding, so nothing happens.
-      log_message = this.monsters[this.monster_to_yield_kyoto_bay].name + " stays in Kyoto bay.";
-      this.updateState('monster_to_yield_kyoto_bay', 0, log_message);
-    }
-    
-    // Yield resolved, move to next phase.
-    this.buyCards();
-  }
-  else {
-    console.log('Trying to resolve bay yield on city yield phase or vice versa');
-  }
-}
- 
 
 /**
  * Resolve snot cubes.
@@ -1397,7 +1329,7 @@ ROKServerGame.prototype.resolveHealthDice = function(player) {
   }
   console.log('additional_health: ' + additional_health);
   if (additional_health > 0) {
-    if (!ROKGame.prototype.inKyoto(_this_turn_monster)) {
+    if (!this.inKyoto(_this_turn_monster)) {
       _this_turn_monster.addHealth(this, additional_health);
     }
     else {
