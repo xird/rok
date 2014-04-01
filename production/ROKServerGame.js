@@ -267,7 +267,7 @@ ROKServerGame.prototype.init = function(player) {
 
   // Generate monsters and save them in the game object.
   for (var i = 1; i <= 6; i++) {
-    var monster = new Monster(i, this);
+    var monster = new Monster(i);
     this.monsters[i] = monster;
   }
   
@@ -284,7 +284,7 @@ ROKServerGame.prototype.init = function(player) {
    * @return null
    * 
    */
-  function Monster(id, game) {
+  function Monster(id) {
     // The id of the player controlling this monster.
     this.player_id = 0;
     this.health = 10;
@@ -351,10 +351,10 @@ ROKServerGame.prototype.init = function(player) {
            * Note: We use new-old health instead of 'amount' incase monsters health gets
            * limited by max_health
            **/
-           log_message = this.name
-                         + ((this.health - old_health) > 0 ? " gains " : " takes ")
-                         +  Math.abs(this.health - old_health)
-                         + ((this.health - old_health) > 0 ? " health." : " damage.");
+          log_message = this.name
+                        + ((this.health - old_health) > 0 ? " gains " : " takes ")
+                        +  Math.abs(this.health - old_health)
+                        + ((this.health - old_health) > 0 ? " health." : " damage.");
         }
         
         /**
@@ -411,7 +411,7 @@ ROKServerGame.prototype.init = function(player) {
    * 
    * @return int The amount the snot was set to.
    **/
-   Monster.prototype.addSnot = function (amount, log_message) {
+  Monster.prototype.addSnot = function (amount, log_message) {
     if (amount != 0) {
       var old_snot = this.snot;
       this.snot += amount
@@ -528,7 +528,7 @@ ROKServerGame.prototype.init = function(player) {
    **
    * @return int The number of dice the monster rolls with.
    **/
-   Monster.prototype.numberOfDice = function () {
+  Monster.prototype.numberOfDice = function () {
     var rv = 6;
 
     // Can be increased by "Extra Head" and decreased by "Shrink Ray".
@@ -553,7 +553,7 @@ ROKServerGame.prototype.init = function(player) {
    * task to "addHealth(...). This is to prevent this method needing to
    * check for deaths and save the new health level.
    **/
-   Monster.prototype.applyDamage = function (amount) {
+  Monster.prototype.applyDamage = function (amount) {
     // "Armor Plating" allows monsters to ignore inflictions of 1 damage
     if (    this.cards_owned.indexOf(cards.ARMOR_PLATING) != -1
          && amount == 1) {
@@ -575,7 +575,7 @@ ROKServerGame.prototype.init = function(player) {
    * damage is that while monsters in Kyoto can be damaged by 'damage' they can
    * only yield Kyoto if they are 'attacked'.
    **/
-   Monster.prototype.getTotalDamage = function (attack) {
+  Monster.prototype.getTotalDamage = function (attack) {
     rv = attack;
     
     // "Acid Attak" causes additonal damage even if no claws were rolled (ie. there is no attack)
