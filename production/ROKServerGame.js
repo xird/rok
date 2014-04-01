@@ -274,6 +274,8 @@ ROKServerGame.prototype.init = function(player) {
   //console.log(this);
   console.log("init done");
   
+  // Set up a reference to the Game object to be available in the Monster class.
+  var game = this;
   /**
    * Class definition for a Monster object
    * 
