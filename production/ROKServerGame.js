@@ -40,9 +40,7 @@ ROKServerGame.prototype.init = function(player) {
     "Rex",
     "Squid"
   ];
-  
-  // TODO: Have the card properties available in the cards_available array. We
-  // need to be able to show the card details to the players. 
+
   var cards = {
     ACID_ATTACK:                   1,
     ALIEN_METABOLISM:              2,
@@ -276,6 +274,8 @@ ROKServerGame.prototype.init = function(player) {
   //console.log(this);
   console.log("init done");
   
+  // Set up a reference to the Game object to be available in the Monster class.
+  var game = this;
   /**
    * Class definition for a Monster object
    * 
