@@ -31,6 +31,9 @@ var utils = new ROKUtils();
 ROKServerGame.prototype.init = function(player) {
   console.log("ROKServerGame.prototype.init");
   
+  // Make a reference to this object available in the child (Monster) class.
+  var game = this;
+
   // Names of the monsters.
   var monster_names = [
     "Alien",
@@ -264,7 +267,7 @@ ROKServerGame.prototype.init = function(player) {
 
   // Generate monsters and save them in the game object.
   for (var i = 1; i <= 6; i++) {
-    var monster = new Monster(i);
+    var monster = new Monster(i, this);
     this.monsters[i] = monster;
   }
   
@@ -275,11 +278,13 @@ ROKServerGame.prototype.init = function(player) {
    * Class definition for a Monster object
    * 
    * @param id int The id of the Monster being generated, 1-6.
+   * @param game ROKServerGame Reference to the 'this' object reating the monster.
+   *        this is used to call 'updateState(...)' after health/VPs/snot are modified.
    * 
    * @return null
    * 
    */
-  function Monster(id) {
+  function Monster(id, game) {
     // The id of the player controlling this monster.
     this.player_id = 0;
     this.health = 10;
@@ -316,23 +321,20 @@ ROKServerGame.prototype.init = function(player) {
   /**
    * Modifier method for adjusting health
    **
-   * @param that ROKServerGame The 'this' object from the calling method
    * @param amount int The amount to adjust the health by (+ increase, - decrease)
    * @param log_message string Optional message to be sent to the 'updateState(...)' method.
    *        If no log message is supplyed a default message will be sent
    * 
    * @return int The amount the health was set to.
    **
-   * The 'that' object is requiered if we want to 'updateState(...)' from within this method. 
-   *
    * Note:
-   * This mwthod does not check wether the monster is in Kyoto or not.  It is the
+   * This method does not check wether the monster is in Kyoto or not.  It is the
    * calling methods responcibilty to ensure healing is allowed.  This has been
    * done as there are healing card that allow some healing in Kyoto and is not
    * this methods to decers which heals are caused by such cards and which are from dice.
    * This method does however insure the monster dose not exceede it's maximum health.
    **/
-  Monster.prototype.addHealth = function (that, amount, log_message) {
+  Monster.prototype.addHealth = function (amount, log_message) {
     if (amount != 0) {
       var old_health = this.health;
       this.health += amount;
@@ -359,7 +361,7 @@ ROKServerGame.prototype.init = function(player) {
          * The updateState method is not accesable from here so for now we need
          * to make the call in the calling method once we return.
          **/
-        that.updateState("monsters__" + this.id + "__health", this.health, log_message);
+        game.updateState("monsters__" + this.id + "__health", this.health, log_message);
 
         // TODO: Check for death
       }
@@ -373,16 +375,13 @@ ROKServerGame.prototype.init = function(player) {
   /**
    * Modifier method for adjusting VPs
    **
-   * @param that ROKServerGame The 'this' object from the calling method
    * @param amount int The amount to adjust the VPs by (+ increase, - decrease)
    * @param log_message string Optional message to be sent to the 'updateState(...)' method.
    *        If no log message is supplyed a default message will be sent
    * 
    * @return int The amount the PVs was set to.
-   **
-   * The 'that' object is requiered if we want to 'updateState(...)' from within this method. 
    **/
-  Monster.prototype.addVictoryPoints = function (that, amount, log_message) {
+  Monster.prototype.addVictoryPoints = function (amount, log_message) {
     if (amount != 0) {
       this.victory_points += amount;
 
@@ -393,7 +392,7 @@ ROKServerGame.prototype.init = function(player) {
           + (amount > 1 ? "s." : ".");
       }
 
-      that.updateState("monsters__" + this.id + "__victory_points", this.victory_points, log_message);
+      game.updateState("monsters__" + this.id + "__victory_points", this.victory_points, log_message);
 
       // TODO: Check for win
     }
@@ -406,16 +405,13 @@ ROKServerGame.prototype.init = function(player) {
   /**
    * Modifier method for adjusting snot
    **
-   * @param that ROKServerGame The 'this' object from the calling method
    * @param amount int The amount to adjust the snot by (+ increase, - decrease)
    * @param log_message string Optional message to be sent to the 'updateState(...)' method.
    *        If no log message is supplyed a default message will be sent
    * 
    * @return int The amount the snot was set to.
-   **
-   * The 'that' object is requiered if we want to 'updateState(...)' from within this method. 
    **/
-   Monster.prototype.addSnot = function (that, amount, log_message) {
+   Monster.prototype.addSnot = function (amount, log_message) {
     if (amount != 0) {
       var old_snot = this.snot;
       this.snot += amount
@@ -438,7 +434,7 @@ ROKServerGame.prototype.init = function(player) {
                         + (amount > 1 ? "s." : ".");
         }
 
-        that.updateState("monsters__" + this.id + "__snot", this.snot, log_message);
+        game.updateState("monsters__" + this.id + "__snot", this.snot, log_message);
       }
     }
 
@@ -449,42 +445,34 @@ ROKServerGame.prototype.init = function(player) {
 
   /**
    * Method called upon entering Kyoto
-   **
-   * @param that ROKServerGame The 'this' object from the calling method
-   **
-   * The 'that' object is requiered if we want to 'updateState(...)' from within addVictoryPoints. 
    **/
-  Monster.prototype.enterKyoto = function (that) {
+  Monster.prototype.enterKyoto = function () {
     console.log("Monster.prototype.entrKyoto");
 
     var entry_vips = 1;  // May be more depending on cards
-    var city_or_bay = (that.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
+    var city_or_bay = (game.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
     var log_message = this.name
                       + " takes Kyoto " + city_or_bay + " for " + entry_vips
                       + " victory point" + ((entry_vips) > 1 ? "s." : ".");
 
-    that.updateState("board_monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", this.id);
-    return this.addVictoryPoints(that, entry_vips, log_message);
+    game.updateState("board_monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", this.id);
+    return this.addVictoryPoints(entry_vips, log_message);
   };
     
 
   /**
    * Method called upon yielding Kyoto
-   **
-   * @param that ROKServerGame The 'this' object from the calling method
-   **
-   * The 'that' object is requiered if we want to 'updateState(...)' from within addVictoryPoints. 
    **/
-  Monster.prototype.yieldKyoto = function (that) {
+  Monster.prototype.yieldKyoto = function () {
     console.log("Monster.prototype.yieldKyoto");
 
-    var city_or_bay = (that.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
+    var city_or_bay = (game.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
 
-    if (that.monster_in_kyoto_city_id == this.id ) {
-      that.monster_in_kyoto_city_id = null;
+    if (game.monster_in_kyoto_city_id == this.id ) {
+      game.monster_in_kyoto_city_id = null;
     }
-    else if (that.monster_in_kyoto_bay_id == this.id ) {
-      that.monster_in_kyoto_bay_id = null;
+    else if (game.monster_in_kyoto_bay_id == this.id ) {
+      game.monster_in_kyoto_bay_id = null;
     }
     else {
       console.log('ERROR: This monster is teither in Kyoto City or Kyoto Bay.');
@@ -492,22 +480,21 @@ ROKServerGame.prototype.init = function(player) {
     }  
 
     log_message = this.name + " yields Kyoto " + city_or_bay + ".";
-    that.updateState("board_monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", null, log_message);
+    game.updateState("board_monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", null, log_message);
   };
     
   /**
-   * Method hen monster holds Kyoto
+   * Method run when monster holds Kyoto
    **
-   * @param that ROKServerGame The 'this' object from the calling method
-   **
-   * The 'that' object is requiered if we want to 'updateState(...)' from within addVictoryPoints. 
+   * By default this method normaly just adds 2 VPs to the player starting there turn in Kyoto
+   * but there are cards that do other things
    **/
-  Monster.prototype.kyotoHeld = function (that) {
+  Monster.prototype.kyotoHeld = function () {
     var hold_VPs = 2;
     // CARDS: Resolve card effects: Urbavore
  
     var log_message = this.name + " gets " + hold_VPs + " VP for starting the turn in Kyoto.";
-    this.addVictoryPoints(that, hold_VPs, log_message);
+    this.addVictoryPoints(hold_VPs, log_message);
   }
  
 
@@ -558,25 +545,22 @@ ROKServerGame.prototype.init = function(player) {
   /**
    * Modifier method for applying damage
    **
-   * @param that ROKServerGame The 'this' object from the calling method
    * @param amount int The amount to adjust the snot by (+ inclease, - decrease)
    * 
    * @return int The amount the snot was set to.
    **
-   * The 'that' object is requiered if we want to 'updateState(...)' from within this method. 
-   *
    * This method does not modify the health directly, rather it delegates the
    * task to "addHealth(...). This is to prevent this method needing to
    * check for deaths and save the new health level.
    **/
-   Monster.prototype.applyDamage = function (that, amount) {
+   Monster.prototype.applyDamage = function (amount) {
     // "Armor Plating" allows monsters to ignore inflictions of 1 damage
     if (    this.cards_owned.indexOf(cards.ARMOR_PLATING) != -1
          && amount == 1) {
       return;
     }
     
-    return this.addHealth(that, -amount);
+    return this.addHealth(-amount);
   };
   
   /**
@@ -833,7 +817,7 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   // "Dedicated News Team" gives the monster a Vip each time they purchace a 
   // card, but not when they're buying the "Dedicated news team".
   if (monster.cards_owned.indexOf(this.cards.DEDICATED_NEWS_TEAM) != -1) {
-      this.monsters[this.turn_monster].addVictoryPoints(this, +1);  // This may be a situation where 'player_monster' is different to 'turn_monster' if a player buys cards when it is not there turn.  I think there is a card called 'The Opertunist' which allows this.
+      this.monsters[this.turn_monster].addVictoryPoints(+1);  // This may be a situation where 'player_monster' is different to 'turn_monster' if a player buys cards when it is not there turn.  I think there is a card called 'The Opertunist' which allows this.
   }
   
   // Add the card to the monster/
@@ -909,7 +893,7 @@ ROKServerGame.prototype.endTurn = function() {
   
   // If in Kyoto, increment VP.
   if (this.inKyoto(_this_turn_monster)) {
-    _this_turn_monster.kyotoHeld(this);
+    _this_turn_monster.kyotoHeld();
   }
   
   if (this.checkWin()) {
@@ -1082,7 +1066,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
 
   // Targets monsters are now defined in an array, loop through and apply damage:
   for (var i = 0; i < target_monsters.length; i++) {
-    this.monsters[target_monsters[i]].applyDamage(this, damage);
+    this.monsters[target_monsters[i]].applyDamage(damage);
   }
 
   // Check deaths
@@ -1151,7 +1135,7 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
   console.log("part: " + part_of_kyoto + ', yielding: ' + yielding);
 
   if (yielding) {
-    this.monsters[this.next_input_from_monster].yieldKyoto(this);
+    this.monsters[this.next_input_from_monster].yieldKyoto();
     this.monster_in_kyoto_bay_id = null;
   }
 
@@ -1183,13 +1167,13 @@ ROKServerGame.prototype.checkEnterKyoto = function() {
 
   if (this.monster_in_kyoto_city_id == null) {
     this.monster_in_kyoto_city_id = _this_turn_monster.id;
-    _this_turn_monster.enterKyoto(this);
+    _this_turn_monster.enterKyoto();
   }
   else if (    Object.keys(this.monsters).length > 4
             && this.monster_in_kyoto_bay_id == null) {
 
-    ROKG.monster_in_kyoto_city_id = _this_turn_monster.id;
-    _this_turn_monster.enterKyoto(this);
+    ROKG.monster_in_kyoto_bay_id = _this_turn_monster.id;
+    _this_turn_monster.enterKyoto();
   }
 
   // Progress to the next phase
@@ -1310,7 +1294,7 @@ ROKServerGame.prototype.resolveSnotDice = function(player) {
   }
   console.log('additional_snot: ' + additional_snot);
 
-  _this_turn_monster.addSnot(this, additional_snot);
+  _this_turn_monster.addSnot(additional_snot);
 }
 
 
@@ -1330,7 +1314,7 @@ ROKServerGame.prototype.resolveHealthDice = function(player) {
   console.log('additional_health: ' + additional_health);
   if (additional_health > 0) {
     if (!this.inKyoto(_this_turn_monster)) {
-      _this_turn_monster.addHealth(this, additional_health);
+      _this_turn_monster.addHealth(additional_health);
     }
     else {
       var log_message = this.monsters[this.turn_monster].name + " can't heal in Kyoto.";
@@ -1377,7 +1361,7 @@ ROKServerGame.prototype.resolveVictoryPointDice = function(player) {
   console.log("additional_victory_points: " + additional_victory_points);
 
   var log_message = _this_turn_monster.name + " rolls " + additional_victory_points + " VP.";
-  _this_turn_monster.addVictoryPoints(this, additional_victory_points, log_message);
+  _this_turn_monster.addVictoryPoints(additional_victory_points, log_message);
 
   // CARDS: Take number roll modifier cards into account ("111 counts as 333")
 }
