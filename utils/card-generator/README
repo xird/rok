@@ -1,0 +1,16 @@
+This directory contains scripts for automatically generating the ROK card
+images, based on the card properties data in ROKServerGame.js.
+
+The PHP script that generates the images requires Imagemagick with Pango (
+but not IMagick!).
+
+To generate the image files:
+
+- To get latest card data from the game, run:
+$ node extract_cards.js > cards.json
+
+- Then, to generate a card, run generate.php and give the card id as a
+  parameter:
+$ ./generate.php 1
+
+The card image file will be created within ready-images
