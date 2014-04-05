@@ -13,4 +13,6 @@ $ node extract_cards.js > cards.json
   parameter:
 $ ./generate.php 1
 
-The card image file will be created within ready-images
+The card image file will be created within ready_images. Once all cards have
+been generated, they should be copied to the game directory
+/production/public/images/cards/
