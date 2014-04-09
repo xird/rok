@@ -1,0 +1,8 @@
+{
+  "name": "ROKCardGenerator",
+  "version": "0.0.1",
+  "description": "Card image generator script for ROK",
+  "dependencies": {
+  },
+  "author": "dev"
+}
