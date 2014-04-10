@@ -33,6 +33,8 @@ $(document).ready(function() {
   // Initialize the game of dev client v2.
   game = new ROKGame();
 
+  static_ = "//<%= hostname %>:8080";
+
   // DEBUG  
   $('#log_lobby_state').click(function() {
     socket.emit("log_lobby_state");

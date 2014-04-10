@@ -781,7 +781,7 @@ ROKGame.prototype.handle__cards_available = function(updates) {
   console.log("ROKGame.prototype.handle__cards_available");
   console.log(update.value);
   for (var i = 0; i < update.value.length; i++) {
-    $('#card__' + i).html(update.value[i]);
+    $('#card__' + i).html('<img src="' + static_ + '/images/cards/' + update.value[i] + '.jpg" alt="' + update.value[i] + '" width="117" height="91" />');
   }
 
   game.handleUpdates(updates);
