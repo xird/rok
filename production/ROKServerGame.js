@@ -825,6 +825,8 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   monster_cards.push(card)
   this.updateState("monsters__" + monster.id + "__cards_owned", monster_cards);
   
+  // FIXME The available cards aren't updated, at least not all the way to the client.
+  
   this.sendStateChanges();
 }
 
@@ -1516,6 +1518,8 @@ ROKServerGame.prototype.addPlayer = function(player) {
 /**
  * A player is leaving the game, hopefully once the game is over. This is also
  * used when idle players are cleaned up.
+ *
+ * FIXME: Clicking Leave Game after opponent disconnected crashed the server.
  */
 ROKServerGame.prototype.leaveGame = function(player) {
   console.log("ROKServerGame.prototype.leaveGame " + player.name);
