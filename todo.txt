@@ -1,15 +1,5 @@
-- Find jQuery plugin for straight line animations, preferrably with variable speed
-
 - When resolving rolls, change resolved die color to "inactive" after the die has been resolved
 
-- Change die size when animating roll?
-
-- Dice colors:
-  - Dark gray: unrolled, resolved
-  - green: rolled, to be rolled
-  - yellow / red: kept
-  - blue(?): final
-  
 - Special dice status colors?
   - For lightning armor etc.
   
