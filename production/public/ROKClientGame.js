@@ -3,10 +3,6 @@
  *
  * Base class is in ROKGame.js
  *
- * FIXME If another player snaps status, this player get duplicate rows in monster tables
- * FIXME initial load roll number is wrong
- * TODO figure out a way to "disable" link based buttons after click to prevent double clicks.
- * TODO Prevent buying of cards when it's not time to buy cards
  */
 ROKGame.prototype.initClient = function() {
   console.log("ROKGame.prototype.initClient");
@@ -130,12 +126,12 @@ ROKGame.prototype.initClient = function() {
       
       // Place the playing monsters in the visible monster slots.
       //
-      // TODO: This is now using monster_order, which won't work correctly if
+      // FIXME ticket #16: This is now using monster_order, which won't work correctly if
       // the page is reloaded after one of the monsters is killed. Since we want
       // to be able to order the monsters the same way even after one of them
       // has died, we need to keep a separate variable named 
       // "original_monster_order". Or use a separate variable for 
-      // "playing_monsters".
+      // "playing_monsters". 
       //console.log(game.monsters);
       var index = first_monster_index;
       $('.monster_home:visible').each(function(){

@@ -3,7 +3,8 @@
  *
  * Base class is in ROKGame.js
  *
- * FIXME If another player snaps status, this player get duplicate rows in monster tables
+ * FIXME ticket #19, "Dev client adds extra monster rows": 
+ * If another player snaps status, this player get duplicate rows in monster tables
  *
  */
 ROKGame.prototype.initClient = function() {

@@ -363,7 +363,7 @@ ROKServerGame.prototype.init = function(player) {
          **/
         game.updateState("monsters__" + this.id + "__health", this.health, log_message);
 
-        // TODO: Check for death
+        // TODO ticket #18, "Finish monster attribute modifier functions": Check for death
       }
     }
 
@@ -394,7 +394,7 @@ ROKServerGame.prototype.init = function(player) {
 
       game.updateState("monsters__" + this.id + "__victory_points", this.victory_points, log_message);
 
-      // TODO: Check for win
+      // TODO ticket #18, "Finish monster attribute modifier functions":: Check for win
     }
 
     // Return new/current VPs
@@ -804,7 +804,7 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
 
   // A monster can attempt to buy cards they can't afford but the purchace
   // will be denied.
-  // TODO prevent this in the browser as well.
+  // TODO ticket #5, "Allow buying cards only when it's time for that bug": prevent this in the browser as well.
   if (cost > monster.snot) {
     console.log("Does this look like a charity.  Come back when you have more snot!");
     return;
@@ -825,7 +825,8 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   monster_cards.push(card)
   this.updateState("monsters__" + monster.id + "__cards_owned", monster_cards);
   
-  // FIXME The available cards aren't updated, at least not all the way to the client.
+  // FIXME ticket #10, "Available cards not being updated": The available cards
+  // aren't updated, at least not all the way to the client.
   
   this.sendStateChanges();
 }
@@ -1519,7 +1520,7 @@ ROKServerGame.prototype.addPlayer = function(player) {
  * A player is leaving the game, hopefully once the game is over. This is also
  * used when idle players are cleaned up.
  *
- * FIXME: Clicking Leave Game after opponent disconnected crashed the server.
+ * FIXME ticket #11, "Leaving game crashes the server"
  */
 ROKServerGame.prototype.leaveGame = function(player) {
   console.log("ROKServerGame.prototype.leaveGame " + player.name);

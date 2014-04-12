@@ -1,6 +1,8 @@
 /**
+ * This would be the "C" in the MVC model, more or less.
  *
- * FIXME: confirming a game before invitation is accepted jams the game
+ * This file takes the user input and makes the appropriate calls to the game
+ * object. The game object shouldn't know anything about any user interactions.
  *
  */
 

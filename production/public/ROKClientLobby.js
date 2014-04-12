@@ -3,7 +3,6 @@
  *
  * Base class is in ROKLobby.js
  *
- * TODO add "leave game" button for invited users
  */
 ROKLobby.prototype.initClient = function() {
   console.log("ROKLobby.prototype.initClient");

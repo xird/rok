@@ -1,7 +1,8 @@
 /**
  * Server side functionality for the lobby.
  *
- * TODO: For UI reasons (keep the players from jumping up and down in the list),
+ * TODO ticket #17, "Improve lobby user list UX": 
+ * For UI reasons (keep the players from jumping up and down in the list),
  * always add new users at the bottom of the list. When removing players, don't
  * snap them out of existence, but fade them out instead.
  *
