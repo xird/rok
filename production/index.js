@@ -175,9 +175,10 @@ var cleanUpIdlePlayers = function () {
     }
   }
   
-  setTimeout(cleanUpIdlePlayers, 5000);
+  // FIXME idle player dropping disabled to make developing easier.
+  //setTimeout(cleanUpIdlePlayers, 5000);
 }
-cleanUpIdlePlayers();
+//cleanUpIdlePlayers();
 
 
 /**
@@ -303,6 +304,54 @@ sessionSockets.on('connection', function onConnection(err, socket, session) {
       if (players[p].id != player.id) {
         game.addPlayer(players[p]);
         break;
+      }
+    }
+    
+    // Confirm game. If the game can be successfully confirmed, remove the
+    // players from the lobby.
+    if (game.confirmGame(player)) {
+      for (var p in game.players) {
+        lobby.removePlayer(p);
+      }
+      lobby.snapState();
+    }
+    
+    // Select monsters
+    var i = 2;
+    for (var p in game.player_ids) {
+      game.selectMonster(players[p], i);
+      i++;
+    }
+  });
+  
+  // Quickly create a three player game for testing purposes.
+  socket.on("quick_game_3", function debugQuickGame3(args) {
+    console.log("Initializing quick game for three players");
+    if (Object.keys(players).length < 3) {
+      console.log('ERROR: Three players required');
+      socket.emit('lobby_message', "Three players required");
+      return;
+    }
+    
+    if (player.game_id) {
+      console.log('ERROR: You already have a game');
+      socket.emit('game_message', "You already have a game");
+      return;
+    }
+    
+    // Create new game
+    var game = new ROKServerGame(player);
+    games[game.id] = game;
+
+    // For a quick game, one other user is added to the game without invitation.
+    var more = true;
+    for (var p in players) {
+      if (players[p].id != player.id) {
+        game.addPlayer(players[p]);
+        if (!more) {
+          break;
+        }
+        more = false;
       }
     }
     
