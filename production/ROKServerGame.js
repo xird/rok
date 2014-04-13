@@ -925,6 +925,15 @@ ROKServerGame.prototype.rollDiceClicked = function (player, keep_dice_ids) {
     var monster = this.monsters[player.monster_id];
     var log_message = "";
   }
+  else {
+    // TODO: Sometimes rollDiceClicked() gets called, but checkRollState() 
+    // returns false. When that happened, monster wasn't defined, so the server
+    // crashed. I haven't been able to figure out when exactly that happens, but
+    // I added this early return to keep the server from crashing when it does
+    // happen. 
+    console.log("checkRollState() returned false, bailing out.");
+    return;
+  }
 
   // Allways roll atleast once
   this.rollDice(this.monsters[player.monster_id], keep_dice_ids);
