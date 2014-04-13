@@ -1073,7 +1073,10 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
   // Fill target monster array
   for (var mid in this.monsters) {
     if (this.inKyoto(this.monsters[mid]) != this.inKyoto(_this_turn_monster)) {
-        target_monsters.push(mid);
+      // Only attack monsters that are alive.
+      if (this.monsters[mid].health > 0) {
+        target_monsters.push(mid);      
+      }
     }
   }
   
