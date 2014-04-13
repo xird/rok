@@ -3,6 +3,8 @@
  *
  * Base class is in ROKGame.js
  *
+ * TODO rename game.this_monster to game.this_monster_id
+ * 
  */
 ROKGame.prototype.initClient = function() {
   console.log("ROKGame.prototype.initClient");
@@ -227,23 +229,22 @@ ROKGame.prototype.initClient = function() {
           else {
             $('#done_buying_button').hide();          
           }
-          
-          if (game.turn_phase == 'yield_kyoto_city') {
-            $('#yield_kyoto_city_button').show();
-            $('#stay_in_kyoto_city_button').show();
-          }
-          else {
-            $('#yield_kyoto_city_button').hide();
-            $('#stay_in_kyoto_city_button').hide();      
-          }
 
-          if (game.turn_phase == 'yield_kyoto_bay') {
-            $('#yield_kyoto_bay_button').show();
-            $('#stay_in_kyoto_bay_button').show();
+          if (game.turn_phase == 'yield_kyoto') {          
+            if (game.monster_in_kyoto_city_id == game.this_monster) {
+              $('#yield_kyoto_city_button').show();
+              $('#stay_in_kyoto_city_button').show();
+            }
+            else if (game.monster_in_kyoto_bay_id == game.this_monster) {
+              $('#yield_kyoto_bay_button').show();
+              $('#stay_in_kyoto_bay_button').show();
+            }
           }
           else {
+            $('#stay_in_kyoto_bay_button').hide();
             $('#yield_kyoto_bay_button').hide();
-            $('#stay_in_kyoto_bay_button').hide();      
+            $('#yield_kyoto_city_button').hide();
+            $('#stay_in_kyoto_city_button').hide();
           }
         }
       }
@@ -400,20 +401,24 @@ ROKGame.prototype.initClient = function() {
     }
     else if (e.keyCode == 89) {
       // [y]ield
-      if (game.turn_phase == 'yield_kyoto_city') {
-        $('#yield_kyoto_city_button').click();
-      }
-      else if (game.turn_phase == 'yield_kyoto_bay') {
-        $('#yield_kyoto_bay_button').click();      
+      if (game.turn_phase == "yield_kyoto") {
+        if (game.monster_in_kyoto_city_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
+          $('#yield_kyoto_city_button').click();        
+        }
+        else if (game.monster_in_kyoto_bay_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
+          $('#yield_kyoto_bay_button').click();        
+        }
       }
     }
     else if (e.keyCode == 83) {
       // [s]tay
-      if (game.turn_phase == 'yield_kyoto_city') {
-        $('#stay_in_kyoto_city_button').click();
-      }
-      else if (game.turn_phase == 'yield_kyoto_bay') {
-        $('#stay_in_kyoto_bay_button').click();      
+      if (game.turn_phase == "yield_kyoto") {
+        if (game.monster_in_kyoto_city_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
+          $('#stay_in_kyoto_city_button').click();        
+        }
+        else if (game.monster_in_kyoto_bay_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
+          $('#stay_in_kyoto_bay_button').click();        
+        }
       }
     }
     else if (e.keyCode == 76) {

@@ -49,6 +49,9 @@ $(document).ready(function() {
   $('#quick_game').click(function() {
     socket.emit("quick_game");
   });
+  $('#quick_game_3').click(function() {
+    socket.emit("quick_game_3");
+  });
   $('#client_log_lobby_state').click(function() {
     console.log(utils.dump(lobby));
   });
@@ -88,6 +91,8 @@ $(document).ready(function() {
     <input type="button" value="Cancel game" id="cancel_game_button" class="hidden" />
 
     <input id="quick_game" type="button" value="Quick game"/>
+    
+    <input id="quick_game_3" type="button" value="Quick 3 plr game"/>
 
   </div>
 
