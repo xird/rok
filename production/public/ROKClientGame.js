@@ -230,7 +230,7 @@ ROKGame.prototype.initClient = function() {
             $('#done_buying_button').hide();          
           }
 
-          if (game.turn_phase == 'yield_kyoto') {          
+          if (game.turn_phase == 'yield_kyoto') {
             if (game.monster_in_kyoto_city_id == game.this_monster) {
               $('#yield_kyoto_city_button').show();
               $('#stay_in_kyoto_city_button').show();
@@ -266,7 +266,6 @@ ROKGame.prototype.initClient = function() {
    */
   socket.on('state_changes', function socketStateChanges(data) {
     console.log("received game state changes");
-
     game.handleUpdates(data.updates);
   });
 
@@ -605,9 +604,11 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
     }
   }
   else {
-    console.log('disable yield city');
+    console.log('disable yield');
     $('#yield_kyoto_city_button').hide();
     $('#stay_in_kyoto_city_button').hide();
+    $('#yield_kyoto_bay_button').hide();
+    $('#stay_in_kyoto_bay_button').hide();
   }
   
   game.handleUpdates(updates); 
@@ -741,35 +742,51 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
   });
 }
 
-ROKGame.prototype.handle__board_monster_in_kyoto_city_id = function(updates) {
-  console.log("handle__board_monster_in_kyoto_city_id");
+ROKGame.prototype.handle__monster_in_kyoto_city_id = function(updates) {
+  console.log("handle__monster_in_kyoto_city_id");
   
   var update = updates.shift();
   
   if (update.value != null) {
     this.moveMonster(update.value, "city");
   }
-  else {
-    this.moveMonster(game.monster_in_kyoto_city_id, "home");  
-  }
-
   game.monster_in_kyoto_city_id = update.value;
   game.handleUpdates(updates);
 }
 
-ROKGame.prototype.handle__board_monster_in_kyoto_bay_id = function(updates) {
-  console.log("handle__board_monster_in_kyoto_bay_id");
+ROKGame.prototype.handle__monster_in_kyoto_bay_id = function(updates) {
+  console.log("handle__monster_in_kyoto_bay_id");
   
   var update = updates.shift();
   
   if (update.value != null) {
     this.moveMonster(update.value, "bay");
   }
-  else {
-    this.moveMonster(game.monster_in_kyoto_bay_id, "home");  
+  game.monster_in_kyoto_bay_id = update.value;
+  game.handleUpdates(updates);
+}
+
+ROKGame.prototype.handle__monster_leaving_kyoto_city_id = function(updates) {
+  console.log("handle__monster_leaving_kyoto_city_id");
+  
+  var update = updates.shift();
+  
+  if (update.value != null) {
+    this.moveMonster(update.value, "home");
   }
 
-  game.monster_in_kyoto_bay_id = update.value;
+  game.handleUpdates(updates);
+}
+
+ROKGame.prototype.handle__monster_leaving_kyoto_bay_id = function(updates) {
+  console.log("handle__monster_leaving_kyoto_bay_id");
+  
+  var update = updates.shift();
+  
+  if (update.value != null) {
+    this.moveMonster(update.value, "home");
+  }
+
   game.handleUpdates(updates);
 }
 
@@ -777,10 +794,9 @@ ROKGame.prototype.handle__board_monster_in_kyoto_bay_id = function(updates) {
  * Show the cards currently available for purchase.
  */
 ROKGame.prototype.handle__cards_available = function(updates) {
+  console.log("ROKGame.prototype.handle__cards_available");
   var update = updates.shift();
 
-  console.log("ROKGame.prototype.handle__cards_available");
-  console.log(update.value);
   for (var i = 0; i < update.value.length; i++) {
     $('#card__' + i).html('<img src="' + static_ + '/images/cards/' + update.value[i] + '.jpg" alt="' + update.value[i] + '" width="117" height="91" />');
   }

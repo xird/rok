@@ -37,6 +37,8 @@ ROKGame.prototype.initClient = function() {
     game.monsters = data.monsters;
     game.dice = data.dice;
     game.this_monster = data.this_monster;
+    game.monster_in_kyoto_city_id = data.monster_in_kyoto_city_id;
+    game.monster_in_kyoto_bay_id = data.monster_in_kyoto_bay_id;
     
     if (data.game_state == "lobby") {
       // The player is still in the lobby.
