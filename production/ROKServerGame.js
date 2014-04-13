@@ -926,11 +926,9 @@ ROKServerGame.prototype.rollDiceClicked = function (player, keep_dice_ids) {
     var log_message = "";
   }
   else {
-    // TODO: Sometimes rollDiceClicked() gets called, but checkRollState() 
-    // returns false. When that happened, monster wasn't defined, so the server
-    // crashed. I haven't been able to figure out when exactly that happens, but
-    // I added this early return to keep the server from crashing when it does
-    // happen. 
+    // If checkRollState() returns false, it's not the time for rolling, so we
+    // return early. This happens for example when a client sends a roll event
+    // at the wrong time for any reason.
     console.log("checkRollState() returned false, bailing out.");
     return;
   }
