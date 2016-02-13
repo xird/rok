@@ -327,6 +327,50 @@ div.monster {
   -webkit-transform: rotate(75deg);
 }
 
+.monster_owned_cards {
+  width: 214px;
+  height: 142px;
+  position: relative;
+}
+
+.monster_owned_card {
+  background: white;
+  opacity: 0.2;
+  width: 50px;
+  height: 40px;
+  position: absolute;
+}
+
+.monster_owned_card_1 {
+  top: 0px;
+  left: 0px;
+}
+
+.monster_owned_card_2 {
+  top: 50px;
+  left: 0px;
+}
+
+.monster_owned_card_3 {
+  top: 100px;
+  left: 0px;
+}
+
+.monster_owned_card_4 {
+  top: 0px;
+  right: 0px;
+}
+
+.monster_owned_card_5 {
+  top: 50px;
+  right: 0px;
+}
+
+.monster_owned_card_6 {
+  top: 100px;
+  right: 0px;
+}
+
 #log_wrap {
   top: 10px;
   right: 10px;
