@@ -17,7 +17,7 @@
   "scripts" : {
     "start" : "node Server.js"
   },
-  "license": "MIT",
+  "license": "WTFPL",
   "repository": {
     "type": "git",
     "url": "git@github.com:xird/rok.git"
