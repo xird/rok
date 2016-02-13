@@ -1,0 +1,25 @@
+{
+  "name": "ROK2016",
+  "version": "0.0.1",
+  "description": "ROK2016",
+  "dependencies": {
+    "express": "latest",
+    "connect": "latest",
+    "moniker": "latest",
+    "node-uuid": "latest",
+    "ejs": "latest",
+    "socket.io": "latest",
+    "express-session": "latest",
+    "session-file-store": "latest",
+    "cookie-parser": "latest"
+  },
+  "author": "dev",
+  "scripts" : {
+    "start" : "node Server.js"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xird/rok.git"
+  }
+}

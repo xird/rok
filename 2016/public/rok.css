@@ -1,0 +1,548 @@
+/* Production client confirmed CSS rules */
+@font-face {
+  font-family: cracked;
+  src: url("/cracked.woff");
+}
+
+body {
+  background: #fff;
+  color: #000;
+  font-size: 1em;
+  font-family: helvetica, arial, sans-serif;
+}
+
+#wrap {
+  width: 1024px;
+  height: 600px;
+  background: #888;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#messages {
+  position: absolute;
+  top: 30px;
+  border: 1px solid #444;
+  background: #fcc;
+  padding: 5px;
+  width: 500px;
+  display: none;
+  z-index: -10;
+}
+
+/* Monster selection */
+
+#monster_selection {
+  background: #ccc;
+  display: none;
+  height: 520px;
+  left: 20px;
+  padding: 20px;
+  position: absolute;
+  top: 20px;
+  width: 944px;
+  text-align: center;
+}
+
+#monster_selection h2 {
+  font-family: cracked;
+  font-size: 2em;
+  margin: 10px 0 20px 0;
+  text-transform: uppercase;
+}
+
+.monster_select_button {
+  background-image: url('/monster_frames.png');
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 142px;
+  margin: 20px;
+  width: 214px;
+}
+
+#monster_select_button_1 {
+  background-position: 0 0;
+}
+#monster_select_button_1.selected {
+  background-position: -214px 0;
+}
+
+#monster_select_button_2 {
+  background-position: 0px -142px;
+}
+#monster_select_button_2.selected {
+  background-position: -214px -142px;
+}
+    
+#monster_select_button_3 {
+  background-position: 0px -284px;
+}   
+#monster_select_button_3.selected {
+  background-position: -214px -284px;
+}
+
+#monster_select_button_4 {
+  background-position: 0px -426px;
+}
+#monster_select_button_4.selected {
+  background-position: -214px -426px;
+}
+
+#monster_select_button_5 {
+  background-position: 0px -568px;
+}
+#monster_select_button_5.selected {
+  background-position: -214px -568px;
+}
+
+#monster_select_button_6 {
+  background-position: 0px -710px;
+}
+#monster_select_button_6.selected {
+  background-position: -214px -710px;
+}
+
+/* Game */
+
+#game {
+  display: none;
+}
+
+#map,
+#log_wrap,
+#cards,
+#dice_area {
+  position: absolute;
+}
+
+#log_wrap,
+#map {
+  height: 458px;
+}
+
+#cards,
+#dice_area {
+  height: 110px;
+  overflow: hidden;
+}
+
+#map {
+  left: 10px;
+  top: 10px;
+  background-color: #6a4;
+  background-image: url("/map.png");
+  background-repeat: no-repeat;
+  background-position: 0px 100px;
+  z-index: 2;
+  width: 520px;
+  overflow: hidden;
+}
+
+#game.fivetosix #map {
+  width: 800px;
+}
+
+div.monster_slot {
+  display: none;
+  position: absolute;
+  width: 214px;
+  height: 142px;
+  opacity: 0.35;
+  background-image: url('/monster_slot.png');
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+div.monster {
+  display: none;
+  position: absolute;
+  width: 214px;
+  height: 142px;
+  background-image: url('/monster_frames.png');
+  background-repeat: no-repeat;
+}
+
+#ms1 {
+  left: 8px;
+  top: 8px;
+}
+
+#ms2 {
+  display: none;
+  left: 293px;
+  top: 8px;
+}
+
+#game.fivetosix #ms2 {
+  display: block;
+}
+
+#ms3 {
+  left: 298px;
+  top: 8px;
+}
+
+#game.fivetosix #ms3 {
+  left: 578px;
+}
+
+#ms4 {
+  left: 8px;
+  top: 308px;
+}
+
+#ms5 {
+  display: none;
+  left: 293px;
+  top: 308px;
+}
+
+#game.fivetosix #ms5 {
+  display: block;
+}
+
+#ms6 {
+  left: 298px;
+  top: 308px;
+}
+
+#game.fivetosix #ms6 {
+  left: 578px;
+}
+
+#mskc {
+  display: block;
+  left: 151px;
+  top: 158px;
+}
+
+#mskb {
+  display: none;
+  left: 436px;
+  top: 158px;
+}
+
+#game.fivetosix #mskb {
+  display: block;
+}
+
+#m1 {
+  background-position: 0 0;
+}
+#m1.active {
+  background-position: -214px 0;
+}
+
+#m2 {
+  background-position: 0px -142px;
+}
+#m2.active {
+  background-position: -214px -142px;
+}
+    
+#m3 {
+  background-position: 0px -284px;
+}   
+#m3.active {
+  background-position: -214px -284px;
+}
+
+#m4 {
+  background-position: 0px -426px;
+}
+#m4.active {
+  background-position: -214px -426px;
+}
+
+#m5 {
+  background-position: 0px -568px;
+}
+#m5.active {
+  background-position: -214px -568px;
+}
+
+#m6 {
+  background-position: 0px -710px;
+}
+#m6.active {
+  background-position: -214px -710px;
+}
+
+.monster.dead .dead {
+  position: absolute;
+  width: 214px;
+  height: 142px;
+  opacity: 1;
+  background-image: url('/dead.png');
+  z-index: 3;
+}
+
+.monster_stats {
+  font-family: cracked;
+  font-size: 28px;
+  height: 40px;
+  padding-left: 15px;
+  padding-top: 10px;
+  position: absolute;
+  width: 35px;
+}
+
+.monster_health {
+  top: -12px;
+  left: 100px;
+  transform-origin: 0% 50%;
+  -webkit-transform-origin: 0% 50%;
+  transform: rotate(16deg);
+  -webkit-transform: rotate(16deg);
+}
+
+.monster_stats_bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-image: url('/stats-bg.png');
+  height: 50px;
+  opacity: 0;
+  width: 50px;
+  z-index: -1;
+}
+
+.monster_victory_points {
+  top: 27px;
+  left: 52px;
+  transform-origin: 0% 50%;
+  -webkit-transform-origin: 0% 50%;
+  transform: rotate(-51deg);
+  -webkit-transform: rotate(-51deg);
+}
+
+.monster_snot {
+  top: 10px;
+  left: 155px;
+  /* Note the different origin settings for Chrome / Firefox */
+  transform-origin: 0% 50%;
+  -webkit-transform-origin: 0% 46%;
+  transform: rotate(75deg);
+  -webkit-transform: rotate(75deg);
+}
+
+#log_wrap {
+  top: 10px;
+  right: 10px;
+  background-color: #ccc;
+  width: 474px;
+}
+
+#log {
+  margin: 10px;
+  overflow-y: scroll;
+  height: 438px;
+}
+
+div#log p {
+  margin: 0;
+}
+
+/* TODO cards */
+#cards {
+  width: 520px;
+  background-color: #ccc;
+  bottom: 10px;
+  left: 10px;
+}
+
+
+
+.card,
+#card_deck {
+  float: left;
+  height: 91px;
+  margin: 10px 0 0 10px;
+  width: 117px;
+}
+
+#card_deck {
+  background: #666;
+}
+
+.card {
+  background: #eee;
+  font-size: 0.4em;
+}
+
+/* Dice */
+
+#dice_area {
+  width: 474px;
+  background-color: #ccc;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+#dice {
+  bbackground: #cc0;
+  height: 60px;
+  right: 17px;
+  position: absolute;
+  top: 0px;
+  width: 440px;
+
+}
+
+
+
+div#dice div.i {
+  background-color: #888;
+}
+
+div#dice div.r {
+  background-color: #cfc;
+}
+
+div#dice div.f {
+  background-color: #ccf;
+}
+
+div#dice div.k {
+  background-color: #fcc;
+}
+
+div#dice div.n {
+  background-color: #222;
+}
+
+#dice div {
+  text-align: center;
+}
+
+#dice div {
+  float: left;
+  width: 45px;
+  height: 45px;
+  margin: 10px 5px 10px 5px;
+  font-family: cracked;
+  font-size: 2.4em;
+  text-transform: uppercase;
+}
+
+div#dice div.punch {
+  background-color: none;
+  background-image: url('/punch45.png');
+}
+
+div#dice div.punchInactive {
+  background-color: none;
+  background-image: url('/punch45inactive.png');
+}
+
+div#dice div.heal {
+  background-color: none;
+  background-image: url('/heal45.png');
+}
+
+div#dice div.healInactive {
+  background-color: none;
+  background-image: url('/heal45inactive.png');
+}
+
+div#dice div.snot {
+  background-color: none;
+  background-image: url('/snot45.png');
+}
+
+div#dice div.snotInactive {
+  background-color: none;
+  background-image: url('/snot45inactive.png');
+}
+
+#roll_dice_button {
+  width: 140px;
+}
+
+#roll_dice_button,
+#done_buying_button,
+#yield_kyoto_city_button,
+#yield_kyoto_bay_button,
+#leave_game_button {
+  right: 22px;
+}
+
+
+#stay_in_kyoto_city_button,
+#stay_in_kyoto_bay_button {
+  left: 22px;
+}
+
+
+#debug {
+  background: #fcc;
+  height: 450px;
+  right: -300px;
+  position: absolute;
+  top:0;
+  width: 300px;
+  z-index: 15;
+}
+
+#debug h4 {
+  margin: 0;
+}
+
+table#game_data {
+  border-collapse: collapse;
+}
+
+#game table td {
+  border: 1px solid #ccc;
+}
+
+.monster_data.dead td {
+  background: #aaa;
+}
+/* End debugger */
+
+.hidden {
+  border: 2px solid red;
+  display: none;
+}
+
+p#disconnected {
+  font-size: 2em;
+  text-align: center;
+  padding-top:50px;
+}
+
+/* http://www.bestcssbuttongenerator.com/ */
+
+.ROKButton {
+  display: none;
+  position: absolute;
+  -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+  box-shadow:inset 0px 1px 0px 0px #ffffff;
+  background-color:#f9f9f9;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #dcdcdc;
+  cursor:pointer;
+  color: #222;
+  font-family: cracked;
+  font-size: 1.6em;
+  text-decoration:none;
+  text-transform: uppercase;
+  text-shadow:0px 1px 0px #ffffff;
+  padding: 4px 12px;
+  text-align: center;
+  bottom: 10px;
+}
+
+.ROKButton:hover {
+  background-color:#f9f9f9;
+}
+
+.ROKButton:active {
+  bottom: 9px;
+}
