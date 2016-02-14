@@ -173,12 +173,8 @@
     76: {name: "Thunder Stomp",                 cost: 3, keep: true,  set: "promo",    implemented: false, description: "If you score 4[Star] in a turn, all players roll one less die until your next turn.", hooks: {}},
     77: {name: "Unstable DNA",                  cost: 3, keep: true,  set: "promo",    implemented: false, description: "If you yield Tokyo you can take any card the recipient has and give him this card.",
          hooks: {}
-        },
+        }
     }
   };
 
-var ROKCards = function (){
-  return theCards;
-}
-
-module.export = ROKCards;
+module.exports = theCards;

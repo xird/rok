@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{07682ca3-41b5-44f9-84c4-a647f8256c0f}</ProjectGuid>
+    <ProjectHome />
+    <ProjectView>ShowAllFiles</ProjectView>
+    <StartupFile>Server.js</StartupFile>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <NodejsPort>8080</NodejsPort>
+    <StartWebBrowser>False</StartWebBrowser>
+    <NodeExeArguments>
+    </NodeExeArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Content Include="package.json" />
+    <Compile Include="ROKCards.js" />
+    <Compile Include="ROKServerGame.js" />
+    <Compile Include="ROKServerLobby.js" />
+    <Compile Include="Server.js" />
+    <Content Include="public\rok.css" />
+    <Content Include="public\rok_dev.css" />
+    <Content Include="public\dead.png" />
+    <Content Include="public\energy45.png" />
+    <Content Include="public\energy45inactive.png" />
+    <Content Include="public\heal45.png" />
+    <Content Include="public\heal45inactive.png" />
+    <Content Include="public\map.png" />
+    <Content Include="public\monster_frames.png" />
+    <Content Include="public\monster_slot.png" />
+    <Content Include="public\punch45.png" />
+    <Content Include="public\punch45inactive.png" />
+    <Content Include="public\snot45.png" />
+    <Content Include="public\snot45inactive.png" />
+    <Content Include="public\stats-bg.png" />
+    <Content Include="public\TODO_extra_head.jpg" />
+    <Compile Include="public\jquery-2.1.0.min.js" />
+    <Compile Include="public\jquery.color-2.1.2.min.js" />
+    <Compile Include="public\jquery.json2html.js" />
+    <Compile Include="public\json2html.js" />
+    <Compile Include="public\ROKClientGame.js" />
+    <Compile Include="public\ROKClientLobby.js" />
+    <Compile Include="public\ROKDevClientGame.js" />
+    <Compile Include="public\ROKDevClientLobby.js" />
+    <Compile Include="public\ROKGame.js" />
+    <Compile Include="public\ROKLobby.js" />
+    <Compile Include="public\ROKUtils.js" />
+    <Compile Include="public\socket.io-1.4.5.js" />
+    <Content Include="views\404.ejs" />
+    <Content Include="views\client.ejs" />
+    <Content Include="views\dev_client.ejs" />
+    <Content Include="views\disconnected.ejs" />
+    <Content Include="public\images\cards\ACID_ATTACK.jpg" />
+    <Content Include="public\images\cards\ALIEN_METABOLISM.jpg" />
+    <Content Include="public\images\cards\ALPHA_MONSTER.jpg" />
+    <Content Include="public\images\cards\AMUSEMENT_PARK.jpg" />
+    <Content Include="public\images\cards\APARTMENT_BUILDING.jpg" />
+    <Content Include="public\images\cards\ARMOR_PLATING.jpg" />
+    <Content Include="public\images\cards\ARMY.jpg" />
+    <Content Include="public\images\cards\BACKGROUND_DWELLER.jpg" />
+    <Content Include="public\images\cards\BURROWING.jpg" />
+    <Content Include="public\images\cards\CAMOUFLAGE.jpg" />
+    <Content Include="public\images\cards\CANNIBALISTIC.jpg" />
+    <Content Include="public\images\cards\COMMUTER_TRAIN.jpg" />
+    <Content Include="public\images\cards\COMPLETE_DESTRUCTION.jpg" />
+    <Content Include="public\images\cards\CORNER_STORE.jpg" />
+    <Content Include="public\images\cards\DEDICATED_NEWS_TEAM.jpg" />
+    <Content Include="public\images\cards\DROP_FROM_HIGH_ALTITUDE.jpg" />
+    <Content Include="public\images\cards\EATER_OF_THE_DEAD.jpg" />
+    <Content Include="public\images\cards\ENERGIZE.jpg" />
+    <Content Include="public\images\cards\ENERGY_HOARDER.jpg" />
+    <Content Include="public\images\cards\EVACUATION_ORDERS_X1.jpg" />
+    <Content Include="public\images\cards\EVACUATION_ORDERS_X2.jpg" />
+    <Content Include="public\images\cards\EVEN_BIGGER.jpg" />
+    <Content Include="public\images\cards\EXTRA_HEAD_X1.jpg" />
+    <Content Include="public\images\cards\EXTRA_HEAD_X2.jpg" />
+    <Content Include="public\images\cards\FIRE_BLAST.jpg" />
+    <Content Include="public\images\cards\FIRE_BREATHING.jpg" />
+    <Content Include="public\images\cards\FREEZE_TIME.jpg" />
+    <Content Include="public\images\cards\FRENZY.jpg" />
+    <Content Include="public\images\cards\FRIEND_OF_CHILDREN.jpg" />
+    <Content Include="public\images\cards\GAS_REFINERY.jpg" />
+    <Content Include="public\images\cards\GIANT_BRAIN.jpg" />
+    <Content Include="public\images\cards\GOURMET.jpg" />
+    <Content Include="public\images\cards\HEAL.jpg" />
+    <Content Include="public\images\cards\HEALING_RAY.jpg" />
+    <Content Include="public\images\cards\HERBIVORE.jpg" />
+    <Content Include="public\images\cards\HERD_CULLER.jpg" />
+    <Content Include="public\images\cards\HIGH_ALTITUDE_BOMBING.jpg" />
+    <Content Include="public\images\cards\INTIMIDATING_ROAR.jpg" />
+    <Content Include="public\images\cards\IT_HAS_A_CHILD.jpg" />
+    <Content Include="public\images\cards\JETS.jpg" />
+    <Content Include="public\images\cards\JET_FIGHTERS.jpg" />
+    <Content Include="public\images\cards\MADE_IN_A_LAB.jpg" />
+    <Content Include="public\images\cards\METAMORPH.jpg" />
+    <Content Include="public\images\cards\MIMIC.jpg" />
+    <Content Include="public\images\cards\MONSTER_BATTERIES.jpg" />
+    <Content Include="public\images\cards\MONSTER_SIDEKICK.jpg" />
+    <Content Include="public\images\cards\NATIONAL_GUARD.jpg" />
+    <Content Include="public\images\cards\NOVA_BREATH.jpg" />
+    <Content Include="public\images\cards\NUCLEAR_POWER_PLANT.jpg" />
+    <Content Include="public\images\cards\OMNIVORE.jpg" />
+    <Content Include="public\images\cards\OPPORTUNIST.jpg" />
+    <Content Include="public\images\cards\PARASITIC_TENTACLES.jpg" />
+    <Content Include="public\images\cards\PLOT_TWIST.jpg" />
+    <Content Include="public\images\cards\POISON_QUILLS.jpg" />
+    <Content Include="public\images\cards\POISON_SPIT.jpg" />
+    <Content Include="public\images\cards\PSYCHIC_PROBE.jpg" />
+    <Content Include="public\images\cards\RAPID_HEALING.jpg" />
+    <Content Include="public\images\cards\REFLECTIVE_HIDE.jpg" />
+    <Content Include="public\images\cards\REGENERATION.jpg" />
+    <Content Include="public\images\cards\ROOTING_FOR_THE_UNDERDOG.jpg" />
+    <Content Include="public\images\cards\SHRINK_RAY.jpg" />
+    <Content Include="public\images\cards\SKYSCRAPER.jpg" />
+    <Content Include="public\images\cards\SLEEP_WALKER.jpg" />
+    <Content Include="public\images\cards\SMOKE_CLOUD.jpg" />
+    <Content Include="public\images\cards\SOLAR_POWERED.jpg" />
+    <Content Include="public\images\cards\SPIKED_TAIL.jpg" />
+    <Content Include="public\images\cards\STRETCHY.jpg" />
+    <Content Include="public\images\cards\SUPER_JUMP.jpg" />
+    <Content Include="public\images\cards\TANKS.jpg" />
+    <Content Include="public\images\cards\TELEPATH.jpg" />
+    <Content Include="public\images\cards\THROW_A_TANKER.jpg" />
+    <Content Include="public\images\cards\THUNDER_STOMP.jpg" />
+    <Content Include="public\images\cards\UNSTABLE_DNA.jpg" />
+    <Content Include="public\images\cards\URBAVORE.jpg" />
+    <Content Include="public\images\cards\VAST_STORM.jpg" />
+    <Content Include="public\images\cards\WERE_ONLY_MAKING_IT_STRONGER.jpg" />
+    <Content Include="public\images\cards\WINGS.jpg" />
+    <Content Include="tmp\sessions\eSOu88YY8lEBiBxUwZLL4kc1Bo5ZGV-l.json" />
+    <Content Include="tmp\sessions\_07qK08SF2NjsP_yiDGVxEBPyPpo8q1h.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="public" />
+    <Folder Include="public\images" />
+    <Folder Include="public\images\cards" />
+    <Folder Include="tmp" />
+    <Folder Include="tmp\sessions" />
+    <Folder Include="views" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <!--Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them.-->
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
