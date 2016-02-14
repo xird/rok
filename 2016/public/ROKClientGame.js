@@ -39,7 +39,8 @@ ROKGame.prototype.initClient = function() {
     game.this_monster = data.this_monster;
     game.winner = data.winner;
     game.cards_available = data.cards_available;
-    console.log(data);
+    game.card_map = data.card_map;
+
     if (data.game_state == "lobby") {
       console.log('Lobby');
       // The player is still in the lobby.
@@ -188,6 +189,16 @@ ROKGame.prototype.initClient = function() {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__alien_counters').html(data.monsters[monster_ids[i]].alien_counters);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__UFO_counters').html(data.monsters[monster_ids[i]].UFO_counters);
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__mimic').html(data.monsters[monster_ids[i]].mimic);
+
+        // Cards owned by the monsters
+        for (var j = 0; j < data.monsters[monster_ids[i]].cards_owned.length; j++) {
+          console.log("Monster " + monster_ids[i] + " cards:");
+          console.log(data.monsters[monster_ids[i]].cards_owned[j]);
+          // TODO Add hover effect for larger view for card
+          var card_name = game.card_map[data.monsters[monster_ids[i]].cards_owned[j]];
+          var html = '<img src="' + static_ + '/images/cards/' + card_name + '.jpg" alt="' + card_name + '" width="50" height="39" />';
+          $("#monsters__" + monster_ids[i] + "__cards_owned__" + j).html(html);
+        }
       }
 
       $('#board_monster_in_kyoto_city_id').html(data.monster_in_kyoto_city_id);
@@ -799,6 +810,23 @@ ROKGame.prototype.handle__cards_available = function(updates) {
 
   for (var i = 0; i < update.value.length; i++) {
     $('#card__' + i).html('<img src="' + static_ + '/images/cards/' + update.value[i] + '.jpg" alt="' + update.value[i] + '" width="117" height="91" />');
+  }
+
+  game.handleUpdates(updates);
+}
+
+/**
+ *
+ */
+ROKGame.prototype.handle__monsters__cards_owned = function(updates) {
+  console.log("ROKGame.prototype.handle__monsters__cards_owned");
+  var update = updates.shift();
+
+  // TODO Add hover effect for larger view for card
+  for (var i = 0; i < update.value.length; i++) {
+    var card_name = game.card_map[update.value[i]];
+    var html = '<img src="' + static_ + '/images/cards/' + card_name + '.jpg" alt="' + card_name + '" width="50" height="39" />';
+    $('#' + update.element + "__" + i).html(html);
   }
 
   game.handleUpdates(updates);

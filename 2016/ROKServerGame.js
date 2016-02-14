@@ -703,6 +703,17 @@ ROKServerGame.prototype.snapState = function(player_id) {
   send_object.monster_leaving_kyoto_bay_id = this.monster_leaving_kyoto_bay_id;
   send_object.cards_available = this.cards_available;
   
+  // This is needed to map monsters' owned card ids to the names of the cards so
+  // we can use the correct image file.
+  var card_map = {};
+  for(var name in this.cards) {
+    var value = this.cards[name];
+    if (name != "properties") {
+      card_map[value] = name;
+    }
+  }
+  send_object.card_map = card_map;
+
   // Loop through all players in this game and send them the data.
   for (var game_player_id in this.players) {
     // Send to this player if no player id was given, or if the currently looped
@@ -836,7 +847,10 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   // Move a card from the deck to the available cards:
   var cards_available = this.cards_available;
   cards_available[available_card_index] = this.card_deck.pop();
-  this.updateState("cards_available", cards_available , "DEV: Card moved to available cards");
+  this.updateState("cards_available", cards_available , monster.name + " bought " + this.cards.properties[card].name + ".");
+
+  // TODO: Immediately resolve "Discard" type cards
+  // TODO: Don't move "Discard" type cards to monster's owned cards
 
   this.sendStateChanges();
 }
