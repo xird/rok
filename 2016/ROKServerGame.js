@@ -809,7 +809,7 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
 
   // A monster can attempt to buy cards they can't afford but the purchace
   // will be denied.
-  // TODO ticket #5, "Allow buying cards only when it's time for that bug": prevent this in the browser as well.
+  // TODO ticket #5, "Allow buying cards only when it's time for that" bug: prevent this in the browser as well.
   if (cost > monster.snot) {
     console.log("Does this look like a charity.  Come back when you have more snot!");
     return;
@@ -833,6 +833,11 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   // FIXME ticket #10, "Available cards not being updated": The available cards
   // aren't updated, at least not all the way to the client.
   
+  // Move a card from the deck to the available cards:
+  var cards_available = this.cards_available;
+  cards_available[available_card_index] = this.card_deck.pop();
+  this.updateState("cards_available", cards_available , "DEV: Card moved to available cards");
+
   this.sendStateChanges();
 }
 
