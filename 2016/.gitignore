@@ -1,2 +1,6 @@
 node_modules
 tmp
+obj/
+bin/
+.vs/
+.ntvs_analysis.dat
