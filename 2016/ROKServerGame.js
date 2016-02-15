@@ -656,7 +656,9 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   if (monster.cards_owned.indexOf(this.cards.ALIEN_METABOLISM) != -1) {
     cost--;
   }
-  this.card_hook("BUYCARD_BEFORE");
+  var test_value = 7;
+  test_value = this.card_hook("BUYCARD_BEFORE", test_value);
+  console.log("test value: " + test_value);
   // A monster can attempt to buy cards they can't afford but the purchace
   // will be denied.
   // TODO ticket #5, "Allow buying cards only when it's time for that" bug: prevent this in the browser as well.
@@ -1539,14 +1541,21 @@ ROKServerGame.prototype.confirmGame = function(player) {
  * This function is called whenever a card may have an effect on the game.
  *
  */
-ROKServerGame.prototype.card_hook = function(hook_name) {
+ROKServerGame.prototype.card_hook = function(hook_name, value_to_alter) {
   console.log("ROKServerGame.prototype.card_hook(" + hook_name + ")");
+
+  if (typeof value_to_alter == "undefined") {
+    value_to_alter = false;
+  }
+
   for (card_id in this.cards.properties) {
     var card = this.cards.properties[card_id];
     if (typeof card.hooks[hook_name] == "function") {
-      card.hooks[hook_name](this);
+      value_to_alter = card.hooks[hook_name](this, value_to_alter);
     }
   }
+
+  return value_to_alter;
 }
 
 module.exports = ROKServerGame;

@@ -87,9 +87,10 @@
      4: {name: "Apartment Building",            cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]", hooks: {}},
      5: {name: "Armor Plating",                 cost: 4, keep: true,  set: "original", implemented: true,  description: "Ignore damage of 1.",
          hooks: {
-           "BUYCARD_AFTER": function (game) {
+           "BUYCARD_AFTER": function (game, value_to_alter) {
              console.log("This is the TEST BUYCARD_AFTER hook implemented in 'Armor plating'.");
              game.dice[0].value = "*";
+             return value_to_alter;
            }
          }
         },
@@ -108,8 +109,10 @@
     18: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[Star].", hooks: {}},
     19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.",
          hooks: {
-           "BUYCARD_BEFORE": function(game) {
+           "BUYCARD_BEFORE": function(game, test_value) {
              console.log("This is the TEST BUYCARD_BEFORE hook implemented in 'Even Bigger'.");
+             test_value++;
+             return test_value;
            }
          }
         },
