@@ -66,8 +66,22 @@ ROKServerGame.prototype.init = function(player) {
     }
   }
 
+
+/**
+ * Place specific cards onthe top of the deck (for debugging)
+ **
+ * Cards listed in the 'topCards' array will be left ontop of the deck in the order specified. 
+ * This means that the first three cards listed in here will be available for monsters to purchave from the begining of the came.
+ **/
+var temp, topCards = [0, 3];  // Note array identifys cards indexes in the array (which is card id - 1)
+  for (var i = 0; i < topCards.length ; i++) {
+    temp = card_deck[card_deck.length - 1 - i];
+    card_deck[card_deck.length - 1 - i] = card_deck[topCards[i]];
+    card_deck[topCards[i]] = temp;
+  }
+ 
   // Shuffle the deck (Fisher–Yates shuffle)
-  for (var i=card_deck.length-1 ; i>0 ; i--) {
+  for (var i=card_deck.length-topCards-1 ; i>0 ; i--) {
     var rand = Math.floor(Math.random()*(i+1));  // Random number (0,i)
     
     // Swap rand and i
@@ -225,7 +239,7 @@ ROKServerGame.prototype.init = function(player) {
         log_message = this.name
           + (amount > 0 ? " gains " : " looses ")
           +  Math.asb(amount) + " victory point"
-          + (amount > 1 ? "s." : ".");
+          + (Math.abs(amount) == 1 ? "." : "s.");
       }
 
       game.updateState("monsters__" + this.id + "__victory_points", this.victory_points, log_message);
@@ -267,7 +281,7 @@ ROKServerGame.prototype.init = function(player) {
           log_message = this.name
                         + (amount > 0 ? " gains " : " spends ")
                         + Math.abs(amount) + " snot cube"
-                        + (amount > 1 ? "s." : ".");
+                        + (Math.abs(amount) == 1 ? "." : "s.");
         }
 
         game.updateState("monsters__" + this.id + "__snot", this.snot, log_message);
@@ -289,7 +303,7 @@ ROKServerGame.prototype.init = function(player) {
     var city_or_bay = (game.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
     var log_message = this.name
                       + " takes Kyoto " + city_or_bay + " for " + entry_vips
-                      + " victory point" + ((entry_vips) > 1 ? "s." : ".");
+                      + " victory point" + (Math.abs(entry_vips) == 1 ? "." : "s.");
 
     game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", this.id);
     return this.addVictoryPoints(entry_vips, log_message);
@@ -382,9 +396,9 @@ ROKServerGame.prototype.init = function(player) {
   /**
    * Modifier method for applying damage
    **
-   * @param amount int The amount to adjust the snot by (+ inclease, - decrease)
+   * @param amount int The amount of damage inflicted upon our poor monster (+ inclease, - decrease)
    * 
-   * @return int The amount the snot was set to.
+   * @return int The amount the health was set to.
    **
    * This method does not modify the health directly, rather it delegates the
    * task to "addHealth(...). This is to prevent this method needing to
@@ -394,7 +408,7 @@ ROKServerGame.prototype.init = function(player) {
     // "Armor Plating" allows monsters to ignore inflictions of 1 damage
     if (    this.cards_owned.indexOf(cards.ARMOR_PLATING) != -1
          && amount == 1) {
-      return;
+      return this.health;
     }
     
     return this.addHealth(-amount);
@@ -930,6 +944,8 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
       attack++;
     }
   }
+
+  this.card_hook("RESOLVE_ATTACK_DICE");
   
   // Add additional damage from cards.
   var damage = this.monsters[player.monster_id].getTotalDamage(attack)
