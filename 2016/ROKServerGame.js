@@ -417,7 +417,7 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
   /**
    * Fetcher method for retrieving any additional damage this monster inflicts
    *
-   * @param amount int The amount of attack the monster is doing
+   * @param amount int The amount of    * attack the monster is doing
    **
    * @return int The amount of damage the monster will inflict
    **
@@ -430,12 +430,32 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
     rv = attack;
     
     // "Acid Attak" causes additonal damage even if no claws were rolled (ie. there is no attack)
-    if (this.cards_owned.indexOf(cards.ACID_ATTACK) != -1) rv ++;
+    if (this.cards_owned.indexOf(cards.ACID_ATTACK) != -1) rv++;
 
-    return rv;
+    // "Alpha Monster" only gains a VP if an attack is inistigaten (no VP if only 'damage' is inflicted)
+    if (attack > 0 && this.cards_owned.indexOf(cards.ALPHA_MONSTER) != -1) {
+      this.victory_points++;
+    }
+
+    return Math.max(rv, 0);
+  };
+
+  /**
+   * Fetcher method for retrieving the final cost of cards
+   *
+   * @param cost int The cost printed o the cars
+   **
+   * @return int The amount it will cost for this monster to purchace the card
+   **/
+  Monster.prototype.calculateCardCost = function (cost) {
+    var rv = cost;
+    
+    // "Alien Metabolism" reduces the cost of cards by 1 snot cube.
+    if (monster.cards_owned.indexOf(this.cards.ALIEN_METABOLISM) != -1) rv--;
+    
+    return Math.max(rv, 0);
   };
 }
-
 
 /**
  * Updates attributes in the Game object. This is used instead of updating the
@@ -628,7 +648,7 @@ ROKServerGame.prototype.getMonster = function(monster_id) {
 
 
 /**
- * Moves the game to the turn phase where the user can buy cards.
+ * Moves the game to the turn phase where the user can  * buy cards.
  *
  * CARDS: Buy cards if there's money - skip the buy phase if there isn't
  * CARDS: "Alien metabolism"
@@ -664,12 +684,8 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   console.log("card:");
   console.log(card)
   var monster = this.monsters[player.monster_id];
-  var cost = this.cards.properties[card].cost;
+  var cost = monster.calculateCardCost(this.cards.properties[card].cost);
 
-  // "Alien Metabolism" reduces the cost of cards by 1 snot cube.
-  if (monster.cards_owned.indexOf(this.cards.ALIEN_METABOLISM) != -1) {
-    cost--;
-  }
   var test_value = 7;
   test_value = this.card_hook("BUYCARD_BEFORE", {"value_to_alter": test_value});
   console.log("test value: " + test_value);

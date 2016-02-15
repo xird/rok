@@ -83,7 +83,7 @@
   properties: {
      1: {name: "Acid Attack",                   cost: 6, keep: true,  set: "original", implemented: true,  description: "Deal 1 extra damage each turn (even when you don't otherwise attack).", hooks: {}},
      2: {name: "Alien Metabolism",              cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Buying cards costs you 1 less [Snot].", hooks: {}},
-     3: {name: "Alpha Monster",                 cost: 5, keep: true,  set: "original", implemented: false, description: "Gain 1[Star] when you attack.", hooks: {}},
+     3: {name: "Alpha Monster",                 cost: 5, keep: true,  set: "original", implemented: "needs Testing", description: "Gain 1[Star] when you attack.", hooks: {}},
      4: {name: "Apartment Building",            cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]", hooks: {}},
      5: {name: "Armor Plating",                 cost: 4, keep: true,  set: "original", implemented: true,  description: "Ignore damage of 1.",
          hooks: {
