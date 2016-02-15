@@ -1541,15 +1541,19 @@ ROKServerGame.prototype.confirmGame = function(player) {
  * This function is called whenever a card may have an effect on the game.
  *
  */
-ROKServerGame.prototype.card_hook = function(hook_name, value_to_alter) {
+ROKServerGame.prototype.card_hook = function(hook_name, params) {
   console.log("ROKServerGame.prototype.card_hook(" + hook_name + ")");
-
-  if (typeof value_to_alter == "undefined") {
-    value_to_alter = false;
+  if (typeof params['value_to_alter'] == "undefined") {
+    params['value_to_alter'] = false;
   }
 
-  for (card_id in this.cards.properties) {
-    var card = this.cards.properties[card_id];
+  if (typeof params['monster_id'] == "undefined") {
+    params['monster_id'] = this.turn_monster;
+  }
+
+  // Cycle through cards the applicable monster owns.
+  for (var i = 0; i < this.monsters[params['monster_id']].cards.length; i++) {
+    var card = this.monsters[params['monster_id']].cards[i];
     if (typeof card.hooks[hook_name] == "function") {
       value_to_alter = card.hooks[hook_name](this, value_to_alter);
     }
