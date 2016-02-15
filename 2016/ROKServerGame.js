@@ -73,7 +73,7 @@ ROKServerGame.prototype.init = function(player) {
  * Cards listed in the 'topCards' array will be left ontop of the deck in the order specified. 
  * This means that the first three cards listed in here will be available for monsters to purchave from the begining of the came.
  **/
-var temp, topCards = [0, 3];  // Note array identifys cards indexes in the array (which is card id - 1)
+var temp, topCards = [18];  // Note array identifys cards indexes in the array (which is card id - 1)
   for (var i = 0; i < topCards.length ; i++) {
     temp = card_deck[card_deck.length - 1 - i];
     card_deck[card_deck.length - 1 - i] = card_deck[topCards[i]];
@@ -671,7 +671,7 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
     cost--;
   }
   var test_value = 7;
-  test_value = this.card_hook("BUYCARD_BEFORE", test_value);
+  test_value = this.card_hook("BUYCARD_BEFORE", {"value_to_alter": test_value});
   console.log("test value: " + test_value);
   // A monster can attempt to buy cards they can't afford but the purchace
   // will be denied.
@@ -1559,19 +1559,25 @@ ROKServerGame.prototype.confirmGame = function(player) {
  */
 ROKServerGame.prototype.card_hook = function(hook_name, params) {
   console.log("ROKServerGame.prototype.card_hook(" + hook_name + ")");
+
+  if (typeof params == "undefined") {
+    var params = {};
+  }
+
   if (typeof params['value_to_alter'] == "undefined") {
     params['value_to_alter'] = false;
   }
+  var value_to_alter = params['value_to_alter'];
 
   if (typeof params['monster_id'] == "undefined") {
     params['monster_id'] = this.turn_monster;
   }
 
   // Cycle through cards the applicable monster owns.
-  for (var i = 0; i < this.monsters[params['monster_id']].cards.length; i++) {
-    var card = this.monsters[params['monster_id']].cards[i];
-    if (typeof card.hooks[hook_name] == "function") {
-      value_to_alter = card.hooks[hook_name](this, value_to_alter);
+  for (var i = 0; i < this.monsters[params['monster_id']].cards_owned.length; i++) {
+    var card_id = this.monsters[params['monster_id']].cards_owned[i];
+    if (typeof this.cards.properties[card_id].hooks[hook_name] == "function") {
+      value_to_alter = this.cards.properties[card_id].hooks[hook_name](this, value_to_alter);
     }
   }
 
