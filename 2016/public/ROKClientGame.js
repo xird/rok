@@ -348,6 +348,38 @@ ROKGame.prototype.initClient = function() {
     return false;
   });
   
+  // Show bigger cards when hovering on them.
+/*  $('#game').on({
+    mouseover: function () {
+      var div = $(this);
+      var big_w = 200;
+      var big_h = 156;
+      div.css("width", big_w + "px");
+      div.css("height", big_h + "px");
+
+      var img = div.find('img');
+      img.data('width', img.attr('width'));
+      img.attr('width', big_w);
+      img.data('height', img.attr('height'));
+      img.attr('height', big_h);
+
+      $(this).css('z-index', 99);
+    },
+    mouseout: function () {
+      var div = $(this);
+      var small_w = 117;
+      var small_h = 91;
+      div.css("width", small_w + "px");
+      div.css("height", small_h + "px");
+
+      var img = $(this).find('img');
+      img.attr('width', img.data('width'));
+      img.attr('height', img.data('height'));
+
+      $(this).css('z-index', 0);
+    }
+  }, ".card, .monster_cards_owned");
+  */
   
   // Leave game.
   $('#game').on("click", "#leave_game_button", function clickLeaveGame(){

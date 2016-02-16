@@ -124,7 +124,6 @@ body {
 #cards,
 #dice_area {
   height: 110px;
-  overflow: hidden;
 }
 
 #map {
@@ -394,11 +393,9 @@ div#log p {
   left: 10px;
 }
 
-
-
 .card,
 #card_deck {
-  float: left;
+  position: absolute;
   height: 91px;
   margin: 10px 0 0 10px;
   width: 117px;
@@ -406,11 +403,36 @@ div#log p {
 
 #card_deck {
   background: #666;
+  top; 0;
+  left: 0;
 }
 
 .card {
   background: #eee;
   font-size: 0.4em;
+  overflow: visible;
+  background: red;
+}
+
+#card__0 {
+  bottom: 10px;
+  left: 127px;
+}
+
+#card__1 {
+  bottom: 10px;
+  left: 254px;
+}
+
+#card__2 {
+  bottom: 10px;
+  left: 381px;
+}
+
+.card img {
+  position: relative;
+  bottom: 0;
+  left: 0;
 }
 
 /* Dice */
