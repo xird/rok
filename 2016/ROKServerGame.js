@@ -247,9 +247,16 @@ ROKServerGame.prototype.snapState = function(player_id) {
   // the game, we need to strip out the game reference from the monsters before
   // sending them over. And since we don't want to change the _actual_ monsters,
   // we need to do a deep copy.
-  var monsters = JSON.parse(JSON.stringify(this.monsters));
-  for (var i = 0; i < monsters.length; i++) {
-    monsters[i].game = null;
+  var monsters = {};
+  for (var orig_monster_id in this.monsters) {
+    var monster = {};
+    var orig_monster = this.monsters[orig_monster_id];
+    for (var attr in orig_monster) {
+      if (attr != "game") {
+        monster[attr] = orig_monster[attr];
+      }
+    }
+    monsters[orig_monster_id] = monster;
   }
   send_object.monsters = monsters;
 
