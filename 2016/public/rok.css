@@ -135,7 +135,7 @@ body {
   background-position: 0px 100px;
   z-index: 2;
   width: 520px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 #game.fivetosix #map {
