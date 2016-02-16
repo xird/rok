@@ -222,7 +222,7 @@ ROKServerGame.prototype.updateState = function(field, value, log) {
 
 /**
  * Sends the whole game state to the client. The client should update all of the
- * UI without the handler functions, i.e. " *  * snap" all the data on screen. This is
+ * UI without the handler functions, i.e. "snap" all the data on screen. This is
  * used at the very beginning of the game.
  *
  * @param Optional Integer player_id
@@ -249,13 +249,6 @@ ROKServerGame.prototype.snapState = function(player_id) {
   // we need to do a deep copy.
   var monsters_data = {};
   for (var monster in this.monsters) {
-//    var monster = {};
-//    var orig_monster = this.monsters[orig_monster_id];
-//    for (var attr in orig_monster) {
-//      if (attr != "_game") {
-//        monster[attr] = orig_monster[attr];
-//      }
-//    }
     monsters_data[monster] = this.monsters[monster].getData();
   }
   send_object.monsters = monsters_data;
@@ -551,7 +544,7 @@ ROKServerGame.prototype.rollDiceClicked = function (player, keep_dice_ids) {
 ROKServerGame.prototype.rollDice = function (player_monster, keep_dice_ids) {
   console.log('ROKServerGame.prototype.rollDice');
 
-  log_message = player_monster.name + " gets ";
+  log_message = player_monster.getName() + " gets ";
   
   // Flag variable for detecting situation where the monster keeps all
   // the dice
@@ -561,10 +554,10 @@ ROKServerGame.prototype.rollDice = function (player_monster, keep_dice_ids) {
     if (keep_dice_ids.indexOf(i) == -1) {
       console.log('          Rolling.');
       var roll = utils.dieRoll();
-      this.updateState("dice__" + i + "__value", roll, player_monster.name + " rolls " + roll);
+      this.updateState("dice__" + i + "__value", roll, player_monster.getName() + " rolls " + roll);
     }
     else {
-      this.updateState("dice__" + i + "__state", 'k', player_monster.name + " keeps " + this.dice[i].value);
+      this.updateState("dice__" + i + "__state", 'k', player_monster.getName() + " keeps " + this.dice[i].value);
     }
     
     log_message += this.dice[i].value + (i < player_monster.numberOfDice()-1 ? ", " : "");
