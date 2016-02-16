@@ -119,11 +119,11 @@ function Monster(myId, myName, theGame) {
    **/
   Monster.prototype.addHealth = function (amount, log_message) {
     if (amount != 0) {
-      var old_health = this._health;
-      this._health += amount;
-      this._health = Math.min(this._health, this.maxHealth());
+      var old_health = this.getHealth();
+      this.getData().health += amount;
+      this.getData().health = Math.min(this.getHealth(), this.maxHealth());
       
-      if (this._health != old_health) {
+      if (this.getHealth() != old_health) {
         if (!log_message) {
           /**
            * This should head as either:
@@ -134,18 +134,18 @@ function Monster(myId, myName, theGame) {
            * Note: We use new-old health instead of 'amount' incase monsters health gets
            * limited by max_health
            **/
-          log_message = this._name 
-                        + ((this._health - old_health) > 0 ? " gains " : " takes ") 
-                        + Math.abs(this._health - old_health) 
-                        + ((this._health - old_health) > 0 ? " health." : " damage.");
+          log_message = this.getName() 
+                        + ((this.getHealth() - old_health) > 0 ? " gains " : " takes ") 
+                        + Math.abs(this.getHealth() - old_health) 
+                        + ((this.getHealth() - old_health) > 0 ? " health." : " damage.");
         }
         
-        this._game.updateState("monsters__" + this._id + "__health", this._health, log_message);
+        this._game.updateState("monsters__" + this.getId() + "__health", this.getHealth(), log_message);
       }
     }
     
     // Return new/current health
-    return this._health;
+    return this.getHealth();
   };
   
   
@@ -160,22 +160,22 @@ function Monster(myId, myName, theGame) {
    **/
   Monster.prototype.addVictoryPoints = function (amount, log_message) {
     if (amount != 0) {
-      this._victory_points += amount;
+      this.getData().victory_points += amount;
       
       if (!log_message) {
-        log_message = this._name 
+        log_message = this.getName() 
           + (amount > 0 ? " gains " : " looses ") 
           + Math.abs(amount) + " victory point" 
           + (Math.abs(amount) == 1 ? "." : "s.");
       }
       
-      this._game.updateState("monsters__" + this._id + "__victory_points", this._victory_points, log_message);
+      this._game.updateState("monsters__" + this.getId() + "__victory_points", this.getVictoryPoints(), log_message);
 
       // TODO ticket #18, "Finish monster attribute modifier functions":: Check for win
     }
     
     // Return new/current VPs
-    return this._victory_points;
+    return this.getVictoryPoints();
   };
   
   
@@ -190,11 +190,11 @@ function Monster(myId, myName, theGame) {
    **/
   Monster.prototype.addSnot = function (amount, log_message) {
     if (amount != 0) {
-      var old_snot = this._snot;
-      this._snot += amount
-      this._snot = Math.max(this._snot, 0);
+      var old_snot = this.getData().snot;
+      this.getData().snot += amount
+      this.getData().snot = Math.max(this.getSnot(), 0);
       
-      if (this._snot != old_snot) {
+      if (this.getSnot() != old_snot) {
         if (!log_message) {
           /**
            * This should head as either:
@@ -205,18 +205,18 @@ function Monster(myId, myName, theGame) {
            * If the monstrer looses snot cubes without spending them (such as effects
            * from other players cards) a cosmome message will need to be suplied
            **/
-          log_message = this._name 
+          log_message = this.getName() 
                         + (amount > 0 ? " gains " : " spends ") 
                         + Math.abs(amount) + " snot cube" 
                         + (Math.abs(amount) == 1 ? "." : "s.");
         }
         
-        this._game.updateState("monsters__" + this._id + "__snot", this._snot, log_message);
+        this._game.updateState("monsters__" + this.getId() + "__snot", this.getSnot(), log_message);
       }
     }
     
     // Return new/current amount of snot
-    return this._snot;
+    return this.getSnot();
   };
   
   
@@ -227,13 +227,13 @@ function Monster(myId, myName, theGame) {
     console.log("Monster.prototype.entrKyoto");
     
     var entry_vips = 1;  // May be more depending on cards
-    var city_or_bay = (this._game.monster_in_kyoto_city_id == this._id ? "City" : "Bay");
-    var log_message = this._name 
+    var city_or_bay = (this._game.monster_in_kyoto_city_id == this.getId() ? "City" : "Bay");
+    var log_message = this.getName() 
                       + " takes Kyoto " + city_or_bay + " for " + entry_vips 
                       + " victory point" + (Math.abs(entry_vips) == 1 ? "." : "s.");
     
-    this._game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", this._id);
-    return this._addVictoryPoints(entry_vips, log_message);
+    this._game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", this.getId());
+    return this.addVictoryPoints(entry_vips, log_message);
   };
   
   
@@ -243,12 +243,12 @@ function Monster(myId, myName, theGame) {
   Monster.prototype.yieldKyoto = function () {
     console.log("Monster.prototype.yieldKyoto");
     
-    var city_or_bay = (this._game.monster_in_kyoto_city_id == this._id ? "City" : "Bay");
+    var city_or_bay = (this._game.monster_in_kyoto_city_id == this.getId() ? "City" : "Bay");
     
-    if (this._game.monster_in_kyoto_city_id == this._id) {
+    if (this._game.monster_in_kyoto_city_id == this.getId()) {
       this._game.monster_in_kyoto_city_id = null;
     }
-    else if (this._game.monster_in_kyoto_bay_id == this._id) {
+    else if (this._game.monster_in_kyoto_bay_id == this.getId()) {
       this._game.monster_in_kyoto_bay_id = null;
     }
     else {
@@ -256,9 +256,9 @@ function Monster(myId, myName, theGame) {
       player.getSocket().emit('game_message', "Can't leave Kyoto if you're not there.");
     }
     
-    log_message = this._name + " yields Kyoto " + city_or_bay + ".";
+    log_message = this.getName() + " yields Kyoto " + city_or_bay + ".";
     this._game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", null, log_message);
-    this._game.updateState("monster_leaving_kyoto_" + city_or_bay.toLowerCase() + "_id", this._id);
+    this._game.updateState("monster_leaving_kyoto_" + city_or_bay.toLowerCase() + "_id", this.getId());
   };
   
   /**
@@ -271,7 +271,7 @@ function Monster(myId, myName, theGame) {
     var hold_VPs = 2;
     // CARDS: Resolve card effects: Urbavore
     
-    var log_message = this._name + " gets " + hold_VPs + " VP for starting the turn in Kyoto.";
+    var log_message = this.getName() + " gets " + hold_VPs + " VP for starting the turn in Kyoto.";
     this.addVictoryPoints(hold_VPs, log_message);
   }
   
