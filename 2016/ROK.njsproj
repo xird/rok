@@ -22,6 +22,7 @@
   <ItemGroup>
     <Content Include="package.json" />
     <Compile Include="ROKCards.js" />
+    <Compile Include="ROKMonster.js" />
     <Compile Include="ROKServerGame.js" />
     <Compile Include="ROKServerLobby.js" />
     <Compile Include="Server.js" />
