@@ -375,14 +375,14 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   // A monster can attempt to buy cards they can't afford but the purchace
   // will be denied.
   // TODO ticket #5, "Allow buying cards only when it's time for that" bug: prevent this in the browser as well.
-  if (cost > monster.snot) {
+  if (cost > monster.getSnot()) {
     console.log("Does this look like a charity.  Come back when you have more snot!");
     return;
   }
 
   // Deduct the money from the monster.
-  var new_snot = monster.snot - cost;
-  this.updateState("monsters__" + monster.id + "__snot", new_snot);
+  var new_snot = monster.getSnot() - cost;
+  this.updateState("monsters__" + monster.getId() + "__snot", new_snot);
 
   // "Dedicated News Team" gives the monster a Vip each time they purchace a 
   // card, but not when they're buying the "Dedicated news team".
@@ -398,12 +398,12 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   if (!this.cards.properties[card].keep) {
     monster_cards.pop(card)
   }
-  this.updateState("monsters__" + monster.id + "__cards_owned", monster_cards);
+  this.updateState("monsters__" + monster.getId() + "__cards_owned", monster_cards);
   
   // Move a card from the deck to the available cards:
   var cards_available = this.cards_available;
   cards_available[available_card_index] = this.card_deck.pop();
-  this.updateState("cards_available", cards_available , monster.name + " bought " + this.cards.properties[card].name + ".");
+  this.updateState("cards_available", cards_available , monster.getName() + " bought " + this.cards.properties[card].name + ".");
 
   this.sendStateChanges();
 }
@@ -440,7 +440,7 @@ ROKServerGame.prototype.endTurn = function() {
   var _this_turn_monster = this.monsters[this.turn_monster];
 
   // Turn end.
-  var log_message = _this_turn_monster.name + " ends their turn.";
+  var log_message = _this_turn_monster.getName() + " ends their turn.";
   this.updateState("turn_phase", 'end', log_message);
   // CARDS: Resolve poison counters. Check if this is done on the poisoned monster's turn or the poisoning monster's turn
 
@@ -681,7 +681,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     // Targets monsters are now defined in an array, loop through and apply damage:
     for (var i = 0; i < target_monsters.length; i++) {
       var target_monster = this.monsters[target_monsters[i]];
-      var damage = this.card_hook("APPLY_DAMAGE", { "monster_id": target_monster.id, "value_to_alter": attackage.damage });
+      var damage = this.card_hook("APPLY_DAMAGE", { "monster_id": target_monster.getId(), "value_to_alter": attackage.damage });
       
       target_monster.applyDamage(damage);
     }
@@ -801,13 +801,13 @@ ROKServerGame.prototype.checkEnterKyoto = function() {
   _this_turn_monster = this.monsters[this.turn_monster];
 
   if (this.monster_in_kyoto_city_id == null) {
-    this.updateState("monster_in_kyoto_city_id", _this_turn_monster.id);
+    this.updateState("monster_in_kyoto_city_id", _this_turn_monster.getId());
     _this_turn_monster.enterKyoto();
   }
   else if (    Object.keys(this.monsters).length > 4
             && this.monster_in_kyoto_bay_id == null) {
 
-    this.updateState("monster_in_kyoto_bay_id", _this_turn_monster.id);
+    this.updateState("monster_in_kyoto_bay_id", _this_turn_monster.getId());
     _this_turn_monster.enterKyoto();
   }
 
@@ -983,7 +983,7 @@ ROKServerGame.prototype.resolveVictoryPointDice = function(player) {
 
   console.log("additional_victory_points: " + additional_victory_points);
 
-  var log_message = _this_turn_monster.name + " rolls " + additional_victory_points + " VP.";
+  var log_message = _this_turn_monster.getName() + " rolls " + additional_victory_points + " VP.";
   _this_turn_monster.addVictoryPoints(additional_victory_points, log_message);
 
   // CARDS: Take number roll modifier cards into account ("111 counts as 333")
