@@ -237,7 +237,7 @@ function Monster(myId, myName, theGame) {
     var rv = 3;
     
     // Can be increased by "Giant Brain".
-    if (this.cards_owned.indexOf(cards.GIANT_BRAIN) != -1) rv++;
+    //if (this.cards_owned.indexOf(cards.GIANT_BRAIN) != -1) rv++;
     
     return rv;
   };
