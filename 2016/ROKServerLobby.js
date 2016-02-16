@@ -95,12 +95,17 @@ ROKServerLobby.prototype.snapState = function () {
     var player_object = this.players[pid];
     var socket_id = player_object.socket_id;
     // FIXME: This global object should be passed to the game object.
-    // FIXME: Make sure the target socket exists before emitting to it.
+
     var target_socket = iosockets.sockets[socket_id];
-    target_socket.emit("update_lobby", send_object);
+    if (typeof target_socket != "undefined") {
+      target_socket.emit("update_lobby", send_object);
+    }
+    else {
+      console.log("ERROR: target socket not found. Socket id: " + socket_id);
+      console.log("Sockets:");
+      console.log(iosockets.sockets);
+    }
   }
-  
-  //io.sockets.emit("update_lobby", { players: arr }); ???
 }
 
 
