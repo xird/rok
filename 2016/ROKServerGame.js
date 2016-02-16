@@ -403,7 +403,7 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
 
   this.card_hook("CARD_BOUGHT");
   if (!card.keep) {
-    monster_cards.push(card)
+    monster_cards.pop(card)
   }
   this.updateState("monsters__" + monster.id + "__cards_owned", monster_cards);
   
