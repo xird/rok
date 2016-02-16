@@ -315,7 +315,7 @@ function Monster(myId, myName, theGame) {
     if (this.getCardsOwned().indexOf(this._game.cards.EXTRA_HEAD_X2) != -1) rv++;
     
     // Number of dice is reduced by "Shrink Ray" counters
-    rv -= this._shrink_ray_counters;
+    rv -= this.getShrinkRayCounters();
     
     return Math.max(rv, 0); // Just incase ;)
   };
