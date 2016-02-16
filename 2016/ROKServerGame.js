@@ -247,18 +247,18 @@ ROKServerGame.prototype.snapState = function(player_id) {
   // the game, we need to strip out the game reference from the monsters before
   // sending them over. And since we don't want to change the _actual_ monsters,
   // we need to do a deep copy.
-  var monsters = {};
-  for (var orig_monster_id in this.monsters) {
-    var monster = {};
-    var orig_monster = this.monsters[orig_monster_id];
-    for (var attr in orig_monster) {
-      if (attr != "game") {
-        monster[attr] = orig_monster[attr];
-      }
-    }
-    monsters[orig_monster_id] = monster;
+  var monsters_data = {};
+  for (var monster in this.monsters) {
+//    var monster = {};
+//    var orig_monster = this.monsters[orig_monster_id];
+//    for (var attr in orig_monster) {
+//      if (attr != "_game") {
+//        monster[attr] = orig_monster[attr];
+//      }
+//    }
+    monsters_data[monster] = this.monsters[monster].getData();
   }
-  send_object.monsters = monsters;
+  send_object.monsters = monsters_data;
 
   send_object.dice = this.dice;
   send_object.winner = this.winner;
@@ -348,7 +348,7 @@ ROKServerGame.prototype.getMonster = function(monster_id) {
  */
 ROKServerGame.prototype.buyCards = function() {
   console.log("ROKServerGame.prototype.buyCards");
-  var log_message = this.monsters[this.turn_monster].name + ' can buy cards.'
+  var log_message = this.monsters[this.turn_monster].getName() + ' can buy cards.'
   this.updateState("turn_phase", 'buy', log_message);
   // Reset NIFP, in case yield resolution has changed it.
   this.updateState("next_input_from_monster", this.turn_monster);
@@ -393,12 +393,12 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
 
   // "Dedicated News Team" gives the monster a Vip each time they purchace a 
   // card, but not when they're buying the "Dedicated news team".
-  if (monster.cards_owned.indexOf(this.cards.DEDICATED_NEWS_TEAM) != -1) {
+  if (monster.getCardsOwned().indexOf(this.cards.DEDICATED_NEWS_TEAM) != -1) {
       this.monsters[this.turn_monster].addVictoryPoints(+1);  // This may be a situation where 'player_monster' is different to 'turn_monster' if a player buys cards when it is not there turn.  I think there is a card called 'The Opertunist' which allows this.
   }
   
   // Add the card to the monster/
-  var monster_cards = monster.cards_owned;
+  var monster_cards = monster.getCardsOwned();
   monster_cards.push(card)
 
   this.card_hook("CARD_BOUGHT");
@@ -462,7 +462,7 @@ ROKServerGame.prototype.endTurn = function() {
     next_monster_index = 0;
   }
   
-  log_message = this.monsters[this.monster_order[next_monster_index]].name + "'s turn.";
+  log_message = this.monsters[this.monster_order[next_monster_index]].getName() + "'s turn.";
   this.updateState("turn_monster", this.monster_order[next_monster_index], log_message);
   this.updateState("next_input_from_monster", this.monster_order[next_monster_index]);
   _this_turn_monster = this.monsters[this.turn_monster];
@@ -661,7 +661,7 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
   for (var mid in this.monsters) {
     if (this.inKyoto(this.monsters[mid]) != this.inKyoto(_this_turn_monster)) {
       // Only attack monsters that are alive.
-      if (this.monsters[mid].health > 0) {
+      if (this.monsters[mid].getHealth() > 0) {
         target_monsters.push(mid);      
       }
     }
@@ -724,12 +724,12 @@ ROKServerGame.prototype.askBayYield = function() {
 
   if (this.monster_in_kyoto_bay_id != null) {
     // Dead monsters yield automatically.
-    if (this.monsters[this.monster_in_kyoto_bay_id].health <= 0) {
+    if (this.monsters[this.monster_in_kyoto_bay_id].getHealth() <= 0) {
       this.checkEnterKyoto();
     }
     else {
       this.updateState('next_input_from_monster', this.monster_in_kyoto_bay_id);
-      var log_message = this.monsters[this.monster_in_kyoto_bay_id].name + " can yield Kyoto Bay.";
+      var log_message = this.monsters[this.monster_in_kyoto_bay_id].getName() + " can yield Kyoto Bay.";
       this.updateState('turn_phase', 'yield_kyoto', log_message);
       this.sendStateChanges();    
     }
@@ -751,13 +751,13 @@ ROKServerGame.prototype.askCityYield = function() {
   console.log("ROKServerGame.prototype.askCityYield");
 
   if (this.monster_in_kyoto_city_id != null) {
-    if (this.monsters[this.monster_in_kyoto_city_id].health <= 0) {
+    if (this.monsters[this.monster_in_kyoto_city_id].getHealth() <= 0) {
       console.log(" The monster in the city is dead");
       this.checkEnterKyoto();
     }
     else {
       this.updateState('next_input_from_monster', this.monster_in_kyoto_city_id);
-      var log_message = this.monsters[this.monster_in_kyoto_city_id].name + " can yield Kyoto City.";
+      var log_message = this.monsters[this.monster_in_kyoto_city_id].getName() + " can yield Kyoto City.";
       this.updateState('turn_phase', 'yield_kyoto', log_message);
       this.sendStateChanges();
     }
@@ -830,10 +830,10 @@ ROKServerGame.prototype.checkDeaths = function() {
   console.log("ROKServerGame.prototype.checkDeaths");
   for (var mid in this.monsters) {
     mid = parseInt(mid);
-    if (this.monsters[mid].health < 1) {
-      console.log(this.monsters[mid].name + ' is dead');
+    if (this.monsters[mid].getHealth() < 1) {
+      console.log(this.monsters[mid].getName() + ' is dead');
       // Remove monster from monster_order so it doesn't get to play.
-      var log_message = this.monsters[mid].name + " is killed.";
+      var log_message = this.monsters[mid].getName() + " is killed.";
       var monster_order = this.monster_order;
       var index = monster_order.indexOf(mid)
       if (index != -1) {
@@ -865,20 +865,20 @@ ROKServerGame.prototype.checkWin = function() {
   var log_message = "";
   // Check if there's only one monster left.
   if (this.monster_order.length == 1) {
-    log_message = this.monsters[this.monster_order[0]].name + " is the last monster standing.";
+    log_message = this.monsters[this.monster_order[0]].getName() + " is the last monster standing.";
     this.updateState(false, false, log_message);
-    log_message = this.monsters[this.monster_order[0]].name + " wins!";
+    log_message = this.monsters[this.monster_order[0]].getName() + " wins!";
     this.updateState("game_state", "over", log_message);
     return true;
   }
   
   // Check if anyone got to 20 victory points
   for (var i = 0; i < this.monster_order.length; i++) {
-    var victory_points = this.monsters[this.monster_order[i]].victory_points;
+    var victory_points = this.monsters[this.monster_order[i]].getVictoryPoints();
     if (victory_points >= 20) {
-      log_message = this.monsters[this.monster_order[i]].name + " has taken a 'soft win' by getting to " + victory_points + " victory points.";
+      log_message = this.monsters[this.monster_order[i]].getName() + " has taken a 'soft win' by getting to " + victory_points + " victory points.";
       this.updateState(false, false, log_message);
-      log_message = this.monsters[this.monster_order[i]].name + " wins!";
+      log_message = this.monsters[this.monster_order[i]].getName() + " wins!";
       this.updateState("game_state", "over", log_message);
       return true;      
     }
@@ -902,7 +902,7 @@ ROKServerGame.prototype.finishGame = function() {
 ROKServerGame.prototype.askYieldKyotoBay = function(player) {
   console.log("ROKServerGame.prototype.andYieldKyotoBay");
   this.updateState('next_input_from_monster', this.monster_to_yield_kyoto_bay);
-  var log_message = this.monsters[this.monster_to_yield_kyoto_bay].name + " can yield Kyoto bay.";
+  var log_message = this.monsters[this.monster_to_yield_kyoto_bay].getName() + " can yield Kyoto bay.";
   this.updateState('turn_phase', 'yield_kyoto_bay', log_message);
   this.sendStateChanges();
 }
@@ -947,7 +947,7 @@ ROKServerGame.prototype.resolveHealthDice = function(player) {
       _this_turn_monster.addHealth(additional_health);
     }
     else {
-      var log_message = this.monsters[this.turn_monster].name + " can't heal in Kyoto.";
+      var log_message = this.monsters[this.turn_monster].getName() + " can't heal in Kyoto.";
       this.updateState(false, false, log_message);
     }
   }
@@ -1036,7 +1036,7 @@ ROKServerGame.prototype.selectMonster = function (player, selected_monster_id) {
           // Separately, because snapState() doesn't know what to do with log
           // messages.
           this.updateState(false, false, "The game begins.");
-          this.updateState(false, false, this.monsters[this.turn_monster].name + "'s turn.");
+          this.updateState(false, false, this.monsters[this.turn_monster].getName() + "'s turn.");
           this.sendStateChanges();
         }
         else {
@@ -1083,7 +1083,7 @@ ROKServerGame.prototype.beginGame = function() {
   var new_monsters = {};
   var monster_ids = Object.keys(this.monsters);
   for (var i = 0; i < monster_ids.length; i++) {
-    if (played_monsters.indexOf(this.monsters[monster_ids[i]].id) != -1) {
+    if (played_monsters.indexOf(this.monsters[monster_ids[i]].getId()) != -1) {
       new_monsters[monster_ids[i]] = this.monsters[monster_ids[i]];
     }
   }
@@ -1192,7 +1192,7 @@ ROKServerGame.prototype.leaveGame = function(player) {
     }
 
     // Kill monster
-    var log_message = this.monsters[monster_id_used].name + "'s player has left the game.";
+    var log_message = this.monsters[monster_id_used].getName() + "'s player has left the game.";
     this.updateState('monsters__' + monster_id_used + '__health', 0, log_message);
     // CARDS Make sure "it has a child" doesn't respawn the monster...
   
@@ -1272,8 +1272,8 @@ ROKServerGame.prototype.card_hook = function(hook_name, params) {
   }
 
   // Cycle through cards the applicable monster owns.
-  for (var i = 0; i < this.monsters[params['monster_id']].cards_owned.length; i++) {
-    var card_id = this.monsters[params['monster_id']].cards_owned[i];
+  for (var i = 0; i < this.monsters[params['monster_id']].getCardsOwned().length; i++) {
+    var card_id = this.monsters[params['monster_id']].getCardsOwned()[i];
     if (typeof this.cards.properties[card_id].hooks[hook_name] == "function") {
       value_to_alter = this.cards.properties[card_id].hooks[hook_name](this, value_to_alter);
     }

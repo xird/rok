@@ -3,8 +3,7 @@
  * 
  * @param id int The id of the Monster being generated, 1-6.
  * @param game ROKServerGame Reference to the 'this' object reating the monster.
- *        this is used to call 'updateState(...)' after health/VPs/
- *        snot are modified.
+ *        this is used to call 'updateState(...)' after health/VPs/ snot are modified.
  * 
  * @return null
  * 
@@ -14,35 +13,95 @@ module.exports = Monster;
 
 function Monster(myId, myName, theGame) {
   
-  this.game = theGame;
-
-  console.log("Game: " + this.game);
-
-  this.id = myId;
-  this.name = myName;
+  this._game = theGame;
   
-  // The id of the player controlling this monster.
-  this.player_id = 0;
-  this.health = 10;
-  this.victory_points = 0;
-  // FIXME adding some initial snot to test buying cards.
-  this.snot = 50;
-  
-  // Card effects:
-  this.poison_counters = 0;
-  this.shrink_ray_counters = 0;
-  this.smoke_counters = 0;
-  this.alien_counters = 0; // Not sure what these are for but they're in the box.
-  this.UFO_counters = 0;   // Not sure what these are for but they're in the box.
-  this.mimic = null;       // Probably what the 'target' token is for.
-  
-  this.cards_owned = []   	// Cards owned by this monser
+  this._data = {
+    id: myId,
+    name: myName,
+    
+    // The id of the player controlling this monster.
+    player_id: 0,
+    health: 10,
+    victory_points: 0,
+    // FIXME adding some initial snot to test buying cards.
+    snot: 50,
+    
+    // Card effects:
+    poison_counters: 0,
+    shrink_ray_counters: 0,
+    smoke_counters: 0,
+    alien_counters: 0, // Not sure what these are for but they're in the box.
+    UFO_counters: 0,   // Not sure what these are for but they're in the box.
+    mimic: null,       // Probably what the 'target' token is for.
+    
+    cards_owned: []   	// Cards owned by this monser
+  }
 
-  Monster.prototype.getPlayerId = function () {
-    return this.player_id;
+  Monster.prototype.getData = function () {
+    return this._data;
+  }
+  
+  Monster.prototype.getId = function () {
+    return this.getData().id;
   };
 
-  /**
+  Monster.prototype.getName = function () {
+    return this.getData().name;
+  };
+ 
+  Monster.prototype.getPlayerId = function () {
+    return this.getData().player_id;
+  };
+  
+  Monster.prototype.getName = function () {
+    return this.getData().name;
+  };
+  
+  Monster.prototype.getPlayerId = function () {
+    return this.getData().player_id;
+  };
+   
+  Monster.prototype.getHealth = function () {
+    return this.getData().health;
+  };
+
+  Monster.prototype.getVictoryPoints = function () {
+    return this.getData().victory_points;
+  };
+
+  Monster.prototype.getSnot = function () {
+    return this.getData().snot;
+  };
+
+  Monster.prototype.getPoisonCounters = function () {
+    return this.getData().poison_counters;
+  }
+  
+  Monster.prototype.getShrinkRayCounters = function () {
+    return this.getData().shrink_ray_counters;
+  }
+  
+  Monster.prototype.getSmokeCounters = function () {
+    return this.getData().smoke_counters;
+  }
+  
+  Monster.prototype.getAlienCounters = function () {
+    return this.getData().alien_counters;
+  }
+  
+  Monster.prototype.getUFOCounters = function () {
+    return this.getData().UFO_counters;
+  }
+  
+  Monster.prototype.getMimic = function () {
+    return this.getData().mimic;
+  }
+  
+   Monster.prototype.getCardsOwned = function () {
+    return this.getData().cards_owned;
+  }
+
+   /**
    * Modifier method for adjusting health
    **
    * @param amount int The amount to adjust the health by (+ increase, - decrease)
@@ -60,11 +119,11 @@ function Monster(myId, myName, theGame) {
    **/
   Monster.prototype.addHealth = function (amount, log_message) {
     if (amount != 0) {
-      var old_health = this.health;
-      this.health += amount;
-      this.health = Math.min(this.health, this.maxHealth());
+      var old_health = this._health;
+      this._health += amount;
+      this._health = Math.min(this._health, this.maxHealth());
       
-      if (this.health != old_health) {
+      if (this._health != old_health) {
         if (!log_message) {
           /**
            * This should head as either:
@@ -75,18 +134,18 @@ function Monster(myId, myName, theGame) {
            * Note: We use new-old health instead of 'amount' incase monsters health gets
            * limited by max_health
            **/
-          log_message = this.name 
-                        + ((this.health - old_health) > 0 ? " gains " : " takes ") 
-                        + Math.abs(this.health - old_health) 
-                        + ((this.health - old_health) > 0 ? " health." : " damage.");
+          log_message = this._name 
+                        + ((this._health - old_health) > 0 ? " gains " : " takes ") 
+                        + Math.abs(this._health - old_health) 
+                        + ((this._health - old_health) > 0 ? " health." : " damage.");
         }
         
-        game.updateState("monsters__" + this.id + "__health", this.health, log_message);
+        this._game.updateState("monsters__" + this._id + "__health", this._health, log_message);
       }
     }
     
     // Return new/current health
-    return this.health;
+    return this._health;
   };
   
   
@@ -101,22 +160,22 @@ function Monster(myId, myName, theGame) {
    **/
   Monster.prototype.addVictoryPoints = function (amount, log_message) {
     if (amount != 0) {
-      this.victory_points += amount;
+      this._victory_points += amount;
       
       if (!log_message) {
-        log_message = this.name 
+        log_message = this._name 
           + (amount > 0 ? " gains " : " looses ") 
           + Math.abs(amount) + " victory point" 
           + (Math.abs(amount) == 1 ? "." : "s.");
       }
       
-      game.updateState("monsters__" + this.id + "__victory_points", this.victory_points, log_message);
+      this._game.updateState("monsters__" + this._id + "__victory_points", this._victory_points, log_message);
 
       // TODO ticket #18, "Finish monster attribute modifier functions":: Check for win
     }
     
     // Return new/current VPs
-    return this.victory_points;
+    return this._victory_points;
   };
   
   
@@ -131,11 +190,11 @@ function Monster(myId, myName, theGame) {
    **/
   Monster.prototype.addSnot = function (amount, log_message) {
     if (amount != 0) {
-      var old_snot = this.snot;
-      this.snot += amount
-      this.snot = Math.max(this.snot, 0);
+      var old_snot = this._snot;
+      this._snot += amount
+      this._snot = Math.max(this._snot, 0);
       
-      if (this.snot != old_snot) {
+      if (this._snot != old_snot) {
         if (!log_message) {
           /**
            * This should head as either:
@@ -146,18 +205,18 @@ function Monster(myId, myName, theGame) {
            * If the monstrer looses snot cubes without spending them (such as effects
            * from other players cards) a cosmome message will need to be suplied
            **/
-          log_message = this.name 
+          log_message = this._name 
                         + (amount > 0 ? " gains " : " spends ") 
                         + Math.abs(amount) + " snot cube" 
                         + (Math.abs(amount) == 1 ? "." : "s.");
         }
         
-        game.updateState("monsters__" + this.id + "__snot", this.snot, log_message);
+        this._game.updateState("monsters__" + this._id + "__snot", this._snot, log_message);
       }
     }
     
     // Return new/current amount of snot
-    return this.snot;
+    return this._snot;
   };
   
   
@@ -168,13 +227,13 @@ function Monster(myId, myName, theGame) {
     console.log("Monster.prototype.entrKyoto");
     
     var entry_vips = 1;  // May be more depending on cards
-    var city_or_bay = (game.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
-    var log_message = this.name 
+    var city_or_bay = (this._game.monster_in_kyoto_city_id == this._id ? "City" : "Bay");
+    var log_message = this._name 
                       + " takes Kyoto " + city_or_bay + " for " + entry_vips 
                       + " victory point" + (Math.abs(entry_vips) == 1 ? "." : "s.");
     
-    game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", this.id);
-    return this.addVictoryPoints(entry_vips, log_message);
+    this._game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", this._id);
+    return this._addVictoryPoints(entry_vips, log_message);
   };
   
   
@@ -184,22 +243,22 @@ function Monster(myId, myName, theGame) {
   Monster.prototype.yieldKyoto = function () {
     console.log("Monster.prototype.yieldKyoto");
     
-    var city_or_bay = (game.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
+    var city_or_bay = (this._game.monster_in_kyoto_city_id == this._id ? "City" : "Bay");
     
-    if (game.monster_in_kyoto_city_id == this.id) {
-      game.monster_in_kyoto_city_id = null;
+    if (this._game.monster_in_kyoto_city_id == this._id) {
+      this._game.monster_in_kyoto_city_id = null;
     }
-    else if (game.monster_in_kyoto_bay_id == this.id) {
-      game.monster_in_kyoto_bay_id = null;
+    else if (this._game.monster_in_kyoto_bay_id == this._id) {
+      this._game.monster_in_kyoto_bay_id = null;
     }
     else {
       console.log('ERROR: This monster is teither in Kyoto City or Kyoto Bay.');
       player.getSocket().emit('game_message', "Can't leave Kyoto if you're not there.");
     }
     
-    log_message = this.name + " yields Kyoto " + city_or_bay + ".";
-    game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", null, log_message);
-    game.updateState("monster_leaving_kyoto_" + city_or_bay.toLowerCase() + "_id", this.id);
+    log_message = this._name + " yields Kyoto " + city_or_bay + ".";
+    this._game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", null, log_message);
+    this._game.updateState("monster_leaving_kyoto_" + city_or_bay.toLowerCase() + "_id", this._id);
   };
   
   /**
@@ -212,7 +271,7 @@ function Monster(myId, myName, theGame) {
     var hold_VPs = 2;
     // CARDS: Resolve card effects: Urbavore
     
-    var log_message = this.name + " gets " + hold_VPs + " VP for starting the turn in Kyoto.";
+    var log_message = this._name + " gets " + hold_VPs + " VP for starting the turn in Kyoto.";
     this.addVictoryPoints(hold_VPs, log_message);
   }
   
@@ -237,7 +296,7 @@ function Monster(myId, myName, theGame) {
     var rv = 3;
     
     // Can be increased by "Giant Brain".
-    if (this.cards_owned.indexOf(cards.GIANT_BRAIN) != -1) rv++;
+    if (this.getCardsOwned().indexOf(this._game.cards.GIANT_BRAIN) != -1) rv++;
     
     return rv;
   };
@@ -252,11 +311,11 @@ function Monster(myId, myName, theGame) {
     
     // Can be increased by "Extra Head" and decreased by "Shrink Ray".
     // Note: There are 2 extra heads (X1 and X2).
-    if (this.cards_owned.indexOf(this.game.cards.EXTRA_HEAD_X1) != -1) rv++;
-    if (this.cards_owned.indexOf(this.game.cards.EXTRA_HEAD_X2) != -1) rv++;
+    if (this.getCardsOwned().indexOf(this._game.cards.EXTRA_HEAD_X1) != -1) rv++;
+    if (this.getCardsOwned().indexOf(this._game.cards.EXTRA_HEAD_X2) != -1) rv++;
     
     // Number of dice is reduced by "Shrink Ray" counters
-    rv -= this.shrink_ray_counters;
+    rv -= this._shrink_ray_counters;
     
     return Math.max(rv, 0); // Just incase ;)
   };
