@@ -547,7 +547,18 @@ ROKServerGame.prototype.snapState = function(player_id) {
   send_object.next_input_from_monster = this.next_input_from_monster;
   send_object.roll_number = this.roll_number;
   send_object.monster_order = this.monster_order;
-  send_object.monsters = this.monsters;
+
+  // Sending a circular reference over a socket crashes the server. Since the
+  // game has a reference to the monsters, and each monster has a reference to
+  // the game, we need to strip out the game reference from the monsters before
+  // sending them over. And since we don't want to change the _actual_ monsters,
+  // we need to do a deep copy.
+  var monsters = JSON.parse(JSON.stringify(this.monsters));
+  for (var i = 0; i < monsters.length; i++) {
+    monsters[i].game = null;
+  }
+  send_object.monsters = monsters;
+
   send_object.dice = this.dice;
   send_object.winner = this.winner;
   send_object.monster_in_kyoto_city_id = this.monster_in_kyoto_city_id;
