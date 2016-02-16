@@ -80,24 +80,64 @@
   
   // This properties table has been adopted from Maltize's KingOfTokyo-CardList project on GitHub
   // https://github.com/maltize/KingOfTokyo-CardList
+
   properties: {
-     1: {name: "Acid Attack",                   cost: 6, keep: true,  set: "original", implemented: true,  description: "Deal 1 extra damage each turn (even when you don't otherwise attack).", hooks: {}},
-     2: {name: "Alien Metabolism",              cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Buying cards costs you 1 less [Snot].", hooks: {}},
-     3: {name: "Alpha Monster",                 cost: 5, keep: true,  set: "original", implemented: false, description: "Gain 1[Star] when you attack.", hooks: {}},
-     4: {name: "Apartment Building",            cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]", hooks: {}},
-     5: {name: "Armor Plating",                 cost: 4, keep: true,  set: "original", implemented: true,  description: "Ignore damage of 1.",
-         hooks: {
-           "BUYCARD_AFTER": function (game, value_to_alter) {
-             console.log("This is the TEST BUYCARD_AFTER hook implemented in 'Armor plating'.");
-             game.dice[0].value = "*";
-             return value_to_alter;
-           }
-         }
-        },
-     6: {name: "Background Dweller",            cost: 4, keep: true,  set: "original", implemented: false, description: "You can always reroll any [3] you have.", hooks: {}},
-     7: {name: "Burrowing",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.", hooks: {}},
-     8: {name: "Camouflage",                    cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.", hooks: {}},
-     9: {name: "Commuter Train",                cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]", hooks: {}},
+    1: {name: "Acid Attack", cost: 6, keep: true, set: "original", implemented: true, description: "Deal 1 extra damage each turn (even when you don't otherwise attack).",
+        hooks: {
+          "RESOLVE_ATTACK_DICE": function (game, attackage) {
+            attackage.damage++;
+
+            console.log("RESOLVE_ATTACK_DICE hook implemented in 'Acid Attack'. Damage: " + attackage.damage);
+            return attackage;
+          }
+        }
+       },
+    2: {name: "Alien Metabolism",              cost: 3, keep: true, set: "original", implemented: true, description: "Buying cards costs you 1 less [Snot].",
+        hooks: {
+          "BUY_CARD": function(game, cardCost) {
+          cardCost--;
+
+          console.log("BUY_CARD hook implemented in 'Alien Metabolism'. Card cost: " + cardCost);
+          return cardCost;
+        }
+       }
+    },
+    3: {name: "Alpha Monster", cost: 5, keep: true, set: "original", implemented: true, description: "Gain 1[Star] when you attack.",
+        hooks: {
+          "RESOLVE_ATTACK_DICE": function (game, attackage) {
+          if (attackage.attack > 0)
+            game.monsters[game.turn_monster].addVictoryPoints(1);
+
+            console.log("RESOLVE_ATTACK_DICE hook implemented in 'Alpha Monster'. VPs: " + game.monsters[game.turn_monster].victory_points);
+            return attackage;
+          }
+        }
+       },
+    4: {name: "Apartment Building",            cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]",
+        hooks: {
+          "CARD_BOUGHT": function (game) {
+            game.monsters[game.turn_monster].addVictoryPoints(3);
+
+            console.log("CARD_BOUGHT hook implemented in 'Apartment Building'. VPs: " + game.monsters[game.turn_monster].victory_points);
+          }
+        }
+       },
+    5: {name: "Armor Plating",                 cost: 4, keep: true,  set: "original", implemented: true,  description: "Ignore damage of 1.",
+        hooks: {
+          "APPLY_DAMAGE": function (game, damage) {
+            if (damage == 1) {
+              damage = 0;
+            }
+
+          console.log("APPLY_DAMAGE hook implemented in 'Armor Plating'. Damage: " + damage);
+            return damage;
+          }
+        }
+       },
+    6: {name: "Background Dweller",            cost: 4, keep: true,  set: "original", implemented: false, description: "You can always reroll any [3] you have.", hooks: {}},
+    7: {name: "Burrowing",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.", hooks: {}},
+    8: {name: "Camouflage",                    cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.", hooks: {}},
+    9: {name: "Commuter Train",                cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]", hooks: {}},
     10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.", hooks: {}},
     11: {name: "Corner Store",                  cost: 3, keep: false, set: "original", implemented: false, description: "+ 1[Star]", hooks: {}},
     12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[Star] whenever you buy a card.", hooks: {}},
@@ -109,11 +149,6 @@
     18: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[Star].", hooks: {}},
     19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.",
          hooks: {
-           "BUYCARD_BEFORE": function(game, test_value) {
-             console.log("This is the TEST BUYCARD_BEFORE hook implemented in 'Even Bigger'.");
-             test_value++;
-             return test_value;
-           }
          }
         },
     20: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.", hooks: {}},

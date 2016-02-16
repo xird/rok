@@ -31,12 +31,12 @@ var utils = new ROKUtils();
  *   The player creating the game
  *
  */
-ROKServerGame.prototype.init = function(player) {
+ROKServerGame.prototype.init = function (player) {
   console.log("ROKServerGame.prototype.init");
   
   // Make a reference to this object available in the child (Monster) class.
   var game = this;
-
+  
   // Names of the monsters.
   var monster_names = [
     "Alien",
@@ -46,7 +46,7 @@ ROKServerGame.prototype.init = function(player) {
     "Rex",
     "Squid"
   ];
-
+  
   var cards = require('./ROKCards.js');
   
   // Not all browsers support 'Object.freeze(...)'
@@ -55,60 +55,60 @@ ROKServerGame.prototype.init = function(player) {
     Object.freeze(monster_names);
     Object.freeze(cards);
   }
-
+  
   var card_deck = [];      // Cards in the deck (yet to be played)
-  var cards_available = [] // The three cards that can be purchased.
-
+  var cards_available = []// The three cards that can be purchased.
+  
   // Put all the cards in the deck
   for (var card in cards) {
     if (cards[card] != cards.properties) {
       card_deck.push(card);
     }
   }
-
-
-/**
+  
+  
+  /**
  * Place specific cards onthe top of the deck (for debugging)
  **
- * Cards listed in the 'topCards' array will be left ontop of the deck in the order specified. 
+ * Cards listed in the ' * topCards' array will be left ontop of the deck in the order specified. 
  * This means that the first three cards listed in here will be available for monsters to purchave from the begining of the came.
  **/
-var temp, topCards = [18];  // Note array identifys cards indexes in the array (which is card id - 1)
+var temp, topCards = [0, 1, 2, 4];  // Note array identifys cards indexes in the array (which is card id - 1)
   for (var i = 0; i < topCards.length ; i++) {
     temp = card_deck[card_deck.length - 1 - i];
     card_deck[card_deck.length - 1 - i] = card_deck[topCards[i]];
     card_deck[topCards[i]] = temp;
   }
- 
+  
   // Shuffle the deck (Fisher–Yates shuffle)
-  for (var i=card_deck.length-topCards-1 ; i>0 ; i--) {
-    var rand = Math.floor(Math.random()*(i+1));  // Random number (0,i)
+  for (var i = card_deck.length - topCards - 1; i > 0 ; i--) {
+    var rand = Math.floor(Math.random() * (i + 1));  // Random number (0,i)
     
     // Swap rand and i
     var temp = card_deck[rand];
     card_deck[rand] = card_deck[i];
     card_deck[i] = temp;
   }
-
+  
   // Make three cards available
   cards_available.push(card_deck.pop());
   cards_available.push(card_deck.pop());
   cards_available.push(card_deck.pop());
-
+  
   // Add references to the card arrays to the game object as we need to be able
   // to send the data to the players.
   this.cards = cards;
   this.card_deck = card_deck;
   this.cards_available = cards_available;
-
-
+  
+  
   var game_id = uuid.v4();
   this.id = game_id;
   player.game_id = game_id;
   this.host = player.id;
   player.mode = "host";
   this.host_name = player.name;
-
+  
   this.players[player.id] = player;
   this.player_ids[player.id] = player.id;
   
@@ -118,14 +118,13 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
   
   this.game_state = "lobby";
   this.roll_number = 1;
-
+  
   // Generate monsters and save them in the game object.
   for (var i = 1; i <= 6; i++) {
     var monster = new Monster(i);
     this.monsters[i] = monster;
   }
   
-  //console.log(this);
   console.log("init done");
   
   // Set up a reference to the Game object to be available in the Monster class.
@@ -135,7 +134,7 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
    * 
    * @param id int The id of the Monster being generated, 1-6.
    * @param game ROKServerGame Reference to the 'this' object reating the monster.
-   *        this is used to call 'updateState(...)' after health/VPs/snot are modified.
+   *        this is used to call 'updateState(...)' after health/VPs/   *        snot are modified.
    * 
    * @return null
    * 
@@ -146,7 +145,7 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
     this.health = 10;
     this.victory_points = 0;
     // FIXME adding some initial snot to test buying cards.
-    this.snot = 10;
+    this.snot = 50;
     
     // Card effects:
     this.poison_counters = 0;
@@ -155,25 +154,13 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
     this.alien_counters = 0; // Not sure what these are for but they're in the box.
     this.UFO_counters = 0;   // Not sure what these are for but they're in the box.
     this.mimic = null;       // Probably what the 'target' token is for.
-
+    
     this.id = id;
-    this.name = monster_names[id-1];
-
+    this.name = monster_names[id - 1];
+    
     this.cards_owned = []   	// Cards owned by this monser
-
-    /*****************************************************
-     * Giving a couple of the monsters cards for testing *
-     *****************************************************
-    if (this.name == "Alien") {
-      this.cards_owned.push(cards.ARMOR_PLATING);
-    }
-
-    if(this.name == "Rabbot") {
-      this.cards_owned.push(cards.ACID_ATTACK);
-    }
-    */
   }
-
+  
   /**
    * Modifier method for adjusting health
    **
@@ -195,7 +182,7 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
       var old_health = this.health;
       this.health += amount;
       this.health = Math.min(this.health, this.maxHealth());
-
+      
       if (this.health != old_health) {
         if (!log_message) {
           /**
@@ -207,21 +194,21 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
            * Note: We use new-old health instead of 'amount' incase monsters health gets
            * limited by max_health
            **/
-          log_message = this.name
-                        + ((this.health - old_health) > 0 ? " gains " : " takes ")
-                        +  Math.abs(this.health - old_health)
+          log_message = this.name 
+                        + ((this.health - old_health) > 0 ? " gains " : " takes ") 
+                        + Math.abs(this.health - old_health) 
                         + ((this.health - old_health) > 0 ? " health." : " damage.");
         }
-
+        
         game.updateState("monsters__" + this.id + "__health", this.health, log_message);
       }
     }
-
+    
     // Return new/current health
     return this.health;
   };
-   
-
+  
+  
   /**
    * Modifier method for adjusting VPs
    **
@@ -234,24 +221,24 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
   Monster.prototype.addVictoryPoints = function (amount, log_message) {
     if (amount != 0) {
       this.victory_points += amount;
-
+      
       if (!log_message) {
-        log_message = this.name
-          + (amount > 0 ? " gains " : " looses ")
-          +  Math.asb(amount) + " victory point"
+        log_message = this.name 
+          + (amount > 0 ? " gains " : " looses ") 
+          + Math.abs(amount) + " victory point" 
           + (Math.abs(amount) == 1 ? "." : "s.");
       }
-
+      
       game.updateState("monsters__" + this.id + "__victory_points", this.victory_points, log_message);
 
       // TODO ticket #18, "Finish monster attribute modifier functions":: Check for win
     }
-
+    
     // Return new/current VPs
     return this.victory_points;
   };
-   
-
+  
+  
   /**
    * Modifier method for adjusting snot
    **
@@ -266,7 +253,7 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
       var old_snot = this.snot;
       this.snot += amount
       this.snot = Math.max(this.snot, 0);
-
+      
       if (this.snot != old_snot) {
         if (!log_message) {
           /**
@@ -278,62 +265,62 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
            * If the monstrer looses snot cubes without spending them (such as effects
            * from other players cards) a cosmome message will need to be suplied
            **/
-          log_message = this.name
-                        + (amount > 0 ? " gains " : " spends ")
-                        + Math.abs(amount) + " snot cube"
+          log_message = this.name 
+                        + (amount > 0 ? " gains " : " spends ") 
+                        + Math.abs(amount) + " snot cube" 
                         + (Math.abs(amount) == 1 ? "." : "s.");
         }
-
+        
         game.updateState("monsters__" + this.id + "__snot", this.snot, log_message);
       }
     }
-
+    
     // Return new/current amount of snot
     return this.snot;
   };
-
-
+  
+  
   /**
    * Method called upon entering Kyoto
    **/
   Monster.prototype.enterKyoto = function () {
     console.log("Monster.prototype.entrKyoto");
-
+    
     var entry_vips = 1;  // May be more depending on cards
     var city_or_bay = (game.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
-    var log_message = this.name
-                      + " takes Kyoto " + city_or_bay + " for " + entry_vips
+    var log_message = this.name 
+                      + " takes Kyoto " + city_or_bay + " for " + entry_vips 
                       + " victory point" + (Math.abs(entry_vips) == 1 ? "." : "s.");
-
+    
     game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", this.id);
     return this.addVictoryPoints(entry_vips, log_message);
   };
-    
-
+  
+  
   /**
    * Method called upon yielding Kyoto
    **/
   Monster.prototype.yieldKyoto = function () {
     console.log("Monster.prototype.yieldKyoto");
-
+    
     var city_or_bay = (game.monster_in_kyoto_city_id == this.id ? "City" : "Bay");
-
-    if (game.monster_in_kyoto_city_id == this.id ) {
+    
+    if (game.monster_in_kyoto_city_id == this.id) {
       game.monster_in_kyoto_city_id = null;
     }
-    else if (game.monster_in_kyoto_bay_id == this.id ) {
+    else if (game.monster_in_kyoto_bay_id == this.id) {
       game.monster_in_kyoto_bay_id = null;
     }
     else {
       console.log('ERROR: This monster is teither in Kyoto City or Kyoto Bay.');
-      player.getSocket().emit('game_message', "Can't leave Kyoto if you're not there."); 
-    }  
-
+      player.getSocket().emit('game_message', "Can't leave Kyoto if you're not there.");
+    }
+    
     log_message = this.name + " yields Kyoto " + city_or_bay + ".";
     game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", null, log_message);
     game.updateState("monster_leaving_kyoto_" + city_or_bay.toLowerCase() + "_id", this.id);
   };
-    
+  
   /**
    * Method run when monster holds Kyoto
    **
@@ -343,12 +330,12 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
   Monster.prototype.kyotoHeld = function () {
     var hold_VPs = 2;
     // CARDS: Resolve card effects: Urbavore
- 
+    
     var log_message = this.name + " gets " + hold_VPs + " VP for starting the turn in Kyoto.";
     this.addVictoryPoints(hold_VPs, log_message);
   }
- 
-
+  
+  
   /**
    * Fetcher method for retrieving the maximum amount of health this monster can attain
    **
@@ -359,7 +346,7 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
     // There is a card for this but I can't remember it off hand.
     return rv;
   };
-
+  
   /**
    * Fetcher method for retrieving the number of dice rolls the monster is allowed
    **
@@ -367,10 +354,10 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
    **/
   Monster.prototype.numberOfRolls = function () {
     var rv = 3;
-
+    
     // Can be increased by "Giant Brain".
     if (this.cards_owned.indexOf(cards.GIANT_BRAIN) != -1) rv++;
- 
+    
     return rv;
   };
   
@@ -381,18 +368,18 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
    **/
   Monster.prototype.numberOfDice = function () {
     var rv = 6;
-
+    
     // Can be increased by "Extra Head" and decreased by "Shrink Ray".
     // Note: There are 2 extra heads (X1 and X2).
     if (this.cards_owned.indexOf(cards.EXTRA_HEAD_X1) != -1) rv++;
     if (this.cards_owned.indexOf(cards.EXTRA_HEAD_X2) != -1) rv++;
-
+    
     // Number of dice is reduced by "Shrink Ray" counters
     rv -= this.shrink_ray_counters;
-
+    
     return Math.max(rv, 0); // Just incase ;)
   };
-
+  
   /**
    * Modifier method for applying damage
    **
@@ -404,38 +391,10 @@ var temp, topCards = [18];  // Note array identifys cards indexes in the array (
    * task to "addHealth(...). This is to prevent this method needing to
    * check for deaths and save the new health level.
    **/
-  Monster.prototype.applyDamage = function (amount) {
-    // "Armor Plating" allows monsters to ignore inflictions of 1 damage
-    if (    this.cards_owned.indexOf(cards.ARMOR_PLATING) != -1
-         && amount == 1) {
-      return this.health;
-    }
-    
-    return this.addHealth(-amount);
-  };
-  
-  /**
-   * Fetcher method for retrieving any additional damage this monster inflicts
-   *
-   * @param amount int The amount of attack the monster is doing
-   **
-   * @return int The amount of damage the monster will inflict
-   **
-   * As per the rules cards can be used to implement additional damage, however
-   * cards do not instigate an attack. The subtle difference between attacks and
-   * damage is that while monsters in Kyoto can be damaged by 'damage' they can
-   * only yield Kyoto if they are 'attacked'.
-   **/
-  Monster.prototype.getTotalDamage = function (attack) {
-    rv = attack;
-    
-    // "Acid Attak" causes additonal damage even if no claws were rolled (ie. there is no attack)
-    if (this.cards_owned.indexOf(cards.ACID_ATTACK) != -1) rv ++;
-
-    return rv;
+  Monster.prototype.applyDamage = function (damage) {
+    return this.addHealth(-damage);
   };
 }
-
 
 /**
  * Updates attributes in the Game object. This is used instead of updating the
@@ -639,9 +598,9 @@ ROKServerGame.prototype.getMonster = function(monster_id) {
 
 
 /**
- * Moves the game to the turn phase where the user can buy cards.
+ * Moves the game to the turn phase where the user can  *  * buy cards.
  *
- * CARDS: Buy cards if there's money - skip the buy phase if there isn't
+ * CARDS:  * Buy cards if there's money - skip the buy phase if there isn't
  * CARDS: "Alien metabolism"
  * CARDS: Resolve any discard cards and do a win check
  */
@@ -675,15 +634,9 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   console.log("card:");
   console.log(card)
   var monster = this.monsters[player.monster_id];
-  var cost = this.cards.properties[card].cost;
+  var price = this.cards.properties[card].cost;
+  var cost = this.card_hook("BUY_CARD", { "value_to_alter": price });
 
-  // "Alien Metabolism" reduces the cost of cards by 1 snot cube.
-  if (monster.cards_owned.indexOf(this.cards.ALIEN_METABOLISM) != -1) {
-    cost--;
-  }
-  var test_value = 7;
-  test_value = this.card_hook("BUYCARD_BEFORE", {"value_to_alter": test_value});
-  console.log("test value: " + test_value);
   // A monster can attempt to buy cards they can't afford but the purchace
   // will be denied.
   // TODO ticket #5, "Allow buying cards only when it's time for that" bug: prevent this in the browser as well.
@@ -705,20 +658,17 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   // Add the card to the monster/
   var monster_cards = monster.cards_owned;
   monster_cards.push(card)
+
+  this.card_hook("CARD_BOUGHT");
+  if (!card.keep) {
+    monster_cards.push(card)
+  }
   this.updateState("monsters__" + monster.id + "__cards_owned", monster_cards);
-  
-  // FIXME ticket #10, "Available cards not being updated": The available cards
-  // aren't updated, at least not all the way to the client.
   
   // Move a card from the deck to the available cards:
   var cards_available = this.cards_available;
   cards_available[available_card_index] = this.card_deck.pop();
   this.updateState("cards_available", cards_available , monster.name + " bought " + this.cards.properties[card].name + ".");
-
-  // TODO: Immediately resolve "Discard" type cards
-  // TODO: Don't move "Discard" type cards to monster's owned cards
-
-  this.card_hook("BUYCARD_AFTER");
 
   this.sendStateChanges();
 }
@@ -727,7 +677,7 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
 /**
  * User has chosen not to buy any cards or has no money to buy anything.
  */
-ROKServerGame.prototype.doneBuying = function(player) {
+ROKServerGame.prototype.doneBuying = function (player) {
   console.log("ROKServerGame.prototype.doneBuying");
   // Check that it's this player's turn
   if (this.turn_phase == 'buy') {
@@ -956,13 +906,11 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
     }
   }
 
-  this.card_hook("RESOLVE_ATTACK_DICE");
-  
-  // Add additional damage from cards.
-  var damage = this.monsters[player.monster_id].getTotalDamage(attack)
- 
-  console.log('damage: ' + damage);
-  
+  var attackage = {
+    "attack": attack,
+    "damage": attack
+  };
+
   // If the attacking monster is in Kyoto, target all monsters outside Kyoto.
   // If the attacking monster is not in Kyoto, target all monsters in Kyoto.
   var target_monsters = [];
@@ -979,15 +927,35 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
   
   console.log("Target monsters: " + utils.dump(target_monsters));
 
-  // Targets monsters are now defined in an array, loop through and apply damage:
-  for (var i = 0; i < target_monsters.length; i++) {
-    this.monsters[target_monsters[i]].applyDamage(damage);
+  if (target_monsters.length > 0) {
+    /**
+     * Fetcher method for retrieving any additional damage this monster inflicts
+     *
+     * @param attackage object: The amount of attack and damage the monster initiates
+     **
+     * @return int The amount of attack and damage the monster will inflict
+     **
+     * As per the rules cards can be used to implement additional damage, however
+     * cards do not instigate an attack. The subtle difference between attacks and
+     * damage is that while monsters in Kyoto can be damaged by 'damage' they can
+     * only yield Kyoto if they are 'attacked'.
+     **/
+    attackage = this.card_hook("RESOLVE_ATTACK_DICE", { "value_to_alter": attackage });
+    console.log('damage: ' + attackage.damage);
+    
+    // Targets monsters are now defined in an array, loop through and apply damage:
+    for (var i = 0; i < target_monsters.length; i++) {
+      var target_monster = this.monsters[target_monsters[i]];
+      var damage = this.card_hook("APPLY_DAMAGE", { "monster_id": target_monster.id, "value_to_alter": attackage.damage });
+      
+      target_monster.applyDamage(damage);
+    }
   }
 
   // Check deaths
   this.checkDeaths(); // If a monster in Kyoto died, it vacaites its post.
 
-  // If the attacking monster isn't in Kyoto, and an attack has been executed,
+  // If the attacking monster isn't in Kyoto, and an attachas been executed,
   // ask for yield.
   if (!this.inKyoto(_this_turn_monster) && attack > 0) {
     // askBayYield() will delegate the question to askCityYield, if there's
@@ -1131,15 +1099,6 @@ ROKServerGame.prototype.checkDeaths = function() {
         this.updateState('monster_order', monster_order, log_message);
       }
 
-      // Dead monsters don't need to yield.
-      // FIXME "monster_to_yield_kyoto_city" is an obsolete attribute
-      //if(this.monster_to_yield_kyoto_city == mid) {
-      //  this.updateState('monster_to_yield_kyoto_city', 0);
-      //}
-      //if(this.monster_to_yield_kyoto_bay == mid) {
-      //  this.updateState('monster_to_yield_kyoto_bay', 0);
-      //}
-      
       // Dead monsters aren't in Kyoto.
       if (this.monster_in_kyoto_city_id == mid) {
         console.log("  removing dead monster " + mid + " from the city");
@@ -1191,20 +1150,6 @@ ROKServerGame.prototype.checkWin = function() {
 ROKServerGame.prototype.finishGame = function() {
   this.updateState('game_state', 'over');
   this.updateState('winner', this.monster_order[0]);
-  this.sendStateChanges();
-}
-
-
-/**
- * Gets yield input from monster in Kyoto city
- */
-ROKServerGame.prototype.askYieldKyoto = function() {
-  console.log("ROKServerGame.prototype.askYyieldKyoto");
-  // FIXME I think "monster_to_yield_kyoto_city" is obsolete, but what are we
-  // going to use to update NIFP with?
-  this.updateState('next_input_from_monster', this.monster_to_yield_kyoto_city);
-  var log_message = this.monsters[this.monster_to_yield_kyoto_city].name + " can yield Kyoto city.";
-  this.updateState('turn_phase', 'yield_kyoto', log_message);
   this.sendStateChanges();
 }
 
