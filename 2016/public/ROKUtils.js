@@ -31,7 +31,7 @@ ROKUtils.prototype.dump = function dump(arr,level) {
 
       // The circular Game reference in Monster causes infinite recursion unless
       // we deal with it.
-			if(typeof(value) == 'object' && item != "_game") {
+			if(typeof(value) == 'object' && item != "_game" && item != "iosockets") {
 				dumped_text += level_padding + "'" + item + "' ...\n";
 				dumped_text += dump(value,level+1);
 			} 
