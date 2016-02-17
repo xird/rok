@@ -777,9 +777,14 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
   console.log("ROKServerGame.prototype.resolveYield");
   console.log("part: " + part_of_kyoto + ', yielding: ' + yielding);
 
+  var monster_name = this.monsters[this.next_input_from_monster].getData().name;
+
   if (yielding) {
     this.monsters[this.next_input_from_monster].yieldKyoto();
-    this.updateState("monster_in_kyoto_bay_id", null);
+    this.updateState("monster_in_kyoto_bay_id", null, monster_name + " yields Kyoto " + part_of_kyoto + " to " + this.monsters[this.turn_monster].getData().name + ".");
+  }
+  else {
+    this.updateState(false, false, monster_name + " stays in Kyoto " + part_of_kyoto);
   }
 
   if (part_of_kyoto == "bay") {
