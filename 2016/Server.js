@@ -116,6 +116,9 @@ server.listen(PORT, HOST, null, function() {
 var io = socketIo({});
 io.listen(server);
 
+// Pass the iosocket object to the lobby
+lobby.iosockets = io.sockets.sockets;
+
 /**
  * Pass session information to socket.io requests.
  *
@@ -311,12 +314,6 @@ if (ROKConfig.clean_up_idle_players) {
 }
 
 
-// The ROKServerGame class needs the sockets so it can send data to the clients.
-// FIXME: This should probably be cleaned up somehow.
-// -> TODO: Pass the io variable to the game object when it's created.
-global.iosockets = io.sockets;
-
-
 /**
  * Handle incoming socket connections.
  *
@@ -327,6 +324,8 @@ global.iosockets = io.sockets;
  * 
  */
 io.on('connection', function (socket) {
+  var iosockets = this;
+
   console.log("SOCKET CONN");
   // Make sure that the user has initialized a session.
   if (!socket.handshake.session) {
@@ -441,6 +440,7 @@ io.on('connection', function (socket) {
     
     // Create new game
     var game = new ROKServerGame(player);
+    game.iosockets = iosockets.sockets;
     games[game.id] = game;
 
     // For a quick game, one other user is added to the game without invitation.
@@ -485,6 +485,7 @@ io.on('connection', function (socket) {
     
     // Create new game
     var game = new ROKServerGame(player);
+    game.iosockets = iosockets.sockets;
     games[game.id] = game;
 
     // For a quick game, one other user is added to the game without invitation.
@@ -531,6 +532,7 @@ io.on('connection', function (socket) {
   socket.on("new_game", function lobbyNewGame(args) {
     console.log('new_game');
     var game = new ROKServerGame(player);
+    game.iosockets = iosockets.sockets;
     games[game.id] = game;
     lobby.snapState();
   });

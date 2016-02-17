@@ -277,8 +277,7 @@ ROKServerGame.prototype.snapState = function(player_id) {
       send_object.this_monster = this.players[game_player_id].monster_id;
       var player_object = this.players[game_player_id];
       var socket_id = player_object.socket_id;
-      // FIXME: This global object should be passed to the game object.
-      var target_socket = iosockets.sockets[socket_id];
+      var target_socket = this.iosockets[socket_id];
       target_socket.emit("snap_state", send_object);    
     }
   }
@@ -306,15 +305,14 @@ ROKServerGame.prototype.sendStateChanges = function() {
     };
 
     var socket_id = player_object.socket_id;
-    // FIXME: This global iosockets object should be passed to the game object.
-    var target_socket = iosockets.sockets[socket_id];
+    var target_socket = this.iosockets[socket_id];
     if (typeof target_socket != "undefined") {
       target_socket.emit("state_changes", send_object);
     }
     else {
       console.log("ERROR: target socket not found. Socket id: " + socket_id);
       console.log("Sockets:");
-      console.log(iosockets.sockets);
+      console.log(this.iosockets);
     }
   }
 
@@ -1115,8 +1113,7 @@ ROKServerGame.prototype.beginGame = function() {
   // Loop through all players in this game.
   for (var game_player_id in this.player_ids) {    
     var socket_id = this.players[game_player_id].socket_id;
-    // FIXME: This global object should be passed to the game object.
-    var target_socket = iosockets.sockets[socket_id];
+    var target_socket = this.iosockets[socket_id];
     
     target_socket.emit("start_game");
   }

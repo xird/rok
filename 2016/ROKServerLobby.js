@@ -89,16 +89,14 @@ ROKServerLobby.prototype.snapState = function () {
 
     var player_object = this.players[pid];
     var socket_id = player_object.socket_id;
-    // FIXME: This global object should be passed to the game object.
-
-    var target_socket = iosockets.sockets[socket_id];
+    var target_socket = this.iosockets[socket_id];
     if (typeof target_socket != "undefined") {
       target_socket.emit("update_lobby", send_object);
     }
     else {
       console.log("ERROR: target socket not found. Socket id: " + socket_id);
       console.log("Sockets:");
-      console.log(iosockets.sockets);
+      console.log(this.iosockets);
     }
   }
 }
@@ -128,21 +126,21 @@ ROKServerLobby.prototype.invitePlayer = function (inviter, invitee) {
         // Can't invite a player that's already invited
         console.log('ERROR: player already invited');
         var msg = "That player has an outstanding invitation.";        
-        iosockets.sockets[inviter.socket_id].emit("lobby_message", msg);          
+        this.iosockets[inviter.socket_id].emit("lobby_message", msg);
       }
     }
     else {
       // Can't invite a player that's already in a game
       console.log('ERROR: player already in a game');
       var msg = "That player is already in a game.";
-      iosockets.sockets[inviter.socket_id].emit("lobby_message", msg);    
+      this.iosockets[inviter.socket_id].emit("lobby_message", msg);
     }
   }
   else {
     // Notify the player that he needs a game.
     console.log('ERROR: no game created');
     var msg = "Please create a new game before inviting players.";
-    iosockets.sockets[inviter.socket_id].emit("lobby_message", msg);
+    this.iosockets[inviter.socket_id].emit("lobby_message", msg);
   }
 }
 
