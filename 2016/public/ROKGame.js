@@ -72,7 +72,7 @@ function ROKGame(player) {
 }
 
 ROKGame.prototype.inKyoto = function(monster) {
-  return (this.monster_in_kyoto_city_id == monster.id || this.monster_in_kyoto_bay_id == monster.id);
+  return (this.monster_in_kyoto_city_id == monster.getId() || this.monster_in_kyoto_bay_id == monster.getId());
 }
 
 // Only export to the node.js exports object if we're serverside.
