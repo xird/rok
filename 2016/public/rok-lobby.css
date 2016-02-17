@@ -1,0 +1,42 @@
+#lobby {
+  padding: 10px;
+}
+
+#lobby h1 {
+  font-family: cracked;
+  font-size: 3em;
+  margin-bottom: 0px;
+  bbackground: red;
+}
+
+#lobby h2 {
+  font-size: 1.6em;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  babckground: yellow;
+}
+
+#lobby #welcome {
+  bbackground: red;
+  margin-bottom: 15px;
+}
+
+#lobby h3 {
+  bbackground: blue;
+  margin-bottom: 5px;
+}
+
+#lobby div#players table {
+  border-collapse: collapse;
+  bborder: 1px solid #333;
+}
+
+#lobby div#players table td,
+#lobby div#players table th {
+  border: 1px solid #333;
+  padding: 2px 4px 2px 4px;
+}
+
+#lobby div#players table td.button {
+  border: none;
+}

@@ -4,6 +4,7 @@
 <title>ROK</title>
 
 <link rel="stylesheet" href="//<%= hostname %>/rok.css" type="text/css" media="all" />
+<link rel="stylesheet" href="//<%= hostname %>/rok-lobby.css" type="text/css" media="all" />
 
 <script src="//<%= hostname %>/jquery-2.1.0.min.js"></script>
 <script src="//<%= hostname %>/jquery.json2html.js"></script>
@@ -14,6 +15,7 @@
 <script src="//<%= hostname %>/ROKClientGame.js"></script>
 <script src="//<%= hostname %>/ROKLobby.js"></script>
 <script src="//<%= hostname %>/ROKClientLobby.js"></script>
+<script src="//<%= hostname %>/jrag.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <script type="text/javascript">
@@ -67,14 +69,16 @@ $(document).ready(function() {
   <div id="messages"></div>
     
   <div id="lobby">
-    <h2>Lobby</h2>
+    <h1>RULER OF KYOTO</h1>
+    <h2>Games lobby</h2>
     <div id="welcome"></div>
     
+    <h3>Players</h3>
     <div id="players">
       <table>
         <thead>
           <tr>
-            <th>Name</th><th>Mode</th><th>Invited to game</th><th>In game</th>
+            <th>Name</th><!--th>Mode</th--><th>Invited to game</th><th>In game</th>
           </tr>
         </thead>
         

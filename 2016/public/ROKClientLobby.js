@@ -84,10 +84,26 @@ ROKLobby.prototype.initClient = function() {
     var transform = [
         {tag: 'tr', children: [
         {tag: 'td', html: "${name}"},
-        {tag: 'td', html: "${mode}"},
-        {tag: 'td', html: "${invited_to_game_id}"},
-        {tag: 'td', html: "${game_id}"},
-        {tag: 'td', children: [
+        //{tag: 'td', html: "${mode}"},
+        //{tag: 'td', html: "${invited_to_game_id}"},
+        {tag: 'td', html: function(){
+          if (this.invited_to_game_id) {
+            var seed = this.invited_to_game_id.substring(0,8);
+            seed = parseInt(seed, 16).toString(16);
+            var myjrag = new JRAG({"hash": seed, "width": 16, "height": 4, "scale": 4});
+            return '<script id="jrag_script_' + myjrag.id + '">document.getElementById("jrag_script_' + myjrag.id + '").parentNode.appendChild(window.jrags["' + myjrag.id + '"])</script>';
+          }
+        }},
+        {tag: 'td', html: function(){
+          if (this.game_id) {
+            var seed = this.game_id.substring(0,8);
+            seed = parseInt(seed, 16).toString(16);
+            var myjrag = new JRAG({"hash": seed, "width": 16, "height": 4, "scale": 4});
+            return '<script id="jrag_script_' + myjrag.id + '">document.getElementById("jrag_script_' + myjrag.id + '").parentNode.appendChild(window.jrags["' + myjrag.id + '"])</script>';
+          }
+        }},
+        //{tag: 'td', html: "${game_id}"},
+        {tag: 'td', 'class': 'button', children: [
           {
             tag: 'input', 
             type: "button", 
@@ -103,7 +119,7 @@ ROKLobby.prototype.initClient = function() {
             value: "Invite", 'data-player_id': "${id}"
           },
         ]},
-        {tag: 'td', children: [
+        {tag: 'td', 'class': 'button', children: [
           {
             tag: 'input', 
             type: "button", 
@@ -119,7 +135,7 @@ ROKLobby.prototype.initClient = function() {
             value: "Accept", 'data-player_id': "${id}",
           },
         ]},
-        {tag: 'td', children: [
+        {tag: 'td', 'class': 'button', children: [
           {
             tag: 'input',
             type: "button",
