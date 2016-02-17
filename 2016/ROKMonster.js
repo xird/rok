@@ -23,8 +23,7 @@ function Monster(myId, myName, theGame) {
     player_id: 0,
     health: 10,
     victory_points: 0,
-    // FIXME adding some initial snot to test buying cards.
-    snot: 50,
+    snot: ROKConfig.initial_snot,
     
     // Card effects:
     poison_counters: 0,
