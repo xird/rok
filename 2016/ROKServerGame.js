@@ -1159,7 +1159,6 @@ ROKServerGame.prototype.addPlayer = function(player) {
  * A player is leaving the game, hopefully once the game is over. This is also
  * used when idle players are cleaned up.
  *
- * FIXME ticket #11, "Leaving game crashes the server"
  */
 ROKServerGame.prototype.leaveGame = function(player) {
   console.log("ROKServerGame.prototype.leaveGame " + player.name);
