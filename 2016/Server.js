@@ -575,6 +575,12 @@ io.on('connection', function (socket) {
     lobby.snapState();
   });
 
+  socket.on("leave_invited_game", function lobbyDecline() {
+    console.log("lobbyLeaveInvitedGame");
+    games[player.game_id].leaveGame(player);
+    lobby.snapState();
+  });
+
 
   /**
    * Game host confirming invited players and starting the game.

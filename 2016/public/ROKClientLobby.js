@@ -61,7 +61,7 @@ ROKLobby.prototype.initClient = function() {
     else {
       $('#confirm_game_button').addClass("hidden");
     }
-    
+
     // If the current player isn't in a game, allow them to create a new game.
     if (!lobby.this_player_game_id) {
       $('#new_game_button').removeClass("hidden");
@@ -69,6 +69,13 @@ ROKLobby.prototype.initClient = function() {
     }
     else {
       $('#new_game_button').addClass("hidden");
+
+      // If the current player is in a game that they're not the host of, they
+      // can leave the game.
+      if (lobby.this_player_mode != "host") {
+        $('#leave_invited_game_button').removeClass("hidden");
+        $('#leave_invited_game_button').removeAttr("disabled");
+      }
     }
     
     // If the current player is a host, they can cancel the game.
@@ -196,6 +203,14 @@ ROKLobby.prototype.initClient = function() {
     $(this).attr('disabled', true);
   });
   
+  // Leave game that you've accepted an invitation on.
+  $('#leave_invited_game_button').on("click", function leaveGame(){
+    console.log('leave clicked');
+    socket.emit("leave_invited_game");
+    $(this).attr('disabled', true);
+    $(this).addClass("hidden");
+  });
+
   // Confirm invited players and start a new game.
   $('#confirm_game_button').on("click", function confirmGame(){
     console.log('confirmGame');
