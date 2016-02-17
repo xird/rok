@@ -32,6 +32,7 @@ ROKGame.prototype.initClient = function() {
     game.next_input_from_monster = data.next_input_from_monster;
     game.roll_number = data.roll_number;
     game.monster_order = data.monster_order;
+    game.original_monster_order = data.original_monster_order;
     game.monsters = data.monsters;
     game.monster_in_kyoto_city_id = data.monster_in_kyoto_city_id;
     game.monster_in_kyoto_bay_id  = data.monster_in_kyoto_bay_id;
@@ -69,27 +70,25 @@ ROKGame.prototype.initClient = function() {
       // Write initial values to all UI elements.
       
       // Place monsters starting from the monsters that's next in sequence from
-      // the current player's monster. That one is shown on the top slot.
-      // Note that this generates the debugger monster table.
-      var own_monster_index = game.monster_order.indexOf(game.this_monster);
+      // the current player's monster.
+      var own_monster_index = game.original_monster_order.indexOf(game.this_monster);
       var first_monster_index = own_monster_index + 1;
-      if (first_monster_index == game.monster_order.length) {
+      if (first_monster_index == game.original_monster_order.length) {
         first_monster_index = 0;
       }
       var monsters_placed = 0;
       var index = first_monster_index;
-      while (monsters_placed < game.monster_order.length) {
-        //console.log('Placing monster index ' + index + ", id " + game.monster_order[index]);
+      while (monsters_placed < game.original_monster_order.length) {
         monsters_placed++;
         // If we're placing the last monster, it must be the player's monster.
-        if (monsters_placed != game.monster_order.length) {
-          $("#enemy_monsters").json2html([{index: game.monster_order[index]}], transforms.monster_slots);
+        if (monsters_placed != game.original_monster_order.length) {
+          $("#enemy_monsters").json2html([{index: game.original_monster_order[index]}], transforms.monster_slots);
         }
         else {
-          $("#own_monster").json2html([{index: game.monster_order[index]}], transforms.monster_slots);
+          $("#own_monster").json2html([{index: game.original_monster_order[index]}], transforms.monster_slots);
         }
         index++;
-        if (index == game.monster_order.length) {
+        if (index == game.original_monster_order.length) {
           index = 0;
         }
       }
@@ -128,24 +127,17 @@ ROKGame.prototype.initClient = function() {
       }
       
       // Place the playing monsters in the visible monster slots.
-      //
-      // FIXME ticket #16: This is now using monster_order, which won't work correctly if
-      // the page is reloaded after one of the monsters is killed. Since we want
-      // to be able to order the monsters the same way even after one of them
-      // has died, we need to keep a separate variable named 
-      // "original_monster_order". Or use a separate variable for 
-      // "playing_monsters". 
-      //console.log(game.monsters);
       var index = first_monster_index;
       $('.monster_home:visible').each(function(){
         var msel = $(this);
-        //console.log('slot id: ' + $(this).attr('id'));
-        //console.log('index: ' + index);
-        var monster_id = game.monster_order[index];
-        //console.log('monster id: ' + monster_id);
-
+        var monster_id = game.original_monster_order[index];
         var mel = $('#m' + monster_id);
-        mel.removeClass('dead');
+        if (data.monsters[monster_id].health > 0) {
+          mel.removeClass('dead');
+        }
+        else {
+          mel.addClass('dead');
+        }
         mel.show();
 
         // Mark this slot as the home for this monster.
@@ -167,10 +159,9 @@ ROKGame.prototype.initClient = function() {
         }
 
         index++;
-        if (index == game.monster_order.length) {
+        if (index == game.original_monster_order.length) {
           index = 0;
         }
-        //console.log('---');
       });
       
       

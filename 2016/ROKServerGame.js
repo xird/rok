@@ -238,6 +238,7 @@ ROKServerGame.prototype.snapState = function(player_id) {
   send_object.next_input_from_monster = this.next_input_from_monster;
   send_object.roll_number = this.roll_number;
   send_object.monster_order = this.monster_order;
+  send_object.original_monster_order = this.original_monster_order;
 
   // Sending a circular reference over a socket crashes the server. Since the
   // game has a reference to the monsters, and each monster has a reference to
@@ -1103,6 +1104,9 @@ ROKServerGame.prototype.beginGame = function() {
   }
   monster_order = utils.shuffleArray(monster_order);
   this.monster_order = monster_order;
+  // Original order is needed to keep ordering the monsters the same way after
+  // one of them dies.
+  this.original_monster_order = JSON.parse(JSON.stringify(this.monster_order));
   
   // Note: We skip the "start" phase of the turn, since there's nothing to do
   // in the beginning of the turn at the start of the game.
