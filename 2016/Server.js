@@ -25,6 +25,7 @@ var viewspath = __dirname + '/views/';
 var ROKUtils = require('./public/ROKUtils.js');
 var ROKServerGame = require('./ROKServerGame.js');
 var ROKServerLobby = require('./ROKServerLobby.js');
+var ROKConfig = require('./ROKConfig.js');
 
 var PORT = process.env.PORT || 8080,
     HOST = process.env.HOST || 'localhost';
@@ -517,7 +518,7 @@ io.on('connection', function (socket) {
   
   // Handles players leaving the game.
   socket.on('disconnect', function lobbyRemovePlayer() {
-    console.log('DISCONNECT');
+    console.log('DISCONNECT player ' + player.name);
     removePlayer(player);
   });
   

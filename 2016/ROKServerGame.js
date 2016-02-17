@@ -365,6 +365,15 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   console.log("available_card_index:");
   console.log(available_card_index);
 
+  if (this.turn_phase != "buy" && !ROKConfig.dev_override) {
+    console.log("This is no time to be buying cards.");
+    return;
+  }
+  if (this.turn_monster != player.monster_id && !ROKConfig.dev_override) {
+    console.log("It's not your turn, I'm not selling you anything.");
+    return;
+  }
+
   var card = this.cards[this.cards_available[available_card_index]];
   console.log("card:");
   console.log(card)
@@ -374,7 +383,6 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
 
   // A monster can attempt to buy cards they can't afford but the purchace
   // will be denied.
-  // TODO ticket #5, "Allow buying cards only when it's time for that" bug: prevent this in the browser as well.
   if (cost > monster.getSnot()) {
     console.log("Does this look like a charity.  Come back when you have more snot!");
     return;
