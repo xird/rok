@@ -193,7 +193,6 @@ var addPlayer = function(socket, sessid) {
       monster_id: 0,
       socket_id: socket.id,
       getSocket: function() {
-        // FIXME: This global object should be passed to the game object.
         return iosockets.sockets[this.socket_id];
       },
       session_id: sessid,
