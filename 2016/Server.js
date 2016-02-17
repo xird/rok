@@ -283,8 +283,10 @@ var cleanUpIdlePlayers = function () {
     
     // Tell the client to disconnect, so the "player" variable set up in the
     // connect event handler won't stick around.
-    idle_socket.emit('die');
-    
+    if (typeof idle_socket != "undefined") {
+      idle_socket.emit('die');
+    }
+
     //console.log("Deleted idle player, players now:");
     //console.log(players);
     lobby.snapState();
@@ -302,10 +304,12 @@ var cleanUpIdlePlayers = function () {
     }
   }
   
-  // FIXME idle player dropping disabled to make developing easier.
-  //setTimeout(cleanUpIdlePlayers, 5000);
+  setTimeout(cleanUpIdlePlayers, 5000);
 }
-//cleanUpIdlePlayers();
+if (ROKConfig.clean_up_idle_players) {
+  cleanUpIdlePlayers();
+}
+
 
 // The ROKServerGame class needs the sockets so it can send data to the clients.
 // FIXME: This should probably be cleaned up somehow.

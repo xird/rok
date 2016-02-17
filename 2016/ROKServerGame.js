@@ -2,9 +2,6 @@
  * The server side version of the Game class, which inherits the base Game
  * class.
  *
- * TODO: Add log note about staying in Kyoto
- * TODO: Allow abandoning game when the other players have gone
- * TODO: Don't allow buying if there isn't enough money
  */
 
 var util = require('util');
@@ -303,18 +300,24 @@ ROKServerGame.prototype.sendStateChanges = function() {
     var this_monster = this.players[game_player_id].monster_id;
     var player_object = this.players[game_player_id];
     
-    var socket_id = player_object.socket_id;
-    // FIXME: This global object should be passed to the game object.
-    var target_socket = iosockets.sockets[socket_id];
-    
     var send_object = {
       updates: this.updates,
       this_monster: this_monster
     };
 
-    target_socket.emit("state_changes", send_object);
+    var socket_id = player_object.socket_id;
+    // FIXME: This global iosockets object should be passed to the game object.
+    var target_socket = iosockets.sockets[socket_id];
+    if (typeof target_socket != "undefined") {
+      target_socket.emit("state_changes", send_object);
+    }
+    else {
+      console.log("ERROR: target socket not found. Socket id: " + socket_id);
+      console.log("Sockets:");
+      console.log(iosockets.sockets);
+    }
   }
-  
+
   // Clean up the change log, as all the changes have now been transmitted.
   this.updates = [];
 }
@@ -365,11 +368,11 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   console.log("available_card_index:");
   console.log(available_card_index);
 
-  if (this.turn_phase != "buy" && !ROKConfig.dev_override) {
+  if (this.turn_phase != "buy" && !ROKConfig.always_allow_buying_cards) {
     console.log("This is no time to be buying cards.");
     return;
   }
-  if (this.turn_monster != player.monster_id && !ROKConfig.dev_override) {
+  if (this.turn_monster != player.monster_id && !ROKConfig.always_allow_buying_cards) {
     console.log("It's not your turn, I'm not selling you anything.");
     return;
   }
