@@ -723,10 +723,13 @@ io.on('connection', function (socket) {
   });
 
 
-  // CARDS: buy(buyable_card_slot)
-
-
-
-
+  /**
+   * Player changes their name.
+   */
+  socket.on("save_new_name", function saveNewName(new_name) {
+    var new_name = new_name.replace(/[^a-zA-Z0-9-_]/g, "");
+    player.name = new_name;
+    lobby.snapState();
+  })
 });
 

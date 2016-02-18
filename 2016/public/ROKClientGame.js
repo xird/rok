@@ -219,6 +219,8 @@ ROKGame.prototype.initClient = function() {
         $('#leave_game_button').hide();
         if (game.next_input_from_monster == game.this_monster) {
           if (game.turn_phase == 'roll') {
+            var ordinals = ['0th', '1st', '2nd', '3rd', '4th', '5th', '6th'];
+            $('#roll_dice_button').html("Roll dice (" + ordinals[game.roll_number] + ")");
             $('#roll_dice_button').show();
             // Don't show the "done" button before first roll.
             if (game.roll_number != 1) {
@@ -627,8 +629,7 @@ ROKGame.prototype.handle__next_input_from_monster = function(updates) {
   this.handleUpdates(updates);
 }
 
-// FIXME #20 "initial load roll number is wrong"; This needs to be done in
-// snapState() as well
+
 ROKGame.prototype.handle__roll_number = function(updates) {
   var update = updates.shift();
   console.log("ROKGame.prototype.handle__roll_number to " + update.value);
