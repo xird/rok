@@ -1337,6 +1337,7 @@ ROKServerGame.prototype.card_hook = function(hook_name, params) {
   for (var i = 0; i < this.monsters[params['monster_id']].getCardsOwned().length; i++) {
     var card_id = this.monsters[params['monster_id']].getCardsOwned()[i];
     if (typeof this.cards.properties[card_id].hooks[hook_name] == "function") {
+      console.log(hook_name + " hook implemented in " + this.cards.properties[card_id].name + ".");
       value_to_alter = this.cards.properties[card_id].hooks[hook_name](this, value_to_alter);
     }
   }

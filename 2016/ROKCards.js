@@ -77,7 +77,7 @@
   THROW_A_TANKER:               75,
   THUNDER_STOMP:                76,
   UNSTABLE_DNA:                 77,
-  
+
   // This properties table has been adopted from Maltize's KingOfTokyo-CardList project on GitHub
   // https://github.com/maltize/KingOfTokyo-CardList
 
@@ -87,7 +87,7 @@
           "RESOLVE_ATTACK_DICE": function (game, attackage) {
             attackage.damage++;
 
-            console.log("RESOLVE_ATTACK_DICE hook implemented in 'Acid Attack'. Damage: " + attackage.damage);
+            console.log("Damage: " + attackage.damage);
             return attackage;
           }
         }
@@ -97,7 +97,7 @@
           "BUY_CARD": function(game, cardCost) {
           cardCost--;
 
-          console.log("BUY_CARD hook implemented in 'Alien Metabolism'. Card cost: " + cardCost);
+          console.log("Card cost: " + cardCost);
           return cardCost;
         }
        }
@@ -108,7 +108,7 @@
           if (attackage.attack > 0)
             game.monsters[game.turn_monster].addVictoryPoints(1);
 
-            console.log("RESOLVE_ATTACK_DICE hook implemented in 'Alpha Monster'. VPs: " + game.monsters[game.turn_monster].victory_points);
+            console.log("VPs: " + game.monsters[game.turn_monster].victory_points);
             return attackage;
           }
         }
@@ -118,7 +118,7 @@
           "CARD_BOUGHT": function (game) {
             game.monsters[game.turn_monster].addVictoryPoints(3);
 
-            console.log("CARD_BOUGHT hook implemented in 'Apartment Building'. VPs: " + game.monsters[game.turn_monster].victory_points);
+            console.log("VPs: " + game.monsters[game.turn_monster].victory_points);
           }
         }
        },
@@ -129,7 +129,7 @@
               damage = 0;
             }
 
-            console.log("APPLY_DAMAGE hook implemented in 'Armor Plating'. Damage: " + damage);
+            console.log("Damage: " + damage);
             return damage;
           }
         }
@@ -141,7 +141,7 @@
               die.state = die.state == 'r' ? 'rr' : "kr";  // 'rr' means 're-roll(able)'.  'kr' means 'keep-rerollale'.
             }
 
-            console.log("DICE_STATE hook implemented in 'Background Dweller'. State: " + die.state);
+            console.log("State: " + die.state);
             return die;
           }
         }
