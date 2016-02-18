@@ -2,7 +2,7 @@
  * Server side functionality for the lobby.
  *
  */
- 
+
 var util = require('util');
 
 // Inheritance related code:
@@ -42,13 +42,13 @@ ROKServerLobby.prototype.addPlayer = function (player) {
  */
 ROKServerLobby.prototype.removePlayer = function (player_id) {
   console.log('ROKServerLobby.prototype.removePlayer');
-  
+
   // Remove from player_ids
   var index = this.player_ids.indexOf(player_id);
   if (index > -1) {
     this.player_ids.splice(index, 1);
   }
-  
+
   // Remove from players
   delete this.players[player_id];
 }
@@ -81,7 +81,7 @@ ROKServerLobby.prototype.snapState = function () {
     send_object.this_player_mode = this.players[pid].mode;
     // The current number of players in the current player's game:
     if (typeof this.players[pid].getGame() == 'object') {
-      send_object.this_game_players = Object.keys(this.players[pid].getGame().players).length;    
+      send_object.this_game_players = Object.keys(this.players[pid].getGame().players).length;
     }
     else {
       send_object.this_game_players = 0;
@@ -104,13 +104,13 @@ ROKServerLobby.prototype.snapState = function () {
 
 /**
  * Invites a player to join a game.
- * 
+ *
  * @param Object inviter The player inviting the other one
  * @param Object invitee The player being invited
  */
 ROKServerLobby.prototype.invitePlayer = function (inviter, invitee) {
   console.log("ROKServerLobby.prototype.invitePlayer");
-  
+
   // Check that the inviter has created a new game.
   if (inviter.game_id) {
     // Check that the invitee isn't in a game already.
@@ -125,7 +125,7 @@ ROKServerLobby.prototype.invitePlayer = function (inviter, invitee) {
       else {
         // Can't invite a player that's already invited
         console.log('ERROR: player already invited');
-        var msg = "That player has an outstanding invitation.";        
+        var msg = "That player has an outstanding invitation.";
         this.iosockets[inviter.socket_id].emit("lobby_message", msg);
       }
     }
