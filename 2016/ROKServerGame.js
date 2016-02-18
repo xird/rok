@@ -522,20 +522,25 @@ ROKServerGame.prototype.rollDiceClicked = function (player, keep_dice_ids) {
 
   var reroll = false;
   for (var i = 0; i < monster.numberOfDice(); i++) {
-
     var die = this.dice[i];
-    die.state = (keep_dice_ids.indexOf(i) == -1) ? 'r' : 'k';
-    die = this.card_hook("DICE_STATE", { "value_to_alter": die });
 
-    if (die.state == 'rr') {
-      reroll = true;
+    if (die.state == 'i') {   // Always roll all dice initially.
+      die.state = 'r';
+    }
+    else {
+      die.state = (keep_dice_ids.indexOf(i) == -1) ? 'r' : 'k';
+      die = this.card_hook("DICE_STATE", { "value_to_alter": die });
+
+      if (die.state == 'rr') {
+        reroll = true;
+      }
     }
   }
 
   if (reroll) {
     this.rollDice(monster, 'rr');
   }
-  else {
+  else if (this.roll_number <= monster.numberOfRolls()) {
     this.rollDice(monster, 'r');
     this.updateState("roll_number", this.roll_number + 1, log_message);
   }
@@ -543,22 +548,20 @@ ROKServerGame.prototype.rollDiceClicked = function (player, keep_dice_ids) {
   // Check if client could possably reroll.
   reroll = false;
   for (var i = 0; i < monster.numberOfDice(); i++) {
-    if (keep_dice_ids.indexOf(i) == -1 && (this.dice[i].state == 'rr' || this.dice[i].state == 'kr')) {
+    if (this.dice[i].state == 'rr' || this.dice[i].state == 'kr') {
       reroll = true;
       break;
     }
   }
 
   // Check for end of rolling condition
-  if (keep_dice_ids.length == monster.numberOfDice() || this.roll_number > monster.numberOfRolls() && !reroll) {
+  if (keep_dice_ids.length == monster.numberOfDice() || (this.roll_number > monster.numberOfRolls() && !reroll)) {
     utils.log("      monster ends rolls", "debug");
 
-    if (!reroll) {
-      // Set the state of all dice to 'f' (final)
-      for (var i = 0; i < this.dice.length; i++) {
-        if (this.dice[i].state != 'n') {
-          this.updateState("dice__" + i + "__state", 'f');
-        }
+    // Set the state of all dice to 'f' (final)
+    for (var i = 0; i < this.dice.length; i++) {
+      if (this.dice[i].state != 'n') {
+        this.updateState("dice__" + i + "__state", 'f');
       }
     }
 
@@ -598,7 +601,7 @@ ROKServerGame.prototype.rollDice = function (player_monster, state_to_roll) {
       this.updateState("dice__" + i + "__state", die.state);
     }
     else {
-      this.updateState(player_monster.getName() + " has " + this.dice[i].value);
+      this.updateState(false, false, player_monster.getName() + " has " + this.dice[i].value);
     }
 
     log_message += this.dice[i].value + (i < player_monster.numberOfDice() - 1 ? ", " : "");
