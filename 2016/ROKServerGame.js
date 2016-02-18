@@ -70,7 +70,7 @@ ROKServerGame.prototype.init = function (player) {
    * Cards listed in the 'topCards' array will be left ontop of the deck in the order specified. 
    * This means that the first three cards listed in here will be available for monsters to purchave from the begining of the came.
    **/
-  var temp, topCards = [0, 1, 2, 4];  // Note array identifys cards indexes in the array (which is card id - 1)
+  var temp, topCards = [5];  // Note array identifys cards indexes in the array (which is card id - 1)
   for (var i = 0; i < topCards.length ; i++) {
     temp = card_deck[card_deck.length - 1 - i];
     card_deck[card_deck.length - 1 - i] = card_deck[topCards[i]];
@@ -520,20 +520,48 @@ ROKServerGame.prototype.rollDiceClicked = function (player, keep_dice_ids) {
     return;
   }
 
-  // Allways roll atleast once
-  this.rollDice(this.monsters[player.monster_id], keep_dice_ids);
+  var reroll = false;
+  for (var i = 0; i < monster.numberOfDice(); i++) {
 
+    var die = this.dice[i];
+    die.state = (keep_dice_ids.indexOf(i) == -1) ? 'r' : 'k';
+    die = this.card_hook("DICE_STATE", { "value_to_alter": die });
+
+    if (die.state == 'rr') {
+      reroll = true;
+    }
+  }
+  
+  if (reroll) {
+    this.rollDice(monster, 'rr');
+  }
+  else {
+    this.rollDice(monster, 'r');
+    this.updateState("roll_number", this.roll_number + 1, log_message);
+  }
+    
+  // Check if client could possably reroll.
+  reroll = false;
+  for (var i = 0; i < monster.numberOfDice(); i++) {
+    if (keep_dice_ids.indexOf(i) == -1 && (this.dice[i].state == 'rr' || this.dice[i].state == 'kr')) {
+      reroll = true;
+      break;
+    }
+  }
+  
   // Check for end of rolling condition
-  if (this.roll_number > monster.numberOfRolls() || keep_dice_ids.length == monster.numberOfDice()) {
+  if (keep_dice_ids.length == monster.numberOfDice() || this.roll_number > monster.numberOfRolls() && !reroll) {
     console.log('      monster ends rolls');
 
-    // Set the state of all dice to 'f' (final)
-    for (var i = 0; i < this.dice.length; i++) {
-      if (this.dice[i].state != 'n') {
-        this.updateState("dice__" + i + "__state", 'f');
+    if (!reroll) {
+      // Set the state of all dice to 'f' (final)
+      for (var i = 0; i < this.dice.length; i++) {
+        if (this.dice[i].state != 'n') {
+          this.updateState("dice__" + i + "__state", 'f');
+        }
       }
     }
-
+      
     // Advance to next turn phase: resolve
     // Note that we're not sending state changes here, since there will
     // be more changes after the rolls are resolved.  We will send the state upon returning
@@ -551,9 +579,9 @@ ROKServerGame.prototype.rollDiceClicked = function (player, keep_dice_ids) {
 /**
  *
  */
-ROKServerGame.prototype.rollDice = function (player_monster, keep_dice_ids) {
+ROKServerGame.prototype.rollDice = function (player_monster, state_to_roll) {
   console.log('ROKServerGame.prototype.rollDice');
-
+  
   log_message = player_monster.getName() + " gets ";
   
   // Flag variable for detecting situation where the monster keeps all
@@ -561,26 +589,22 @@ ROKServerGame.prototype.rollDice = function (player_monster, keep_dice_ids) {
   for (var i = 0; i < player_monster.numberOfDice(); i++) {
     console.log('        Rolling?');
     // Roll only dice that are not kept
-    if (keep_dice_ids.indexOf(i) == -1) {
+    if (this.dice[i].state == 'i' || this.dice[i].state == state_to_roll) {
       console.log('          Rolling.');
-      var roll = utils.dieRoll();
-      this.updateState("dice__" + i + "__value", roll, player_monster.getName() + " rolls " + roll);
+      var die = { state: 'r', value: utils.dieRoll() };
+      die = this.card_hook("DICE_STATE", { "value_to_alter": die });
+      
+      this.updateState("dice__" + i + "__value", die.value, player_monster.getName() + " rolls " + die.value);
+      this.updateState("dice__" + i + "__state", die.state);
     }
     else {
-      this.updateState("dice__" + i + "__state", 'k', player_monster.getName() + " keeps " + this.dice[i].value);
+      this.updateState(player_monster.getName() + " has " + this.dice[i].value);
     }
     
-    log_message += this.dice[i].value + (i < player_monster.numberOfDice()-1 ? ", " : "");
-
-    if (this.roll_number < player_monster.numberOfRolls()) {
-      // If there are more rerolls, set dice to "r", except for kept
-      // dice, which should be kept as "k".
-      if (this.dice[i].state != 'k') {
-        this.updateState("dice__" + i + "__state", "r");
-      }
-    }
+    log_message += this.dice[i].value + (i < player_monster.numberOfDice() - 1 ? ", " : "");
   }
-  this.updateState("roll_number", this.roll_number + 1, log_message);
+
+  this.updateState(false, false, log_message);
 }
 
 

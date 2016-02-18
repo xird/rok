@@ -129,12 +129,23 @@
               damage = 0;
             }
 
-          console.log("APPLY_DAMAGE hook implemented in 'Armor Plating'. Damage: " + damage);
+            console.log("APPLY_DAMAGE hook implemented in 'Armor Plating'. Damage: " + damage);
             return damage;
           }
         }
        },
-    6: {name: "Background Dweller",            cost: 4, keep: true,  set: "original", implemented: false, description: "You can always reroll any [3] you have.", hooks: {}},
+    6: {name: "Background Dweller", cost: 4, keep: true, set: "original", implemented: false, description: "You can always reroll any [3] you have.",
+        hooks: {
+          "DICE_STATE": function (game, die) {
+            if (die.value === 3) {
+              die.state = die.state == 'r' ? 'rr' : "kr";  // 'rr' means 're-roll(able)'.  'kr' means 'keep-rerollale'.
+            }
+
+            console.log("DICE_STATE hook implemented in 'Background Dweller'. State: " + die.state);
+            return die;
+          }
+        }
+       },
     7: {name: "Burrowing",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.", hooks: {}},
     8: {name: "Camouflage",                    cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.", hooks: {}},
     9: {name: "Commuter Train",                cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]", hooks: {}},

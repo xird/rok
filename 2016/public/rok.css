@@ -473,6 +473,14 @@ div#dice div.k {
   background-color: #fcc;
 }
 
+div#dice div.rr {
+  background-color: #ffc;
+}
+
+div#dice div.kr {
+  background-color: #fcc;
+}
+
 div#dice div.n {
   background-color: #222;
 }

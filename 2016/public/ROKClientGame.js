@@ -308,6 +308,9 @@ ROKGame.prototype.initClient = function() {
       if ($(this).hasClass('k')) {
         keep_dice_ids.push($(this).data('die_id'));
       }
+      else if ($(this).hasClass('kr')) {
+        keep_dice_ids.push($(this).data('die_id'));
+      }
     });
     
     socket.emit("roll_dice", keep_dice_ids);
@@ -318,11 +321,17 @@ ROKGame.prototype.initClient = function() {
   // Toggle dice keep states
   $('#dice').on("click", "div", function toggleDiceStatus(){
     console.log('toggleDiceStatus');
-    if ($(this).hasClass("r")) {
-      $(this).removeClass("r").addClass("k");
+    if ($(this).hasClass('r')) {
+      $(this).removeClass('r').addClass('k');
     }
-    else if ($(this).hasClass("k")) {
-      $(this).removeClass("k").addClass("r");    
+    else if ($(this).hasClass('k')) {
+      $(this).removeClass('k').addClass('r');
+    }
+    else if ($(this).hasClass('rr')) {
+      $(this).removeClass('rr').addClass('kr');
+    }
+    else if ($(this).hasClass('kr')) {
+      $(this).removeClass('kr').addClass('rr');
     }
   });
   
@@ -417,11 +426,17 @@ ROKGame.prototype.initClient = function() {
       if (game.turn_phase == 'roll') {
         var elid = '#dice__' + (e.keyCode - 49) + '__value';
       
-        if ($(elid).hasClass("r")) {
-          $(elid).removeClass("r").addClass("k");
+        if ($(elid).hasClass('r')) {
+          $(elid).removeClass('r').addClass('k');
         }
-        else if ($(elid).hasClass("k")) {
-          $(elid).removeClass("k").addClass("r");    
+        else if ($(elid).hasClass('k')) {
+          $(elid).removeClass('k').addClass('r');
+        }
+        else if ($(elid).hasClass('rr')) {
+          $(this).removeClass('rr').addClass('kr');
+        }
+        else if ($(elid).hasClass('kr')) {
+          $(this).removeClass('kr').addClass('rr');
         }
       }
     }
@@ -650,10 +665,10 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
   game.handleUpdates(updates); 
 }
 
-ROKGame.prototype.handle__dice__state = function(updates) {
+ROKGame.prototype.handle__dice__state = function (updates) {
   var update = updates.shift();
   game.dice[update.id].state = update.value;
-  $("#dice__" + update.id + "__value").removeClass("r i f n k");
+  $("#dice__" + update.id + "__value").removeClass("r i f n k rr kr");
   $("#dice__" + update.id + "__value").addClass(update.value);
   this.handleUpdates(updates);
 }
