@@ -3,7 +3,7 @@ ROKConfig = {
   'clean_up_idle_players': false,
   'initial_snot': 55,
   'log_level': "debug",
-  'top_cards': [1]
+  'top_cards': [7]
 }
 
 module.exports = ROKConfig;

@@ -149,7 +149,28 @@ var theCards = {
           }
         }
        },
-    7: {name: "Burrowing",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.", hooks: {}},
+    7: {name: "Burrowing",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.",
+        hooks: {
+          "RESOLVE_ATTACK_DICE": function (game, attackage) {
+            if (!game.inKyoto(game.monsters[game.turn_monster])) {
+              attackage.damage++
+            }
+
+            utils.log("Damage: " + attackage.damage);
+            return attackage;
+          },
+          "YEILD_KYOTO": function (game) {
+            var rv = 0;
+
+            if (!game.inKyoto(game.monsters[game.turn_monster])) {
+              rv = 1;
+            }
+
+            utils.log("Damage: " + rv);
+            return rv;
+          }
+        }
+       },
     8: {name: "Camouflage",                    cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.", hooks: {}},
     9: {name: "Commuter Train",                cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]", hooks: {}},
     10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.", hooks: {}},

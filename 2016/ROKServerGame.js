@@ -70,11 +70,11 @@ ROKServerGame.prototype.init = function (player) {
    * Cards listed in the 'topCards' array will be left ontop of the deck in the order specified.
    * This means that the first three cards listed in here will be available for monsters to purchave from the begining of the came.
    **/
-  var temp, topCards = ROKConfig.top_cards;  // Note array identifys cards indexes in the array (which is card id - 1)
+  var temp, topCards = ROKConfig.top_cards;
   for (var i = 0; i < topCards.length ; i++) {
     temp = card_deck[card_deck.length - 1 - i];
-    card_deck[card_deck.length - 1 - i] = card_deck[topCards[i]];
-    card_deck[topCards[i]] = temp;
+    card_deck[card_deck.length - 1 - i] = card_deck[topCards[i]-1];
+    card_deck[topCards[i]-1] = temp;
   }
 
   // Shuffle the deck (Fisher–Yates shuffle)
@@ -133,8 +133,8 @@ ROKServerGame.prototype.init = function (player) {
  * attributes directly in order to automatically keep the "updates" attribute
  * up-to-date.
  *
- * You can also call the function with the two first parameters empty, if you
- * need to add a log message that's not directly related to any state change.
+ * You can also call the function with the two first parameters set to false if
+ * you need to add a log message that's not directly related to any state change.
  *
  * @param String field
  *   The attribute of the Game object to be updated. This is a string
@@ -151,6 +151,12 @@ ROKServerGame.prototype.init = function (player) {
  */
 ROKServerGame.prototype.updateState = function(field, value, log) {
   utils.log("ROKServerGame.prototype.updateState of " + field + " to " + value);
+
+  if (field == null || value == null) {
+    console.log("*** FIX YOUR SHIT! ***");
+    console.log("*** FIX YOUR SHIT! ***");
+    console.log("*** FIX YOUR SHIT! ***");
+  }
 
   var update = {
     element: "",
@@ -747,14 +753,11 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
      * only yield Kyoto if they are 'attacked'.
      **/
     attackage = this.card_hook("RESOLVE_ATTACK_DICE", { "value_to_alter": attackage });
-    utils.log('damage: ' + attackage.damage);
 
     // Targets monsters are now defined in an array, loop through and apply damage:
     for (var i = 0; i < target_monsters.length; i++) {
       var target_monster = this.monsters[target_monsters[i]];
-      var damage = this.card_hook("APPLY_DAMAGE", { "monster_id": target_monster.getId(), "value_to_alter": attackage.damage });
-
-      target_monster.applyDamage(damage);
+      target_monster.applyDamage(attackage.damage);
     }
   }
 
@@ -781,9 +784,9 @@ ROKServerGame.prototype.resolveAttackDice = function(player) {
  * Ask for yield from Kyoto Bay
  **
  * If Kyoto Bay is empty we will advance to asking about Kyoto City
- * If Kyoto Bay is occupied the 'resolveYeild(...)' will advance to asking about Kyoto City
+ * If Kyoto Bay is occupied the 'resolveYield(...)' will advance to asking about Kyoto City
  **/
-ROKServerGame.prototype.askBayYield = function() {
+ROKServerGame.prototype.askBayYield = function () {
   utils.log("ROKServerGame.prototype.askBayYield", "debug");
 
   if (this.monster_in_kyoto_bay_id != null) {
@@ -809,7 +812,7 @@ ROKServerGame.prototype.askBayYield = function() {
  * Ask for yield from Kyoto City
  **
  * If Kyoto City is empty we will advance to attempting to enter Kyoto
- * If Kyoto City is occupied the 'resolveYeild(...)' will advance to attempting to enter Kyoto
+ * If Kyoto City is occupied the 'resolveYield(...)' will advance to attempting to enter Kyoto
  **/
 ROKServerGame.prototype.askCityYield = function() {
   utils.log("ROKServerGame.prototype.askCityYield", "debug");
@@ -844,7 +847,10 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
 
   if (yielding) {
     this.monsters[this.next_input_from_monster].yieldKyoto();
-    this.updateState("monster_in_kyoto_bay_id", null, monster_name + " yields Kyoto " + part_of_kyoto + " to " + this.monsters[this.turn_monster].getData().name + ".");
+    var damage = this.card_hook("YEILD_KYOTO", { "monster_id": this.next_input_from_monster });
+    this.monsters[this.turn_monster].applyDamage(damage);
+
+    this.updateState(false, false, monster_name + " yields Kyoto " + part_of_kyoto + " to " + this.monsters[this.turn_monster].getData().name + ".");
   }
   else {
     this.updateState(false, false, monster_name + " stays in Kyoto " + part_of_kyoto);

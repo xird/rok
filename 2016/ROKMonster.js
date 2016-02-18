@@ -334,6 +334,7 @@ function Monster(myId, myName, theGame) {
    * check for deaths and save the new health level.
    **/
   Monster.prototype.applyDamage = function (damage) {
+    var damage = this._game.card_hook("APPLY_DAMAGE", { "monster_id": this.getId(), "value_to_alter": damage });
     return this.addHealth(-damage);
   };
 }
