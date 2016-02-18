@@ -65,11 +65,11 @@ app.use(session);
  *
  */
 app.use(function (req, res, next) {
-  console.log("SESS INIT, uid: " + req.session.uid);
-  console.log(req.session);
+  utils.log("SESS INIT, uid: " + req.session.uid);
+  utils.log(req.session);
   var uid = req.session.uid;
   if (!uid) {
-    console.log("  setting uuid");
+    utils.log("  setting uuid");
     req.session.uid = uuid.v4();
   }
 
@@ -78,7 +78,7 @@ app.use(function (req, res, next) {
 
 // Serves the main client
 app.get('/', function (req, res) {
-  console.log('MAIN, uid: ' + req.session.uid);
+  utils.log('MAIN, uid: ' + req.session.uid);
   res.render(viewspath + "client", {
     "hostname": req.headers.host
   });
@@ -106,10 +106,11 @@ app.use("*",function(req, res, next){
   });
 });
 
+
 // Create HTTP server
 server = http.createServer(app);
 server.listen(PORT, HOST, null, function() {
-    console.log('Server listening on port %d in %s mode', this.address().port, app.settings.env);
+  utils.log('Server listening at ' + this.address().address + ":" + this.address().port + " in " + app.settings.env + " mode.");
 });
 
 // Create and start the Socket.io server
@@ -124,11 +125,11 @@ lobby.iosockets = io.sockets.sockets;
  *
  **/
 io.use(function(socket, next) {
-  console.log("IO.USE");
+  utils.log("IO.USE");
 
   // The user should always have a cookie by now.
   if(!socket.request.headers.cookie) {
-    console.log("No cookie");
+    utils.log("No cookie");
     return next(new Error('No cookie transmitted.'));
   }
 
@@ -149,13 +150,13 @@ io.use(function(socket, next) {
  * Let any clients know that the server has gone away.
  */
 process.on('SIGINT', function catchSIGINT() {
-  console.log('About to exit.');
+  utils.log('About to exit.');
   io.sockets.emit("server_has_gone_away");
   process.exit();
 });
 
 process.on('uncaughtException', function catchUncaught(e) {
-  console.log(e.stack);
+  utils.log(e.stack);
   io.sockets.emit("server_has_gone_away");
   process.exit();
 });
@@ -168,7 +169,7 @@ process.on('uncaughtException', function catchUncaught(e) {
  * @param socket Object The io socket of the current player.
  */
 var addPlayer = function(socket, sessid) {
-  console.log("addPlayer");
+  utils.log("addPlayer");
 
   // Get player by session id
   for (var p in players) {
@@ -245,8 +246,8 @@ var removePlayer = function(player) {
  */
 var cleanUpIdlePlayers = function () {
   var now = Date.now();
-  console.log("cleanUpIdlePlayers " + new Date().getSeconds());
-  console.log(players);
+  utils.log("cleanUpIdlePlayers " + new Date().getSeconds());
+  utils.log(players);
   var idle_players = [];
   for (var pid in players) {
     var diff = now - players[pid].last_seen;
@@ -256,7 +257,7 @@ var cleanUpIdlePlayers = function () {
   }
 
   for (var i = 0; i < idle_players.length; i++) {
-    console.log('Cleaning up idle player ' + idle_players[i].name);
+    utils.log('Cleaning up idle player ' + idle_players[i].name);
     var idle_socket = idle_players[i].getSocket();
     // Remove the player from the lobby
     lobby.removePlayer(idle_players[i].id);
@@ -268,7 +269,7 @@ var cleanUpIdlePlayers = function () {
       game.leaveGame(idle_players[i]);
 
       // If it was the host leaving, drop the other players to the lobby.
-      console.log('mode: ' + player_mode);
+      utils.log('mode: ' + player_mode);
       if (player_mode == 'host') {
         for (var pid in game.players) {
           game.players[pid].getSocket().emit('lobby_message', "The host has disconnected.");
@@ -289,8 +290,8 @@ var cleanUpIdlePlayers = function () {
       idle_socket.emit('die');
     }
 
-    //console.log("Deleted idle player, players now:");
-    //console.log(players);
+    //utils.log("Deleted idle player, players now:");
+    //utils.log(players);
     lobby.snapState();
   }
 
@@ -300,7 +301,7 @@ var cleanUpIdlePlayers = function () {
   for (var game_id in games) {
     var game_players = games[game_id].players;
     if (Object.keys(game_players).length == 0) {
-      console.log("Deleting empty game");
+      utils.log("Deleting empty game");
       delete games[game_id];
       lobby.snapState();
     }
@@ -325,28 +326,28 @@ if (ROKConfig.clean_up_idle_players) {
 io.on('connection', function (socket) {
   var iosockets = this;
 
-  console.log("SOCKET CONN");
+  utils.log("SOCKET CONN");
   // Make sure that the user has initialized a session.
   if (!socket.handshake.session) {
-    console.log("ERROR: User has no session.");
+    utils.log("ERROR: User has no session.");
     // TODO: Make sure to notify the client that things are not cool
     return;
   }
   var session = socket.handshake.session;
   var sessid = session.id;
 
-  console.log("session id: " + session.id);
-  console.log("session uid: " + session.uid);
+  utils.log("session id: " + session.id);
+  utils.log("session uid: " + session.uid);
 
   // Create a new player (returns an existing player if one exists for this
   // session).
   var player = addPlayer(socket, sessid);
-  //console.log(player);
+  //utils.log(player);
   player.status = "connected";
 
   // Depending on the user's status, either update the lobby or the game.
   if (player.game_id) {
-    console.log('Game state: ' + games[player.game_id].game_state);
+    utils.log('Game state: ' + games[player.game_id].game_state);
     if (games[player.game_id].game_state == 'lobby') {
       lobby.snapState();
     }
@@ -383,20 +384,20 @@ io.on('connection', function (socket) {
       // around for some reason. It probably didn't get the "die" message, or
       // doesn't know that it's meant to die when it gets it. Send it again,
       // just in case.
-      console.log("Zombie still kicking around");
+      utils.log("Zombie still kicking around");
       socket.emit("die");
     }
     else if (typeof players[player.id] == 'undefined') {
       // The "player" variable keeps the idle player in existence even though
       // it's been removed from the global "players" array. So, in case we're
       // dealing with a zombie, get rid of it:
-      console.log("Nuking zombie " + player.name);
+      utils.log("Nuking zombie " + player.name);
       player = null;
     }
     else {
       // Everything is ok, the player hasn't been removed.
       var now = Date.now();
-//      console.log('keeping ' + player.name +' alive at ' + new Date().getSeconds());
+//      utils.log('keeping ' + player.name +' alive at ' + new Date().getSeconds());
       player.last_seen = now;
     }
 
@@ -408,31 +409,31 @@ io.on('connection', function (socket) {
 
   // Debug game
   socket.on("log_lobby_state", function debugLobbyState() {
-    console.log(utils.dump(lobby));
+    utils.log(utils.dump(lobby));
   });
 
   // Debug game
   socket.on("log_game_state", function debugGameState() {
-    console.log(utils.dump(games));
+    utils.log(utils.dump(games));
   });
 
   // Debug players
   socket.on("log_players_state", function debugPlayerState() {
-    console.log("debugPlayerState");
-    console.log(utils.dump(players));
+    utils.log("debugPlayerState");
+    utils.log(utils.dump(players));
   });
 
   // Quickly create a game for testing purposes.
   socket.on("quick_game", function debugQuickGame(args) {
-    console.log("Initializing quick game");
+    utils.log("Initializing quick game");
     if (Object.keys(players).length < 2) {
-      console.log('ERROR: Two players required');
+      utils.log('ERROR: Two players required');
       socket.emit('lobby_message', "Two players required");
       return;
     }
 
     if (player.game_id) {
-      console.log('ERROR: You already have a game');
+      utils.log('ERROR: You already have a game');
       socket.emit('game_message', "You already have a game");
       return;
     }
@@ -469,15 +470,15 @@ io.on('connection', function (socket) {
 
   // Quickly create a three player game for testing purposes.
   socket.on("quick_game_3", function debugQuickGame3(args) {
-    console.log("Initializing quick game for three players");
+    utils.log("Initializing quick game for three players");
     if (Object.keys(players).length < 3) {
-      console.log('ERROR: Three players required');
+      utils.log('ERROR: Three players required');
       socket.emit('lobby_message', "Three players required");
       return;
     }
 
     if (player.game_id) {
-      console.log('ERROR: You already have a game');
+      utils.log('ERROR: You already have a game');
       socket.emit('game_message', "You already have a game");
       return;
     }
@@ -522,14 +523,14 @@ io.on('connection', function (socket) {
 
   // Handles players leaving the game.
   socket.on('disconnect', function lobbyRemovePlayer() {
-    console.log('DISCONNECT player ' + player.name);
+    utils.log('DISCONNECT player ' + player.name);
     removePlayer(player);
   });
 
 
   // Creates a new game and sets the player who created the game as a host.
   socket.on("new_game", function lobbyNewGame(args) {
-    console.log('new_game');
+    utils.log('new_game');
     var game = new ROKServerGame(player);
     game.iosockets = iosockets.sockets;
     games[game.id] = game;
@@ -544,24 +545,24 @@ io.on('connection', function (socket) {
    *
    */
   socket.on("invite", function lobbyInvite(invitee_id) {
-    console.log("lobbyInvite");
+    utils.log("lobbyInvite");
     lobby.invitePlayer(player, players[invitee_id]);
     lobby.snapState();
   });
 
   socket.on("accept", function lobbyAccept() {
-    console.log("lobbyAccept");
+    utils.log("lobbyAccept");
     if (player.inviter_player_id) {
       var inviter = players[player.inviter_player_id];
       var game = games[inviter.game_id];
       player.invited_to_game_id = 0;
       player.inviter_player_id = 0;
-      console.log(player);
+      utils.log(player);
       game.addPlayer(player);
       lobby.snapState();
     }
     else {
-      console.log("ERROR: There is no invite");
+      utils.log("ERROR: There is no invite");
       var msg = "There is no invitation to accept.";
       player.getSocket().emit('lobby_message', msg);
     }
@@ -569,7 +570,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on("decline", function lobbyDecline() {
-    console.log("lobbyDecline");
+    utils.log("lobbyDecline");
 
     var msg = "Your invitation was declined.";
     players[player.inviter_player_id].getSocket().emit('lobby_message', msg);
@@ -581,7 +582,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on("leave_invited_game", function lobbyDecline() {
-    console.log("lobbyLeaveInvitedGame");
+    utils.log("lobbyLeaveInvitedGame");
     games[player.game_id].leaveGame(player);
     lobby.snapState();
   });
@@ -595,7 +596,7 @@ io.on('connection', function (socket) {
    *
    */
   socket.on("confirm_game", function lobbyConfirmGame() {
-    console.log("lobbyConfirmGame");
+    utils.log("lobbyConfirmGame");
 
     // Check that the player has a game
     if (typeof games[player.game_id] == "object") {
@@ -612,7 +613,7 @@ io.on('connection', function (socket) {
       }
     }
     else {
-      console.log("ERROR: Create a game first");
+      utils.log("ERROR: Create a game first");
       socket.emit('game_message', "Create a game first.");
     }
   });
@@ -625,9 +626,9 @@ io.on('connection', function (socket) {
    *
    */
   socket.on("cancel_game", function lobbyCancelGame() {
-    console.log('lobbyCancelGame');
-    console.log(player);
-    console.log(games);
+    utils.log('lobbyCancelGame');
+    utils.log(player);
+    utils.log(games);
     if (player.mode == "host") {
       var game = games[player.game_id];
       player.mode = "";
@@ -649,13 +650,13 @@ io.on('connection', function (socket) {
       }
 
       // Delete game
-      console.log('trying to delete game ' + game.id);
+      utils.log('trying to delete game ' + game.id);
       delete games[game.id];
 
       lobby.snapState();
     }
     else {
-      console.log("ERROR: Canceling game hosted by someone else.");
+      utils.log("ERROR: Canceling game hosted by someone else.");
       socket.emit('game_message', "You can only cancel your own games.");
     }
   });

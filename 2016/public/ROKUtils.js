@@ -20,12 +20,12 @@ function ROKUtils () {
 ROKUtils.prototype.dump = function dump(arr,level) {
 	var dumped_text = "";
 	if(!level) level = 1;
-	
+
 	//The padding given at the beginning of the line.
 	var level_padding = "";
 	for(var j=0;j<level+1;j++) level_padding += "    ";
-	
-	if(typeof(arr) == 'object') { //Array/Hashes/Objects 
+
+	if(typeof(arr) == 'object') { //Array/Hashes/Objects
 		for(var item in arr) {
 			var value = arr[item];
 
@@ -34,7 +34,7 @@ ROKUtils.prototype.dump = function dump(arr,level) {
 			if(typeof(value) == 'object' && item != "_game" && item != "iosockets") {
 				dumped_text += level_padding + "'" + item + "' ...\n";
 				dumped_text += dump(value,level+1);
-			} 
+			}
       else if (typeof(value) == 'function') {
         dumped_text += level_padding + "'" + item + "' FUNCTION" + "\"\n";
       }
@@ -42,7 +42,7 @@ ROKUtils.prototype.dump = function dump(arr,level) {
 				dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
 			}
 		}
-	} 
+	}
 	else { //Stings/Chars/Numbers etc.
 		dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
 	}
@@ -51,7 +51,7 @@ ROKUtils.prototype.dump = function dump(arr,level) {
 
 
 /**
- * 
+ *
  */
 ROKUtils.prototype.getRandomInt = function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -87,6 +87,41 @@ ROKUtils.prototype.dieRoll = function () {
   ];
   var r = this.getRandomInt(0, 5);
   return faces[r];
+}
+
+
+/**
+ *
+ */
+ROKUtils.prototype.log = function (msg, level) {
+  var currentLevel = ROKConfig.log_level;
+
+  var levels = ["debug", "notice", "warning", "error"];
+  if (levels.indexOf(level) == -1) {
+    level = "debug";
+  }
+
+  switch (currentLevel) {
+    case "debug":
+      if (level == "debug") {
+        console.log(msg);
+      }
+
+    case "notice":
+      if (level == "notice") {
+        console.log(msg);
+      }
+
+    case "warning":
+      if (level == "warning") {
+        console.log(msg);
+      }
+
+    case "error":
+      if (level == "error") {
+        console.log(msg);
+      }
+  }
 }
 
 
