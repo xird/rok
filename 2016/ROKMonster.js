@@ -128,7 +128,7 @@ function Monster(myId, myName, theGame) {
       if (this.getHealth() != old_health) {
         if (!log_message) {
           /**
-           * This should head as either:
+           * This should read as either:
            *   "Monster gains xxx health."
            * Or:
            *   "Monster takes xxx damage."

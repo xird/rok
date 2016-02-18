@@ -585,7 +585,8 @@ ROKServerGame.prototype.rollDiceClicked = function (player, keep_dice_ids) {
 ROKServerGame.prototype.rollDice = function (player_monster, state_to_roll) {
   utils.log("ROKServerGame.prototype.rollDice", "debug");
 
-  log_message = player_monster.getName() + " gets ";
+  roll_log = player_monster.getName() + " rolls: ";
+  gets_log = player_monster.getName() + "  gets: ";
 
   // Flag variable for detecting situation where the monster keeps all
   // the dice
@@ -597,17 +598,21 @@ ROKServerGame.prototype.rollDice = function (player_monster, state_to_roll) {
       var die = { state: 'r', value: utils.dieRoll() };
       die = this.card_hook("DICE_STATE", { "value_to_alter": die });
 
-      this.updateState("dice__" + i + "__value", die.value, player_monster.getName() + " rolls " + die.value);
+      this.updateState("dice__" + i + "__value", die.value);
       this.updateState("dice__" + i + "__state", die.state);
+
+
+      roll_log += this.dice[i].value + (i < player_monster.numberOfDice() - 1 ? ", " : "");
     }
     else {
-      this.updateState(false, false, player_monster.getName() + " has " + this.dice[i].value);
+      roll_log += '#' + (i < player_monster.numberOfDice() - 1 ? ", " : "");
     }
 
-    log_message += this.dice[i].value + (i < player_monster.numberOfDice() - 1 ? ", " : "");
+    gets_log += this.dice[i].value + (i < player_monster.numberOfDice() - 1 ? ", " : "");
   }
 
-  this.updateState(false, false, log_message);
+  this.updateState(false, false, roll_log);
+  this.updateState(false, false, gets_log);
 }
 
 
