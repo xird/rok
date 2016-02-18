@@ -4,7 +4,7 @@
  * Base class is in ROKGame.js
  *
  * TODO rename game.this_monster to game.this_monster_id
- * 
+ *
  */
 ROKGame.prototype.initClient = function() {
   console.log("ROKGame.prototype.initClient");
@@ -25,7 +25,7 @@ ROKGame.prototype.initClient = function() {
   socket.on('snap_state', function socketSnapState(data) {
     console.log("snapping game state");
     console.log(utils.dump(data));
-    
+
     game.game_state = data.game_state;
     game.turn_phase = data.turn_phase;
     game.turn_monster = data.turn_monster;
@@ -55,10 +55,10 @@ ROKGame.prototype.initClient = function() {
       $('#lobby').hide();
       $('#monster_selection').show();
       $('#game').hide();
-      
+
       // Randomize the order of the monster select buttons.
       var monster_select_buttons = JSON.stringify(utils.shuffleArray([{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, ]));
-      
+
       $('#monster_select_buttons').json2html(monster_select_buttons, transforms.monster_select_buttons);
     }
     else {
@@ -66,9 +66,9 @@ ROKGame.prototype.initClient = function() {
       $('#lobby').hide();
       $('#monster_selection').hide();
       $('#game').show();
-    
+
       // Write initial values to all UI elements.
-      
+
       // Place monsters starting from the monsters that's next in sequence from
       // the current player's monster.
       var own_monster_index = game.original_monster_order.indexOf(game.this_monster);
@@ -92,8 +92,8 @@ ROKGame.prototype.initClient = function() {
           index = 0;
         }
       }
-      
-      
+
+
       // Show the appropriate monster slots for the number of players in game.
       // The bottom left slot is always shown, as that's this player's slot.
       $('#ms6').show();
@@ -101,18 +101,18 @@ ROKGame.prototype.initClient = function() {
         case 2:
         $('#ms1').show();
           break;
-         
+
         case 3:
           $('#ms2').show();
           $('#ms4').show();
           break;
-         
+
         case 4:
           $('#ms1').show();
           $('#ms3').show();
           $('#ms4').show();
           break;
-         
+
         case 5:
           $('#ms1').show();
           $('#ms2').show();
@@ -120,12 +120,12 @@ ROKGame.prototype.initClient = function() {
           $('#ms4').show();
           $('#mskb').show();
           break;
-         
+
         case 6:
           $('.monster_slot').show();
           break;
       }
-      
+
       // Place the playing monsters in the visible monster slots.
       var index = first_monster_index;
       $('.monster_home:visible').each(function(){
@@ -143,7 +143,7 @@ ROKGame.prototype.initClient = function() {
         // Mark this slot as the home for this monster.
         $('.monster_home').removeClass('m' + monster_id + 'home');
         msel.addClass('m' + monster_id + 'home');
-        
+
         // Move the monster to its home, or to Kyoto if that's where it's at.
         if (game.monster_in_kyoto_city_id == monster_id) {
           //console.log(monster_id + ' init city');
@@ -163,8 +163,8 @@ ROKGame.prototype.initClient = function() {
           index = 0;
         }
       });
-      
-      
+
+
       // The slots have been generated, now add the actual data.
       var monster_ids = Object.keys(data.monsters);
       for (var i = 0; i < monster_ids.length; i++) {
@@ -197,39 +197,39 @@ ROKGame.prototype.initClient = function() {
 
 
 
-      
+
       // Highlight the active monster
-      $('#m' + game.next_input_from_monster).addClass('active'); 
-      
+      $('#m' + game.next_input_from_monster).addClass('active');
+
       // Dice.
       for (var i = 0; i < data.dice.length; i++) {
         game.handle__dice__state([{value: data.dice[i].state, id: i}]);
         game.handle__dice__value([{value: data.dice[i].value, id: i}]);
       }
-      
+
       // Cards
       game.handle__cards_available([{value: data.cards_available}]);
-      
+
       // Enable appropriate buttons for the current state.
       if (game.game_state == 'over') {
         console.log('over');
         $('#leave_game_button').show();
       }
       else {
-        $('#leave_game_button').hide();      
+        $('#leave_game_button').hide();
         if (game.next_input_from_monster == game.this_monster) {
           if (game.turn_phase == 'roll') {
             $('#roll_dice_button').show();
           }
           else {
-            $('#roll_dice_button').hide();          
+            $('#roll_dice_button').hide();
           }
-          
+
           if (game.turn_phase == 'buy') {
             $('#done_buying_button').show();
           }
           else {
-            $('#done_buying_button').hide();          
+            $('#done_buying_button').hide();
           }
 
           if (game.turn_phase == 'yield_kyoto') {
@@ -251,7 +251,7 @@ ROKGame.prototype.initClient = function() {
         }
       }
 
-      
+
       console.log('Setting focus to #game');
       // Set focus to the game to allow using the keyboard shortcuts
       // without pressing the lobby keys. Note that the div needs a tabindex
@@ -261,8 +261,8 @@ ROKGame.prototype.initClient = function() {
       $('#game').blur();
     }
   });
-  
-  
+
+
   /**
    * Update game state changes to the UI.
    */
@@ -279,9 +279,9 @@ ROKGame.prototype.initClient = function() {
     console.log('game message received');
     $('#messages').html(data).show().delay(1500).fadeOut(1000);
   });
-  
+
   // The server emits the "die" event after an idle player has been
-  // deleted. Resetting the browser's URL is the easiest way to force a 
+  // deleted. Resetting the browser's URL is the easiest way to force a
   // disconnect and to stop the keep_alive messages.
   socket.on('die', function socketDisconnect() {
     window.location = "disconnected";
@@ -289,7 +289,7 @@ ROKGame.prototype.initClient = function() {
 
 
   // UI event handlers
-  
+
   // Monster selection
   $("#monster_selection").on("click", ".monster_select_button", function clickMonsterSelect() {
     console.log('clickMonsterSelect ' + $(this).data('monster_id'));
@@ -302,7 +302,7 @@ ROKGame.prototype.initClient = function() {
   $('#game').on("click", "#roll_dice_button", function clickRollDice(){
     console.log('clickRollDice');
     $(this).attr('disabled', true);
-    
+
     var keep_dice_ids = [];
     $('#dice div').each(function(){
       if ($(this).hasClass('k')) {
@@ -312,7 +312,7 @@ ROKGame.prototype.initClient = function() {
         keep_dice_ids.push($(this).data('die_id'));
       }
     });
-    
+
     socket.emit("roll_dice", keep_dice_ids);
     return false;
   });
@@ -334,20 +334,20 @@ ROKGame.prototype.initClient = function() {
       $(this).removeClass('kr').addClass('rr');
     }
   });
-  
+
   // Buy cards
   $('#game').on("click", ".card", function clickBuyCard() {
     console.log("clickBuyCard " + $(this).data("available_card_index"));
     socket.emit("buy_card", $(this).data("available_card_index"));
   });
-  
+
   // Finish buying cards.
   $('#game').on("click", "#done_buying_button", function clickDoneBuying(){
     console.log('clickDoneBuying');
     socket.emit("done_buying");
     return false;
   });
-  
+
   // Show bigger cards when hovering on them.
   $('#game').on({
     mouseover: function () {
@@ -382,14 +382,14 @@ ROKGame.prototype.initClient = function() {
     }
   }, ".card, .monster_cards_owned");
 
-  
+
   // Leave game.
   $('#game').on("click", "#leave_game_button", function clickLeaveGame(){
     console.log('clickLeaveGame');
     socket.emit("leave_game");
     return false;
   });
-  
+
   // Yield Kyoto or not.
   $('#game').on("click", "#yield_kyoto_city_button", function clickYieldCity(){
     console.log('yielding city');
@@ -415,7 +415,7 @@ ROKGame.prototype.initClient = function() {
     socket.emit("resolve_yield", {kyoto: "bay", yield: false});
     return false;
   });
-  
+
   /**
    * Keyboard shortcuts
    */
@@ -425,7 +425,7 @@ ROKGame.prototype.initClient = function() {
       // Dice status toggles, i.e. number keys 1-8
       if (game.turn_phase == 'roll') {
         var elid = '#dice__' + (e.keyCode - 49) + '__value';
-      
+
         if ($(elid).hasClass('r')) {
           $(elid).removeClass('r').addClass('k');
         }
@@ -453,10 +453,10 @@ ROKGame.prototype.initClient = function() {
       // [y]ield
       if (game.turn_phase == "yield_kyoto") {
         if (game.monster_in_kyoto_city_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
-          $('#yield_kyoto_city_button').click();        
+          $('#yield_kyoto_city_button').click();
         }
         else if (game.monster_in_kyoto_bay_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
-          $('#yield_kyoto_bay_button').click();        
+          $('#yield_kyoto_bay_button').click();
         }
       }
     }
@@ -464,10 +464,10 @@ ROKGame.prototype.initClient = function() {
       // [s]tay
       if (game.turn_phase == "yield_kyoto") {
         if (game.monster_in_kyoto_city_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
-          $('#stay_in_kyoto_city_button').click();        
+          $('#stay_in_kyoto_city_button').click();
         }
         else if (game.monster_in_kyoto_bay_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
-          $('#stay_in_kyoto_bay_button').click();        
+          $('#stay_in_kyoto_bay_button').click();
         }
       }
     }
@@ -478,7 +478,7 @@ ROKGame.prototype.initClient = function() {
       }
     }
   });
-  
+
   var transforms = {
     'monster_select_buttons': [
       {tag: "div", id: "monster_select_button_${id}", class: "monster_select_button", "data-monster_id": "${id}", value: "Select ${id}"}
@@ -502,23 +502,23 @@ ROKGame.prototype.moveMonster = function(monster_id, target, immediate) {
       // Get this monsters home slot element:
       var msel = $(".m" + monster_id + "home");
       break;
-      
+
     case "city":
       var msel = $("#mskc");
       break;
-      
+
     case "bay":
       var msel = $("#mskb");
       break;
   }
-  // Match the selected monster elements position attributes to that of 
+  // Match the selected monster elements position attributes to that of
   // the selected monster slot.
   //
   if (!immediate) {
     mel.animate({top: msel.css('top'), left: msel.css('left')}, 500);
   }
   else {
-    mel.css('top', msel.css('top')).css('left', msel.css('left'));  
+    mel.css('top', msel.css('top')).css('left', msel.css('left'));
   }
 }
 
@@ -534,7 +534,7 @@ ROKGame.prototype.moveMonster = function(monster_id, target, immediate) {
  *   - value: The new value of the element.
  *   - handler: If a function by this name exists, that should be called instead
  *     of updating the DOM directly.
- *   - id: In case there are multiple elements of the same type (monsters, 
+ *   - id: In case there are multiple elements of the same type (monsters,
  *     dice), this id defines which one we're updating.
  *   - log: A log message to be shown to users.
  *
@@ -546,14 +546,14 @@ ROKGame.prototype.handleUpdates = function(updates) {
   console.log("Handle updates");
 
   var update = updates[0];
-  
+
   if (update.log) {
-    this.addToLog(update.log);    
+    this.addToLog(update.log);
   }
-  
+
   //console.log(utils.dump(update));
   console.log('Handler: ' + update.handler);
-  
+
   if (typeof this[update.handler] == "function") {
     // Specific handler exists, call it
     this[update.handler](updates);
@@ -605,10 +605,12 @@ ROKGame.prototype.handle__next_input_from_monster = function(updates) {
 
   $('.monster').removeClass('active');
   $('#m' + update.value).addClass('active');
-  
+
   this.handleUpdates(updates);
 }
 
+// FIXME #20 "initial load roll number is wrong"; This needs to be done in
+// snapState() as well
 ROKGame.prototype.handle__roll_number = function(updates) {
   var update = updates.shift();
   console.log("ROKGame.prototype.handle__roll_number to " + update.value);
@@ -625,7 +627,7 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
   game.turn_phase = update.value;
   var elid = "#turn_phase";
   $(elid).html(update.value);
-  
+
   // Note: "this_monster" needs to always be updated before turn_phase, or this
   // will never remove the disabled-attribute.
   if (update.value == 'roll' && game.turn_monster == game.this_monster) {
@@ -634,14 +636,14 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
   else {
     $('#roll_dice_button').hide();
   }
-  
+
   if (update.value == 'buy' && game.turn_monster == game.this_monster) {
     $('#done_buying_button').show();
   }
   else {
     $('#done_buying_button').hide();
   }
-  
+
   if (update.value == 'yield_kyoto' && game.next_input_from_monster == game.this_monster) {
     console.log('enable yield');
 
@@ -661,8 +663,8 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
     $('#yield_kyoto_bay_button').hide();
     $('#stay_in_kyoto_bay_button').hide();
   }
-  
-  game.handleUpdates(updates); 
+
+  game.handleUpdates(updates);
 }
 
 ROKGame.prototype.handle__dice__state = function (updates) {
@@ -683,25 +685,25 @@ ROKGame.prototype.handle__dice__value = function(updates) {
     case "p":
       $(elid).css('opacity', 0).html("").removeClass('heal snot').addClass('punch').animate({opacity: 1}, 300, function() {
         game.handleUpdates(updates);
-      });    
+      });
       break;
-      
+
     case "h":
       $(elid).css('opacity', 0).html("").removeClass('punch snot').addClass('heal').animate({opacity: 1}, 300, function() {
         game.handleUpdates(updates);
-      });    
+      });
       break;
-      
+
     case "s":
       $(elid).css('opacity', 0).html("").removeClass('punch heal').addClass('snot').animate({opacity: 1}, 300, function() {
         game.handleUpdates(updates);
-      });    
+      });
       break;
-      
+
     default:
       $(elid).removeClass('punch heal snot').css('opacity', 0).html(update.value).animate({opacity: 1}, 300, function() {
         game.handleUpdates(updates);
-      });    
+      });
       break;
   }
 }
@@ -711,7 +713,7 @@ ROKGame.prototype.handle__monsters__victory_points = function(updates) {
   game.monsters[update.id].victory_points = update.value;
   var elid = "#monsters__" + update.id + "__victory_points";
 
-  // Make sure the highlight stays centered on the numbers regardless of the 
+  // Make sure the highlight stays centered on the numbers regardless of the
   // number of numbers.
   if (update.value.toString().length == 1) {
     $(elid).parent().find('.monster_stats_bg').css('background-position', '95px 0');
@@ -719,7 +721,7 @@ ROKGame.prototype.handle__monsters__victory_points = function(updates) {
   else {
     $(elid).parent().find('.monster_stats_bg').css('background-position', '100px 0');
   }
-  
+
   $(elid).html(update.value).parent().find('.monster_stats_bg').css('opacity', 1).animate({opacity: 0}, 1000, function() {
     game.handleUpdates(updates);
   });
@@ -729,8 +731,8 @@ ROKGame.prototype.handle__monsters__snot = function(updates) {
   var update = updates.shift();
   game.monsters[update.id].snot = update.value;
   var elid = "#monsters__" + update.id + "__snot";
-  
-  // Make sure the highlight stays centered on the numbers regardless of the 
+
+  // Make sure the highlight stays centered on the numbers regardless of the
   // number of numbers.
   if (update.value.toString().length == 1) {
     $(elid).parent().find('.monster_stats_bg').css('background-position', '-5px 0');
@@ -738,7 +740,7 @@ ROKGame.prototype.handle__monsters__snot = function(updates) {
   else {
     $(elid).parent().find('.monster_stats_bg').css('background-position', '0 0');
   }
-    
+
   $(elid).html(update.value).parent().find('.monster_stats_bg').css('opacity', 1).animate({opacity: 0}, 1000, function() {
     game.handleUpdates(updates);
   });
@@ -748,7 +750,7 @@ ROKGame.prototype.handle__monsters__player_id = function(updates) {
   var update = updates.shift();
   game.monsters[update.id].player_id = update.value;
   var elid = "#monster_select_button_" + update.id;
-  
+
   $(elid).addClass('selected');
   game.handleUpdates(updates);
 }
@@ -761,7 +763,7 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
 
   if (old_health > update.value) {
     // Red.
-    // Make sure the highlight stays centered on the numbers regardless of the 
+    // Make sure the highlight stays centered on the numbers regardless of the
     // number of numbers.
     if (update.value.toString().length == 1) {
       $(elid).parent().find('.monster_stats_bg').css('background-position', '145px 0');
@@ -772,7 +774,7 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
   }
   else {
     // Blue.
-    // Make sure the highlight stays centered on the numbers regardless of the 
+    // Make sure the highlight stays centered on the numbers regardless of the
     // number of numbers.
     if (update.value.toString().length == 1) {
       $(elid).parent().find('.monster_stats_bg').css('background-position', '45px 0');
@@ -782,7 +784,7 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
     }
 
   }
-  
+
   $(elid).html(update.value).parent().find('.monster_stats_bg').css('opacity', 1).animate({opacity: 0}, 1000, function() {
     console.log('checking death: ' + update.value);
     if (update.value < 1) {
@@ -795,9 +797,9 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
 
 ROKGame.prototype.handle__monster_in_kyoto_city_id = function(updates) {
   console.log("handle__monster_in_kyoto_city_id");
-  
+
   var update = updates.shift();
-  
+
   if (update.value != null) {
     this.moveMonster(update.value, "city");
   }
@@ -807,9 +809,9 @@ ROKGame.prototype.handle__monster_in_kyoto_city_id = function(updates) {
 
 ROKGame.prototype.handle__monster_in_kyoto_bay_id = function(updates) {
   console.log("handle__monster_in_kyoto_bay_id");
-  
+
   var update = updates.shift();
-  
+
   if (update.value != null) {
     this.moveMonster(update.value, "bay");
   }
@@ -819,9 +821,9 @@ ROKGame.prototype.handle__monster_in_kyoto_bay_id = function(updates) {
 
 ROKGame.prototype.handle__monster_leaving_kyoto_city_id = function(updates) {
   console.log("handle__monster_leaving_kyoto_city_id");
-  
+
   var update = updates.shift();
-  
+
   if (update.value != null) {
     this.moveMonster(update.value, "home");
   }
@@ -831,9 +833,9 @@ ROKGame.prototype.handle__monster_leaving_kyoto_city_id = function(updates) {
 
 ROKGame.prototype.handle__monster_leaving_kyoto_bay_id = function(updates) {
   console.log("handle__monster_leaving_kyoto_bay_id");
-  
+
   var update = updates.shift();
-  
+
   if (update.value != null) {
     this.moveMonster(update.value, "home");
   }

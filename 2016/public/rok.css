@@ -74,10 +74,10 @@ body {
 #monster_select_button_2.selected {
   background-position: -214px -142px;
 }
-    
+
 #monster_select_button_3 {
   background-position: 0px -284px;
-}   
+}
 #monster_select_button_3.selected {
   background-position: -214px -284px;
 }
@@ -239,10 +239,10 @@ div.monster {
 #m2.active {
   background-position: -214px -142px;
 }
-    
+
 #m3 {
   background-position: 0px -284px;
-}   
+}
 #m3.active {
   background-position: -214px -284px;
 }

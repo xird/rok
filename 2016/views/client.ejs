@@ -23,23 +23,23 @@
 $(document).ready(function() {
   // Connect to the socket.
   socket = io.connect('//<%= hostname %>');
-  
+
   // Set up utilities
   utils = new ROKUtils();
-  
+
   // Initialize the lobby of dev client v2.
   lobby = new ROKLobby();
-  
+
   // Initialize the game of dev client v2.
   game = new ROKGame();
 
   static_ = "//<%= hostname %>";
 
-  // DEBUG  
+  // DEBUG
   $('#log_lobby_state').click(function() {
     socket.emit("log_lobby_state");
   });
-  // DEBUG  
+  // DEBUG
   $('#log_game_state').click(function() {
     socket.emit("log_game_state");
   });
@@ -55,7 +55,7 @@ $(document).ready(function() {
   $('#client_log_lobby_state').click(function() {
     console.log(utils.dump(lobby));
   });
-  // DEBUG  
+  // DEBUG
   $('#client_log_game_state').click(function() {
     console.log(utils.dump(game));
   });
@@ -67,12 +67,12 @@ $(document).ready(function() {
 
 <div id="wrap">
   <div id="messages"></div>
-    
+
   <div id="lobby">
     <h1>RULER OF KYOTO</h1>
     <h2>Games lobby</h2>
     <div id="welcome"></div>
-    
+
     <h3>Players</h3>
     <div id="players">
       <table>
@@ -81,21 +81,21 @@ $(document).ready(function() {
             <th>Name</th><!--th>Mode</th--><th>Invited to game</th><th>In game</th>
           </tr>
         </thead>
-        
+
         <tbody></tbody>
       </table>
     </div>
-    
+
     <input id="new_game_button" type="button" value="New game"/>
-    
+
     <input id="confirm_game_button" type="button" value="Start game" class="hidden" />
-    
+
     <input type="button" value="Cancel game" id="cancel_game_button" class="hidden" />
 
     <input type="button" value="Leave game" id="leave_invited_game_button" class="hidden" />
 
     <input id="quick_game" type="button" value="Quick game"/>
-    
+
     <input id="quick_game_3" type="button" value="Quick 3 plr game"/>
 
   </div>
@@ -105,9 +105,9 @@ $(document).ready(function() {
     <h2>Select monster</h2>
     <div id="monster_select_buttons"></div>
   </div>
-  
 
-  
+
+
   <div id="game" class="fivetosixx" tabindex="0">
     <div id="debug">
       <h4>Debug</h4>
@@ -115,7 +115,7 @@ $(document).ready(function() {
       <input id="log_game_state" type="button" value="Server game state"/>
       <input id="log_players_state" type="button" value="Server players state"/>
       <input id="client_log_lobby_state" type="button" value="Client lobby state"/>
-      <input id="client_log_game_state" type="button" value="Client game state"/>    
+      <input id="client_log_game_state" type="button" value="Client game state"/>
     </div>
 
     <div id="map">
@@ -136,29 +136,29 @@ $(document).ready(function() {
 
       <div id="ms6" class="monster_slot monster_home">
       </div>
-      
+
       <div id="mskc" class="monster_slot">
       </div>
-      
+
       <div id="mskb" class="monster_slot">
       </div>
-    
+
       <div id="m1" class="monster">
         <div class="monster_health monster_stats">
           <div id="monsters__1__health">10</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_victory_points monster_stats">
           <div id="monsters__1__victory_points">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_snot monster_stats">
           <div id="monsters__1__snot">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="dead"></div>
 
         <div class="monster_cards">
@@ -170,23 +170,23 @@ $(document).ready(function() {
           <div class="monster_cards_owned monster_cards_owned_6" id="monsters__1__cards_owned__0"></div>
         </div>
       </div>
-    
+
       <div id="m2" class="monster">
         <div class="monster_health monster_stats">
           <div id="monsters__2__health">10</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_victory_points monster_stats">
           <div id="monsters__2__victory_points">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_snot monster_stats">
           <div id="monsters__2__snot">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="dead"></div>
 
         <div class="monster_cards">
@@ -198,23 +198,23 @@ $(document).ready(function() {
           <div class="monster_cards_owned monster_cards_owned_6" id="monsters__2__cards_owned__0"></div>
         </div>
       </div>
-    
+
       <div id="m3" class="monster">
         <div class="monster_health monster_stats">
           <div id="monsters__3__health">10</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_victory_points monster_stats">
           <div id="monsters__3__victory_points">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_snot monster_stats">
           <div id="monsters__3__snot">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="dead"></div>
 
         <div class="monster_cards">
@@ -226,23 +226,23 @@ $(document).ready(function() {
           <div class="monster_cards_owned monster_cards_owned_6" id="monsters__3__cards_owned__0"></div>
         </div>
       </div>
-    
+
       <div id="m4" class="monster">
         <div class="monster_health monster_stats">
           <div id="monsters__4__health">10</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_victory_points monster_stats">
           <div id="monsters__4__victory_points">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_snot monster_stats">
           <div id="monsters__4__snot">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="dead"></div>
 
         <div class="monster_cards">
@@ -254,23 +254,23 @@ $(document).ready(function() {
           <div class="monster_cards_owned monster_cards_owned_6" id="monsters__4__cards_owned__0"></div>
         </div>
       </div>
-    
+
       <div id="m5" class="monster">
         <div class="monster_health monster_stats">
           <div id="monsters__5__health">10</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_victory_points monster_stats">
           <div id="monsters__5__victory_points">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_snot monster_stats">
           <div id="monsters__5__snot">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="dead"></div>
 
         <div class="monster_cards">
@@ -282,23 +282,23 @@ $(document).ready(function() {
           <div class="monster_cards_owned monster_cards_owned_6" id="monsters__5__cards_owned__0"></div>
         </div>
       </div>
-  
+
       <div id="m6" class="monster">
         <div class="monster_health monster_stats">
           <div id="monsters__6__health">10</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_victory_points monster_stats">
           <div id="monsters__6__victory_points">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="monster_snot monster_stats">
           <div id="monsters__6__snot">0</div>
           <div class="monster_stats_bg"></div>
         </div>
-        
+
         <div class="dead"></div>
 
         <div class="monster_cards">
@@ -310,7 +310,7 @@ $(document).ready(function() {
           <div class="monster_cards_owned monster_cards_owned_6" id="monsters__6__cards_owned__0"></div>
         </div>
       </div>
-    
+
     </div>
 
     <div id="log_wrap">
@@ -324,7 +324,7 @@ $(document).ready(function() {
       <div id="card__1" class="card" data-available_card_index="1"></div>
       <div id="card__2" class="card" data-available_card_index="2"></div>
     </div>
-    
+
 
     <div id="dice_area">
       <div id="dice">
@@ -337,7 +337,7 @@ $(document).ready(function() {
         <div id="dice__6__value" data-die_id="6"></div>
         <div id="dice__7__value" data-die_id="7"></div>
       </div>
-      
+
       <a href="#" class="ROKButton" id="roll_dice_button">Roll dice (1st)</a>
       <a href="#" class="ROKButton" id="done_buying_button">Done buying</a>
       <a href="#" class="ROKButton" id="yield_kyoto_city_button">Yield Kyoto city</a>
@@ -345,7 +345,7 @@ $(document).ready(function() {
       <a href="#" class="ROKButton" id="yield_kyoto_bay_button">Yield Kyoto bay</a>
       <a href="#" class="ROKButton" id="stay_in_kyoto_bay_button">Stay in Kyoto bay</a>
       <a href="#" class="ROKButton" id="leave_game_button">Leave game</a>
-    </div>  
+    </div>
   </div>
 </div>
 

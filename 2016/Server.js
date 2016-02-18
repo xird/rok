@@ -72,7 +72,7 @@ app.use(function (req, res, next) {
     console.log("  setting uuid");
     req.session.uid = uuid.v4();
   }
- 
+
   next();
 })
 
@@ -164,19 +164,19 @@ process.on('uncaughtException', function catchUncaught(e) {
  * Generates a new random playername and appends it to the global "players" array.
  * Unless the current session already has a player, in which case that player is
  * returned.
- * 
+ *
  * @param socket Object The io socket of the current player.
  */
 var addPlayer = function(socket, sessid) {
   console.log("addPlayer");
-  
+
   // Get player by session id
   for (var p in players) {
     if (players[p].session_id == sessid) {
       var player = players[p];
     }
   }
-  
+
   if (typeof player != "undefined") {
     // Existing player, update the socket reference.
     player.socket_id = socket.id;
@@ -184,7 +184,7 @@ var addPlayer = function(socket, sessid) {
     return player;
   }
   else {
-    // This session doesn't have a player yet, so let's create one. Note the 
+    // This session doesn't have a player yet, so let's create one. Note the
     // getSocket() and getGame() functions, which are there instead of direct
     // references to the objects, in order to avoid circular references.
     var player = {
@@ -206,14 +206,14 @@ var addPlayer = function(socket, sessid) {
       last_seen: Date.now(),
       status: "connected",
     }
-    
+
     // Add the new player to the global players array.
     players[player.id] = player;
-    
+
     // Add the new player to the lobby:
     lobby.addPlayer(player);
 
-    return player;  
+    return player;
   }
 }
 
@@ -223,14 +223,14 @@ var addPlayer = function(socket, sessid) {
  */
 var removePlayer = function(player) {
   if (player) {
-    player.status = "disconnected";  
+    player.status = "disconnected";
   }
 }
 
 
 /**
  * Periodically clean up players that we haven't seen for a while. In other
- * words, 5 seconds. This allows users to accidentally close a browser and 
+ * words, 5 seconds. This allows users to accidentally close a browser and
  * re-open one, or to refresh the browser, while not making others wait too long
  * for players that have actually disconnected.
  *
@@ -238,7 +238,7 @@ var removePlayer = function(player) {
  * open but in the background (i.e. some other application has focus) causes the
  * browser to eventually start sending the keep_alive messages at intervals less
  * than 2 seconds, even though that's what's set in the setInterval() function
- * call on the client side. There is extra error handling for that, namely the 
+ * call on the client side. There is extra error handling for that, namely the
  * added die() call in this function, and the "zombie" checks and nuking in the
  * keep_alive event handler.
  *
@@ -254,19 +254,19 @@ var cleanUpIdlePlayers = function () {
       idle_players.push(players[pid]);
     }
   }
-  
+
   for (var i = 0; i < idle_players.length; i++) {
     console.log('Cleaning up idle player ' + idle_players[i].name);
     var idle_socket = idle_players[i].getSocket();
     // Remove the player from the lobby
     lobby.removePlayer(idle_players[i].id);
-  
+
     // Remove the player from any game.
     if (idle_players[i].game_id) {
       var player_mode = idle_players[i].mode;
       var game = idle_players[i].getGame();
       game.leaveGame(idle_players[i]);
-      
+
       // If it was the host leaving, drop the other players to the lobby.
       console.log('mode: ' + player_mode);
       if (player_mode == 'host') {
@@ -277,12 +277,12 @@ var cleanUpIdlePlayers = function () {
         }
         lobby.snapState();
       }
-      
+
     }
-    
+
     // Remove the player from the global players object.
     delete players[idle_players[i].id];
-    
+
     // Tell the client to disconnect, so the "player" variable set up in the
     // connect event handler won't stick around.
     if (typeof idle_socket != "undefined") {
@@ -293,7 +293,7 @@ var cleanUpIdlePlayers = function () {
     //console.log(players);
     lobby.snapState();
   }
-  
+
   // Clean up empty games. If any games ended up without players due to the
   // cleanup, or because the game ended and all the players left, delete those
   // games as well.
@@ -305,7 +305,7 @@ var cleanUpIdlePlayers = function () {
       lobby.snapState();
     }
   }
-  
+
   setTimeout(cleanUpIdlePlayers, 5000);
 }
 if (ROKConfig.clean_up_idle_players) {
@@ -318,9 +318,9 @@ if (ROKConfig.clean_up_idle_players) {
  *
  * Main event handler for the "connection" event. This is triggered when a new
  * player enters the game (i.e. a player loads the page).
- * 
+ *
  * All other event handlers are defined inside this function.
- * 
+ *
  */
 io.on('connection', function (socket) {
   var iosockets = this;
@@ -331,13 +331,13 @@ io.on('connection', function (socket) {
     console.log("ERROR: User has no session.");
     // TODO: Make sure to notify the client that things are not cool
     return;
-  }  
+  }
   var session = socket.handshake.session;
   var sessid = session.id;
-  
+
   console.log("session id: " + session.id);
   console.log("session uid: " + session.uid);
-  
+
   // Create a new player (returns an existing player if one exists for this
   // session).
   var player = addPlayer(socket, sessid);
@@ -364,15 +364,15 @@ io.on('connection', function (socket) {
   // Send the welcome message to a new player.
   socket.emit("welcome", player);
 
-  
+
   // BEGIN SOCKET EVENT HANDLERS HERE:
 
 
 
 
 
-  
-  // Define event handlers:  
+
+  // Define event handlers:
 
   /**
    * A client reporting that it's still there.
@@ -397,7 +397,7 @@ io.on('connection', function (socket) {
       // Everything is ok, the player hasn't been removed.
       var now = Date.now();
 //      console.log('keeping ' + player.name +' alive at ' + new Date().getSeconds());
-      player.last_seen = now;    
+      player.last_seen = now;
     }
 
   });
@@ -405,23 +405,23 @@ io.on('connection', function (socket) {
   /**
    * Debug
    */
-  
+
   // Debug game
   socket.on("log_lobby_state", function debugLobbyState() {
     console.log(utils.dump(lobby));
   });
-  
+
   // Debug game
   socket.on("log_game_state", function debugGameState() {
     console.log(utils.dump(games));
   });
-  
+
   // Debug players
   socket.on("log_players_state", function debugPlayerState() {
     console.log("debugPlayerState");
     console.log(utils.dump(players));
   });
-  
+
   // Quickly create a game for testing purposes.
   socket.on("quick_game", function debugQuickGame(args) {
     console.log("Initializing quick game");
@@ -430,13 +430,13 @@ io.on('connection', function (socket) {
       socket.emit('lobby_message', "Two players required");
       return;
     }
-    
+
     if (player.game_id) {
       console.log('ERROR: You already have a game');
       socket.emit('game_message', "You already have a game");
       return;
     }
-    
+
     // Create new game
     var game = new ROKServerGame(player);
     game.iosockets = iosockets.sockets;
@@ -449,7 +449,7 @@ io.on('connection', function (socket) {
         break;
       }
     }
-    
+
     // Confirm game. If the game can be successfully confirmed, remove the
     // players from the lobby.
     if (game.confirmGame(player)) {
@@ -458,7 +458,7 @@ io.on('connection', function (socket) {
       }
       lobby.snapState();
     }
-    
+
     // Select monsters
     var i = 2;
     for (var p in game.player_ids) {
@@ -466,7 +466,7 @@ io.on('connection', function (socket) {
       i++;
     }
   });
-  
+
   // Quickly create a three player game for testing purposes.
   socket.on("quick_game_3", function debugQuickGame3(args) {
     console.log("Initializing quick game for three players");
@@ -475,13 +475,13 @@ io.on('connection', function (socket) {
       socket.emit('lobby_message', "Three players required");
       return;
     }
-    
+
     if (player.game_id) {
       console.log('ERROR: You already have a game');
       socket.emit('game_message', "You already have a game");
       return;
     }
-    
+
     // Create new game
     var game = new ROKServerGame(player);
     game.iosockets = iosockets.sockets;
@@ -498,7 +498,7 @@ io.on('connection', function (socket) {
         more = false;
       }
     }
-    
+
     // Confirm game. If the game can be successfully confirmed, remove the
     // players from the lobby.
     if (game.confirmGame(player)) {
@@ -507,7 +507,7 @@ io.on('connection', function (socket) {
       }
       lobby.snapState();
     }
-    
+
     // Select monsters
     var i = 2;
     for (var p in game.player_ids) {
@@ -519,14 +519,14 @@ io.on('connection', function (socket) {
   /**
    * Lobby
    */
-  
+
   // Handles players leaving the game.
   socket.on('disconnect', function lobbyRemovePlayer() {
     console.log('DISCONNECT player ' + player.name);
     removePlayer(player);
   });
-  
-  
+
+
   // Creates a new game and sets the player who created the game as a host.
   socket.on("new_game", function lobbyNewGame(args) {
     console.log('new_game');
@@ -535,11 +535,11 @@ io.on('connection', function (socket) {
     games[game.id] = game;
     lobby.snapState();
   });
-  
+
 
   /**
    * Game host inviting a player to the game.
-   * @param Integer invitee_id 
+   * @param Integer invitee_id
    *   The id of the player being invited.
    *
    */
@@ -548,7 +548,7 @@ io.on('connection', function (socket) {
     lobby.invitePlayer(player, players[invitee_id]);
     lobby.snapState();
   });
-  
+
   socket.on("accept", function lobbyAccept() {
     console.log("lobbyAccept");
     if (player.inviter_player_id) {
@@ -558,16 +558,16 @@ io.on('connection', function (socket) {
       player.inviter_player_id = 0;
       console.log(player);
       game.addPlayer(player);
-      lobby.snapState();    
+      lobby.snapState();
     }
     else {
       console.log("ERROR: There is no invite");
       var msg = "There is no invitation to accept.";
-      player.getSocket().emit('lobby_message', msg);      
+      player.getSocket().emit('lobby_message', msg);
     }
 
   });
-  
+
   socket.on("decline", function lobbyDecline() {
     console.log("lobbyDecline");
 
@@ -576,7 +576,7 @@ io.on('connection', function (socket) {
 
     player.invited_to_game_id = 0;
     player.inviter_player_id = 0;
-        
+
     lobby.snapState();
   });
 
@@ -589,14 +589,14 @@ io.on('connection', function (socket) {
 
   /**
    * Game host confirming invited players and starting the game.
-   * 
+   *
    * This is left in the main code file since it handles both the game and the
    * lobby object.
    *
    */
   socket.on("confirm_game", function lobbyConfirmGame() {
     console.log("lobbyConfirmGame");
-    
+
     // Check that the player has a game
     if (typeof games[player.game_id] == "object") {
       // If the game can be successfully confirmed, remove the players from the
@@ -619,7 +619,7 @@ io.on('connection', function (socket) {
 
   /**
    * Game host canceling the game instead of confirming it.
-   * 
+   *
    * This is left in the main code file since it handles both the game and the
    * lobby object.
    *
@@ -631,13 +631,13 @@ io.on('connection', function (socket) {
     if (player.mode == "host") {
       var game = games[player.game_id];
       player.mode = "";
-      
+
       // Remove game reference from game players
       for (var pid in game.players) {
         players[pid].game_id = 0;
         // Notify players other than the host about the cancellation.
         if (pid != player.id) {
-          players[pid].getSocket().emit('lobby_message', "The host canceled the game.");        
+          players[pid].getSocket().emit('lobby_message', "The host canceled the game.");
         }
 
       }
@@ -647,16 +647,16 @@ io.on('connection', function (socket) {
         players[pid].invited_to_game_id = 0;
         players[pid].inviter_player_id = 0;
       }
-      
+
       // Delete game
       console.log('trying to delete game ' + game.id);
       delete games[game.id];
-      
+
       lobby.snapState();
     }
     else {
       console.log("ERROR: Canceling game hosted by someone else.");
-      socket.emit('game_message', "You can only cancel your own games."); 
+      socket.emit('game_message', "You can only cancel your own games.");
     }
   });
 
@@ -664,7 +664,7 @@ io.on('connection', function (socket) {
   /**
    * Game
    */
-  
+
   /**
    * Player selecting a monster to play with.
    */
@@ -714,7 +714,7 @@ io.on('connection', function (socket) {
     lobby.snapState();
   });
 
-  
+
   // CARDS: buy(buyable_card_slot)
 
 
