@@ -220,9 +220,17 @@ ROKGame.prototype.initClient = function() {
         if (game.next_input_from_monster == game.this_monster) {
           if (game.turn_phase == 'roll') {
             $('#roll_dice_button').show();
+            // Don't show the "done" button before first roll.
+            if (game.roll_number != 1) {
+              $('#done_rolling_button').show();
+            }
+            else {
+              $('#done_rolling_button').hide();
+            }
           }
           else {
             $('#roll_dice_button').hide();
+            $('#done_rolling_button').hide();
           }
 
           if (game.turn_phase == 'buy') {
@@ -314,6 +322,16 @@ ROKGame.prototype.initClient = function() {
     });
 
     socket.emit("roll_dice", keep_dice_ids);
+    return false;
+  });
+
+
+  // Done rolling dice.
+  $('#game').on("click", "#done_rolling_button", function clickDoneRolling() {
+    console.log('clickDoneRolling');
+    $(this).attr('disabled', true);
+
+    socket.emit("done_rolling_dice");
     return false;
   });
 
@@ -618,6 +636,14 @@ ROKGame.prototype.handle__roll_number = function(updates) {
   var ordinals = ['0th', '1st', '2nd', '3rd', '4th', '5th', '6th'];
   $('#roll_dice_button').html("Roll dice (" + ordinals[update.value] + ")");
 
+  // Don't show the "done" button before first roll.
+  if (game.roll_number != 1) {
+    $('#done_rolling_button').show();
+  }
+  else {
+    $('#done_rolling_button').hide();
+  }
+
   this.handleUpdates(updates);
 }
 
@@ -632,9 +658,17 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
   // will never remove the disabled-attribute.
   if (update.value == 'roll' && game.turn_monster == game.this_monster) {
     $('#roll_dice_button').show();
+    // Don't show the "done" button before first roll.
+    if (game.roll_number != 1) {
+      $('#done_rolling_button').show();
+    }
+    else {
+      $('#done_rolling_button').hide();
+    }
   }
   else {
     $('#roll_dice_button').hide();
+    $('#done_rolling_button').hide();
   }
 
   if (update.value == 'buy' && game.turn_monster == game.this_monster) {

@@ -543,10 +543,10 @@ div#dice div.snotInactive {
 
 
 #stay_in_kyoto_city_button,
-#stay_in_kyoto_bay_button {
+#stay_in_kyoto_bay_button,
+#done_rolling_button {
   left: 22px;
 }
-
 
 #debug {
   background: #fcc;

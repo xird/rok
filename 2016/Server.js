@@ -28,7 +28,7 @@ var ROKServerLobby = require('./ROKServerLobby.js');
 var ROKConfig = require('./ROKConfig.js');
 
 var PORT = process.env.PORT || 8080,
-    HOST = process.env.HOST || 'localhost';
+    HOST = process.env.HOST || '127.0.0.1';
 
 var games = {};
 var players = {};
@@ -678,6 +678,14 @@ io.on('connection', function (socket) {
    */
   socket.on("roll_dice", function gameRollDice(keep_dice_ids) {
     games[player.game_id].rollDiceClicked(player, keep_dice_ids);
+  });
+
+
+  /**
+   * Player done rolling dice.
+   */
+  socket.on("done_rolling_dice", function gameDoneRollingDice() {
+    games[player.game_id].doneRollingClicked(player);
   });
 
 

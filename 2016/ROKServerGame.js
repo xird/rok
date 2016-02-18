@@ -611,6 +611,35 @@ ROKServerGame.prototype.rollDice = function (player_monster, state_to_roll) {
 /**
  *
  */
+ROKServerGame.prototype.doneRollingClicked = function (player) {
+  if (this.turn_monster != player.monster_id) {
+    console.log("It's not your turn so you can't be done rolling.");
+    return;
+  }
+  if (this.turn_phase != "roll") {
+    console.log("You can only be done rolling when it's the rolling phase.");
+    return;
+  }
+  if (this.turn_phase == "roll" && this.roll_number == 1) {
+    console.log("You have to roll at least once.");
+    return;
+  }
+
+  // Set the state of all dice to 'f' (final)
+  for (var i = 0; i < this.dice.length; i++) {
+    if (this.dice[i].state != 'n') {
+      this.updateState("dice__" + i + "__state", 'f');
+    }
+  }
+
+  this.resolveDice(player);
+  this.sendStateChanges();
+}
+
+
+/**
+ *
+ */
 ROKServerGame.prototype.checkRollState = function(player) {
   var rv = false;
 
