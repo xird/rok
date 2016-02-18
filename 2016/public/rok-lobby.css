@@ -40,3 +40,17 @@
 #lobby div#players table td.button {
   border: none;
 }
+
+#lobby #change_name {
+  font-size: 0.8em;
+}
+
+
+#lobby #change_name_form {
+  display: none;
+}
+
+#lobby #welcome {
+  float: left;
+  padding-right: 10px;
+}

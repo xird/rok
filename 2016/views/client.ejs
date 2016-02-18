@@ -70,8 +70,21 @@ $(document).ready(function() {
 
   <div id="lobby">
     <h1>RULER OF KYOTO</h1>
+
     <h2>Games lobby</h2>
-    <div id="welcome"></div>
+
+    <div id="user">
+      <div id="welcome"></div>
+
+      <a href="#" id="change_name">Change name</a>
+
+      <form id="change_name_form">
+        <input type="text" id="new_name" size="20"/>
+
+        <input type="submit" id="save_new_name" value="Save"/>
+      </form>
+    </div>
+
 
     <h3>Players</h3>
     <div id="players">

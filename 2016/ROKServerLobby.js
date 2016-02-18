@@ -77,6 +77,7 @@ ROKServerLobby.prototype.snapState = function () {
   // Loop through all players in the lobby and send them the data.
   for (var pid in this.players) {
     send_object.this_player_id = pid;
+    send_object.this_player_name = this.players[pid].name;
     send_object.this_player_game_id = this.players[pid].game_id;
     send_object.this_player_mode = this.players[pid].mode;
     // The current number of players in the current player's game:

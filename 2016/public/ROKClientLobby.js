@@ -19,7 +19,8 @@ ROKLobby.prototype.initClient = function() {
 
   // Welcomes a new player.
   socket.on('welcome', function welcome(data) {
-    $('#welcome').html("Welcome to the ROK, <strong>" + data.name + "</strong>");
+    $('#welcome').html("Welcome to the ROK, <strong>" + data.name + '</strong>');
+    $('#new_name').val(data.name);
   });
 
 
@@ -44,6 +45,8 @@ ROKLobby.prototype.initClient = function() {
     lobby.this_player_game_id = data.this_player_game_id;
     lobby.this_game_players = data.this_game_players;
     console.log(utils.dump(lobby));
+
+    $('#lobby #welcome strong').html(data.this_player_name);
 
     // In case this is being called after a player has left a game:
     $('#lobby').show();
@@ -223,6 +226,20 @@ ROKLobby.prototype.initClient = function() {
     console.log('cancelGame');
     socket.emit("cancel_game");
     $(this).attr('disabled', true);
+  });
+
+  // User wants to change their name
+  $('#lobby').on("click", "#change_name", function changeName() {
+    console.log("Changing name");
+    $('#change_name_form').show();
+    return false;
+  });
+
+  $('#save_new_name').on("click", function saveNewName() {
+    var new_name = $(this).parent().find('#new_name').val();
+    socket.emit("save_new_name", new_name);
+    $(this).parent().hide();
+    return false;
   });
 
 }
