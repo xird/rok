@@ -12,13 +12,16 @@ var ROKServerLobby = function() {
 }
 util.inherits(ROKServerLobby, ROKLobby);
 
+var ROKUtils = require("./public/ROKUtils.js");
+var utils = new ROKUtils();
+
 
 /**
  * New players connecting are automatically added to the lobby using this
  * function
  */
 ROKServerLobby.prototype.init = function () {
-  console.log('ROKServerLobby.prototype.init');
+  utils.log('ROKServerLobby.prototype.init');
 }
 
 
@@ -27,7 +30,7 @@ ROKServerLobby.prototype.init = function () {
  * function
  */
 ROKServerLobby.prototype.addPlayer = function (player) {
-  console.log('ROKServerLobby.prototype.addPlayer');
+  utils.log('ROKServerLobby.prototype.addPlayer');
   this.players[player.id] = player;
   this.player_ids.push(player.id);
 }
@@ -41,7 +44,7 @@ ROKServerLobby.prototype.addPlayer = function (player) {
  *
  */
 ROKServerLobby.prototype.removePlayer = function (player_id) {
-  console.log('ROKServerLobby.prototype.removePlayer');
+  utils.log('ROKServerLobby.prototype.removePlayer');
 
   // Remove from player_ids
   var index = this.player_ids.indexOf(player_id);
@@ -58,7 +61,7 @@ ROKServerLobby.prototype.removePlayer = function (player_id) {
  *
  */
 ROKServerLobby.prototype.snapState = function () {
-  console.log('ROKServerLobby.prototype.snapState');
+  utils.log('ROKServerLobby.prototype.snapState');
 
   send_object = {
     this_player_id: "",
@@ -95,9 +98,9 @@ ROKServerLobby.prototype.snapState = function () {
       target_socket.emit("update_lobby", send_object);
     }
     else {
-      console.log("ERROR: target socket not found. Socket id: " + socket_id);
-      console.log("Sockets:");
-      console.log(this.iosockets);
+      utils.log("ERROR: target socket not found. Socket id: " + socket_id);
+      utils.log("Sockets:");
+      utils.log(this.iosockets);
     }
   }
 }
@@ -110,7 +113,7 @@ ROKServerLobby.prototype.snapState = function () {
  * @param Object invitee The player being invited
  */
 ROKServerLobby.prototype.invitePlayer = function (inviter, invitee) {
-  console.log("ROKServerLobby.prototype.invitePlayer");
+  utils.log("ROKServerLobby.prototype.invitePlayer");
 
   // Check that the inviter has created a new game.
   if (inviter.game_id) {
@@ -120,26 +123,26 @@ ROKServerLobby.prototype.invitePlayer = function (inviter, invitee) {
       if (!invitee.invited_to_game_id) {
         invitee.invited_to_game_id = inviter.getGame().id;
         invitee.inviter_player_id = inviter.id;
-        console.log('invitation success. invitee:');
-        console.log(invitee);
+        utils.log('invitation success. invitee:');
+        utils.log(invitee);
       }
       else {
         // Can't invite a player that's already invited
-        console.log('ERROR: player already invited');
+        utils.log('ERROR: player already invited');
         var msg = "That player has an outstanding invitation.";
         this.iosockets[inviter.socket_id].emit("lobby_message", msg);
       }
     }
     else {
       // Can't invite a player that's already in a game
-      console.log('ERROR: player already in a game');
+      utils.log('ERROR: player already in a game');
       var msg = "That player is already in a game.";
       this.iosockets[inviter.socket_id].emit("lobby_message", msg);
     }
   }
   else {
     // Notify the player that he needs a game.
-    console.log('ERROR: no game created');
+    utils.log('ERROR: no game created');
     var msg = "Please create a new game before inviting players.";
     this.iosockets[inviter.socket_id].emit("lobby_message", msg);
   }
