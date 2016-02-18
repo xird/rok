@@ -847,10 +847,10 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
 
   if (yielding) {
     this.monsters[this.next_input_from_monster].yieldKyoto();
+    this.updateState(false, false, monster_name + " yields Kyoto " + part_of_kyoto + " to " + this.monsters[this.turn_monster].getData().name + ".");
+
     var damage = this.card_hook("YEILD_KYOTO", { "monster_id": this.next_input_from_monster });
     this.monsters[this.turn_monster].applyDamage(damage);
-
-    this.updateState(false, false, monster_name + " yields Kyoto " + part_of_kyoto + " to " + this.monsters[this.turn_monster].getData().name + ".");
   }
   else {
     this.updateState(false, false, monster_name + " stays in Kyoto " + part_of_kyoto);
@@ -1347,15 +1347,28 @@ ROKServerGame.prototype.card_hook = function(hook_name, params) {
     params['monster_id'] = this.turn_monster;
   }
 
+  var hooks_to_run = [];
   // Cycle through cards the applicable monster owns.
   for (var i = 0; i < this.monsters[params['monster_id']].getCardsOwned().length; i++) {
     var card_id = this.monsters[params['monster_id']].getCardsOwned()[i];
-    if (typeof this.cards.properties[card_id].hooks[hook_name] == "function") {
-      utils.log(hook_name + " hook implemented in " + this.cards.properties[card_id].name + ".");
-      value_to_alter = this.cards.properties[card_id].hooks[hook_name](this, value_to_alter);
+    var card = this.cards.properties[card_id];
+    if (typeof card.hooks[hook_name] == "function") {
+      if (typeof card.priority == "udefined") {
+        card.priority = 0;
+      }
+      
+      hooks_to_run.push(card.hooks[hook_name]);
+
     }
   }
 
+  hooks_to_run.sort(function (a, b) { return a.priority - b.priority; });
+
+  for (var i = 0; i < hooks_to_run.length ; i++) {
+    utils.log(hook_name + " hook implemented in " + this.cards.properties[card_id].name + ".");
+    value_to_alter = hooks_to_run[i](this, value_to_alter);
+  }
+  
   return value_to_alter;
 }
 
