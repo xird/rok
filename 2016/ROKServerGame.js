@@ -1042,9 +1042,11 @@ ROKServerGame.prototype.resolveVictoryPointDice = function(player) {
     2: 0,
     3: 0,
   };
-  for (var i = 0; i < this.dice.length; i++) {
-    if (this.dice[i].state == 'f' && !isNaN(this.dice[i].value)) {
-      victory_points_dice[this.dice[i].value]++;
+  for (var i = 0; i < this.monsters[this.turn_monster].numberOfDice(); i++) {
+    switch (this.dice[i].value) {
+      case '1': victory_points_dice[1]++; break;
+      case '2': victory_points_dice[2]++; break;
+      case '3': victory_points_dice[3]++; break;
     }
   }
 
