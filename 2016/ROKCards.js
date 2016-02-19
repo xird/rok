@@ -262,7 +262,33 @@ var theCards = {
            }
          }
         },
-    13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[VP] and take control of Tokyo if you don't already control it.", hooks: {}},
+    13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[VP] and take control of Tokyo if you don't already control it.",
+         hooks: {
+           // For a 5 or 6 player game it is unclear wether "take control of Kyoto"
+           // means both monsters leave or not and if not who should.
+           // In this implementation both monsters leave.
+           "CARD_BOUGHT": function (game) {
+              game.monsters[game.turn_monster].addVictoryPoints(2);
+              var log_message = game.monsters[game.turn_monster].getName() + " gains 2 Victory Points for 'Drop from High Altitude'"
+              if (!game.inKyoto(game.monsters[game.turn_monster])) {
+                if (game.monster_in_kyoto_city_id != null) {
+                  game.monsters[game.monster_in_kyoto_city_id].yieldKyoto();
+                }
+                if (game.monster_in_kyoto_bay_id != null) {
+                  game.monsters[game.monster_in_kyoto_bay_id].yieldKyoto();
+                }
+
+                game.checkEnterKyoto(game.monsters[game.turn_monster]);
+                log_message += " and enters Kyoto"
+              }
+            
+              log_message += ". " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points";
+              game.updateState(false, false, log_message);
+
+              utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+            }
+         }
+        },
     14: {name: "Eater of the Dead",             cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 3[VP] every time a monster's [Heart] goes to 0.", hooks: {}},
     15: {name: "Energize",                      cost: 8, keep: false, set: "original", implemented: false, description: "+ 9[Snot]", hooks: {}},
     16: {name: "Energy Hoarder",                cost: 3, keep: true,  set: "original", implemented: false, description: "You gain 1[VP] for every 6[Snot] you have at the end of your turn.", hooks: {}},
