@@ -121,7 +121,7 @@ var theCards = {
           }
         }
        },
-    4: {name: "Apartment Building", cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]",
+    4: {name: "Apartment Building", cost: 5, keep: false, set: "original", implemented: true, description: "+ 3[Star]",
         hooks: {
           "CARD_BOUGHT": function (game) {
             game.monsters[game.turn_monster].getAddVictoryPoints()(3);
@@ -146,7 +146,7 @@ var theCards = {
           }
         }
        },
-    6: {name: "Background Dweller", cost: 4, keep: true, set: "original", implemented: false, description: "You can always reroll any [3] you have.",
+    6: {name: "Background Dweller", cost: 4, keep: true, set: "original", implemented: true, description: "You can always reroll any [3] you have.",
         hooks: {
           "DICE_STATE": function (game, die) {
             if (die.value == '3') {
@@ -158,7 +158,7 @@ var theCards = {
           }
         }
        },
-    7: {name: "Burrowing", cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.",
+    7: {name: "Burrowing", cost: 5, keep: true,  set: "original", implemented: true, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.",
         hooks: {
           "RESOLVE_ATTACK_DICE": function (game, attackage) {
             rv = attackage;
@@ -184,7 +184,7 @@ var theCards = {
           }
         }
     },
-    8: {name: "Camouflage", cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.",
+    8: {name: "Camouflage", cost: 3, keep: true,  set: "original", implemented: true, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.",
         hooks: {
           "APPLY_DAMAGE": function (game, damage) {
             var rv = damage;
@@ -206,7 +206,7 @@ var theCards = {
           }
         }
        },
-    9: {name: "Commuter Train", cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]",
+    9: {name: "Commuter Train", cost: 4, keep: false, set: "original", implemented: true, description: "+ 2[Star]",
         hooks: {
           "CARD_BOUGHT": function (game) {
             game.monsters[game.turn_monster].addVictoryPoints(2);
@@ -216,7 +216,7 @@ var theCards = {
           }
         }
        },
-    10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.",
+    10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: true, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.",
          hooks: {
           "RESOLVE_DICE": function (game) {
             var values = [];
@@ -238,7 +238,16 @@ var theCards = {
           }
         }
        },
-    11: {name: "Corner Store",                  cost: 3, keep: false, set: "original", implemented: false, description: "+ 1[Star]", hooks: {}},
+    11: {name: "Corner Store", cost: 3, keep: false, set: "original", implemented: true, description: "+ 1[Star]",
+         hooks: {
+           "CARD_BOUGHT": function (game) {
+             game.monsters[game.turn_monster].addVictoryPoints(1);
+        
+             game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 1 Victory Points for 'Corner Store'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+             utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+           }
+         }
+        },
     12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[Star] whenever you buy a card.", hooks: {}},
     13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[Star] and take control of Tokyo if you don't already control it.", hooks: {}},
     14: {name: "Eater of the Dead",             cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 3[Star] every time a monster's [Heart] goes to 0.", hooks: {}},
