@@ -1158,13 +1158,16 @@ ROKServerGame.prototype.beginGame = function() {
   }
   this.monsters = new_monsters;
 
-  // Randomize monster order
+  // Generate and randomize monster order
   var monster_order = [];
   for (var player_id in this.player_ids) {
     monster_order.push(this.players[player_id].monster_id);
   }
-  monster_order = utils.shuffleArray(monster_order);
+  if (ROKUtils.randomize_monster_order) {
+    monster_order = utils.shuffleArray(monster_order);
+  }
   this.monster_order = monster_order;
+
   // Original order is needed to keep ordering the monsters the same way after
   // one of them dies.
   this.original_monster_order = JSON.parse(JSON.stringify(this.monster_order));

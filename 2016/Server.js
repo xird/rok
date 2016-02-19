@@ -130,7 +130,9 @@ io.use(function(socket, next) {
   // The user should always have a cookie by now.
   if(!socket.request.headers.cookie) {
     utils.log("No cookie");
-    return next(new Error('No cookie transmitted.'));
+    // The bots can't work with this in place, and it doesn't _seem_ to cause
+    // problems for the browser clients, either. -E
+    //return next(new Error('No cookie transmitted.'));
   }
 
   // Make the session available for socket requests.
@@ -194,7 +196,7 @@ var addPlayer = function(socket, sessid) {
       monster_id: 0,
       socket_id: socket.id,
       getSocket: function() {
-        return iosockets.sockets[this.socket_id];
+        return io.sockets.sockets[this.socket_id];
       },
       session_id: sessid,
       game_id: 0,
@@ -523,8 +525,10 @@ io.on('connection', function (socket) {
 
   // Handles players leaving the game.
   socket.on('disconnect', function lobbyRemovePlayer() {
-    utils.log('DISCONNECT player ' + player.name);
-    removePlayer(player);
+    if (player) {
+      utils.log('DISCONNECT player ' + player.name);
+      removePlayer(player);
+    }
   });
 
 
