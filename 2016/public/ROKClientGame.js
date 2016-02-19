@@ -164,7 +164,6 @@ ROKGame.prototype.initClient = function() {
         }
       });
 
-
       // The slots have been generated, now add the actual data.
       var monster_ids = Object.keys(data.monsters);
       for (var i = 0; i < monster_ids.length; i++) {
@@ -182,10 +181,13 @@ ROKGame.prototype.initClient = function() {
         $('#monsters__' + data.monsters[monster_ids[i]].id + '__mimic').html(data.monsters[monster_ids[i]].mimic);
 
         // Cards owned by the monsters
+        // First clear the elements to clean up any previous game
+        for (var j = 0; j < 6; j++) {
+          $("#monsters__" + monster_ids[i] + "__cards_owned__" + j).html('');
+        }
         for (var j = 0; j < data.monsters[monster_ids[i]].cards_owned.length; j++) {
           console.log("Monster " + monster_ids[i] + " cards:");
           console.log(data.monsters[monster_ids[i]].cards_owned[j]);
-          // TODO Add hover effect for larger view for card
           var card_name = game.card_map[data.monsters[monster_ids[i]].cards_owned[j]];
           var html = '<img src="' + static_ + '/images/cards/' + card_name + '.jpg" alt="' + card_name + '" width="50" height="39" />';
           $("#monsters__" + monster_ids[i] + "__cards_owned__" + j).html(html);
@@ -195,11 +197,11 @@ ROKGame.prototype.initClient = function() {
       $('#board_monster_in_kyoto_city_id').html(data.monster_in_kyoto_city_id);
       $('#board_monster_in_kyoto_bay_id').html(data.monster_in_kyoto_bay_id);
 
-
-
-
       // Highlight the active monster
       $('#m' + game.next_input_from_monster).addClass('active');
+
+      // Clear the game log
+      $('#log').html('');
 
       // Dice.
       for (var i = 0; i < data.dice.length; i++) {
