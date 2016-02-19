@@ -206,7 +206,18 @@ var theCards = {
           }
         }
        },
-    9: {name: "Commuter Train",                cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]", hooks: {}},
+    9: {
+      name: "Commuter Train", cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]",
+        hooks: {
+          "CARD_BOUGHT": function (game) {
+            game.monsters[game.turn_monster].addVictoryPoints(2);
+
+            game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 2 Victory Points for 'Commuter Train'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+          }
+        }
+       },
+ 
     10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.", hooks: {}},
     11: {name: "Corner Store",                  cost: 3, keep: false, set: "original", implemented: false, description: "+ 1[Star]", hooks: {}},
     12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[Star] whenever you buy a card.", hooks: {}},
