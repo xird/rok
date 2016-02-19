@@ -59,6 +59,9 @@ $(document).ready(function() {
   $('#client_log_game_state').click(function() {
     console.log(utils.dump(game));
   });
+  $('#kill_monster').click(function() {
+    socket.emit("kill_monster");
+  });
   // End debug
 });
 </script>
@@ -129,6 +132,7 @@ $(document).ready(function() {
       <input id="log_players_state" type="button" value="Server players state"/>
       <input id="client_log_lobby_state" type="button" value="Client lobby state"/>
       <input id="client_log_game_state" type="button" value="Client game state"/>
+      <input id="kill_monster" type="button" value="Kill monster"/>
     </div>
 
     <div id="map">
