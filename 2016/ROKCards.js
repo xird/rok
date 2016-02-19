@@ -158,29 +158,54 @@ var theCards = {
           }
         }
        },
-    7: {name: "Burrowing",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.",
+    7: {name: "Burrowing", cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.",
         hooks: {
           "RESOLVE_ATTACK_DICE": function (game, attackage) {
+            rv = attackage;
+
             if (!game.inKyoto(game.monsters[game.turn_monster])) {
-              attackage.damage++
+              rv.damage++
+              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 extra damage for attacking Kyoto. Damage: " + attackage.damage + " -> " + rv.damage);
             }
 
-            utils.log("Damage: " + attackage.damage);
-            return attackage;
+            utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
+            return rv;
           },
           "YEILD_KYOTO": function (game) {
             var rv = 0;
 
-            if (!game.inKyoto(game.monsters[game.turn_monster])) {
-              rv = 1;
+          if (!game.inKyoto(game.monsters[game.turn_monster])) {
+            rv = 1;
+              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 damage to " + game.monsters[game.turn_monster].name + " for yielding Kyoto. Damage: " + rv);
             }
 
-            utils.log("Damage: " + rv);
+            utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
+            return rv;
+          }
+        }
+    },
+    8: {name: "Camouflage", cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.",
+        hooks: {
+          "APPLY_DAMAGE": function (game, damage) {
+            var rv = damage;
+            var log_message = "For 'Camouflage' monster rolls: ";
+
+            for (var i = 0; i < damage ; i++) {
+              var roll = utils.dieRoll()
+              log_message += roll + (i == damage-1 ? '.' : ", ")
+
+              if (roll === 'h') {
+                rv--;
+              }
+            }
+            log_message += "\nDamage: " + damage + " -> " + rv;
+
+            utils.log(log_message);
+            game.updateState(false, false, log_message);
             return rv;
           }
         }
        },
-    8: {name: "Camouflage",                    cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.", hooks: {}},
     9: {name: "Commuter Train",                cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]", hooks: {}},
     10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.", hooks: {}},
     11: {name: "Corner Store",                  cost: 3, keep: false, set: "original", implemented: false, description: "+ 1[Star]", hooks: {}},
