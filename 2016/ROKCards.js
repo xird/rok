@@ -216,8 +216,28 @@ var theCards = {
           }
         }
        },
- 
-    10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.", hooks: {}},
+    10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.",
+         hooks: {
+          "RESOLVE_DICE": function (game) {
+            var values = [];
+            for (var i = 0; i < game.monsters[game.turn_monster].numberOfDice() ; i++) {
+              values.push(game.dice[i].value);
+            }
+
+            if (    values.indexOf('1') != -1 
+                 && values.indexOf('2') != -1 
+                 && values.indexOf('3') != -1 
+                 && values.indexOf('h') != -1 
+                 && values.indexOf('p') != -1 
+                 && values.indexOf('s') != -1) {
+              game.monsters[game.turn_monster].addVictoryPoints(9);
+              game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 9 Victory Points for 'Complete Distruction'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+            }
+
+            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+          }
+        }
+       },
     11: {name: "Corner Store",                  cost: 3, keep: false, set: "original", implemented: false, description: "+ 1[Star]", hooks: {}},
     12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[Star] whenever you buy a card.", hooks: {}},
     13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[Star] and take control of Tokyo if you don't already control it.", hooks: {}},

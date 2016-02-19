@@ -693,6 +693,7 @@ ROKServerGame.prototype.checkRollState = function(player) {
 ROKServerGame.prototype.resolveDice = function(player) {
   utils.log("ROKServerGame.prototype.resolveDice", "debug");
   this.updateState("turn_phase", 'resolve');
+  this.card_hook("RESOLVE_DICE");
 
   this.resolveSnotDice(player);
   this.resolveHealthDice(player);
