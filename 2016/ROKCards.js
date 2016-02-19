@@ -91,7 +91,7 @@ var theCards = {
             var rv = attackage;
             rv.damage++;
 
-            game.updateState(false, false, game.monsters[game.turn_monster].name + " deals 1 extra dammage due to 'Acid Attack'. Damage: " + attackage.damave + " -> " + rv.damage);
+            game.updateState(false, false, game.monsters[game.turn_monster].getName() + " deals 1 extra dammage due to 'Acid Attack'. Damage: " + attackage.damave + " -> " + rv.damage);
             utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
             return attackage;
           }
@@ -115,8 +115,8 @@ var theCards = {
           if (attackage.attack > 0)
             game.monsters[game.turn_monster].addVictoryPoints(1);
 
-            game.updateState(false, false, "For 'Alpha Monster " + game.monsters[game.turn_monster].name + " gains 1 Victory Point for attacking. " + game.monsters[game.turn_monster].name + " now has " + game.monsters[game.turn_monster].victory_points + " Victory Points");
-            utils.log("VPs: " + game.monsters[game.turn_monster].victory_points);
+            game.updateState(false, false, "For 'Alpha Monster " + game.monsters[game.turn_monster].getName() + " gains 1 Victory Point for attacking. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
             return attackage;
           }
         }
@@ -124,10 +124,10 @@ var theCards = {
     4: {name: "Apartment Building", cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]",
         hooks: {
           "CARD_BOUGHT": function (game) {
-            game.monsters[game.turn_monster].addVictoryPoints(3);
+            game.monsters[game.turn_monster].getAddVictoryPoints()(3);
 
-            game.updateState(false, false, game.monsters[game.turn_monster].name + " gains 3 Victory Points for 'Apartment Building'. " + game.monsters[game.turn_monster].name + " now has " + game.monsters[game.turn_monster].victory_points + " Victory Points");
-            utils.log("VPs: " + game.monsters[game.turn_monster].victory_points);
+            game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 3 Victory Points for 'Apartment Building'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
           }
         }
        },
@@ -176,7 +176,7 @@ var theCards = {
 
           if (!game.inKyoto(game.monsters[game.turn_monster])) {
             rv = 1;
-              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 damage to " + game.monsters[game.turn_monster].name + " for yielding Kyoto. Damage: " + rv);
+              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 damage to " + game.monsters[game.turn_monster].getName() + " for yielding Kyoto. Damage: " + rv);
             }
 
             utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
@@ -245,7 +245,7 @@ var theCards = {
     42: {name: "National Guard",                cost: 3, keep: false, set: "original", implemented: false, description: "+ 2[Star] and take 2 damage.", hooks: {}},
     43: {name: "Nova Breath",                   cost: 7, keep: true,  set: "original", implemented: false, description: "Your attacks damage all other monsters.", hooks: {}},
     44: {name: "Nuclear Power Plant",           cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[Star] and heal 3 damage.", hooks: {}},
-    45: {name: "Omnivore",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Once each turn you can score [1][2][3] for 2[Star]. You can use these dice in other combinations.", hooks: {}},
+    45: { name: "Omnivore", cost: 4, keep: true, set: "original", implemented: false, description: "Once each turn you can score [1][2][3] for 2[Star]. You can use these dice in other combinations.", hooks: {} },
     46: {name: "Opportunist",                   cost: 3, keep: true,  set: "original", implemented: false, description: "Whenever a new card is revealed you have the option of purchasing it as soon as it is revealed.", hooks: {}},
     47: {name: "Parasitic Tentacles",           cost: 4, keep: true,  set: "original", implemented: false, description: "You can purchase cards from other monsters. Pay them the [Snot] cost.", hooks: {}},
     48: {name: "Plot Twist",                    cost: 3, keep: true,  set: "original", implemented: false, description: "Change one die to any result. Discard when used.", hooks: {}},
