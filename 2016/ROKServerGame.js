@@ -1347,26 +1347,26 @@ ROKServerGame.prototype.card_hook = function(hook_name, params) {
     params['monster_id'] = this.turn_monster;
   }
 
-  var hooks_to_run = [];
+  var cards_to_run = [];  // Note, we must save the cards rather than just the hooks as it's the cards that have the priority.
   // Cycle through cards the applicable monster owns.
   for (var i = 0; i < this.monsters[params['monster_id']].getCardsOwned().length; i++) {
     var card_id = this.monsters[params['monster_id']].getCardsOwned()[i];
     var card = this.cards.properties[card_id];
     if (typeof card.hooks[hook_name] == "function") {
-      if (typeof card.priority == "udefined") {
+      if (typeof card.priority == "undefined") {
         card.priority = 0;
       }
       
-      hooks_to_run.push(card.hooks[hook_name]);
+      cards_to_run.push(card);
 
     }
   }
 
-  hooks_to_run.sort(function (a, b) { return a.priority - b.priority; });
+  cards_to_run.sort(function (a, b) { return b.priority - a.priority; }); // Reverse numerical order (highest priority first).
 
-  for (var i = 0; i < hooks_to_run.length ; i++) {
+  for (var i = 0; i < cards_to_run.length ; i++) {
     utils.log(hook_name + " hook implemented in " + this.cards.properties[card_id].name + ".");
-    value_to_alter = hooks_to_run[i](this, value_to_alter);
+    value_to_alter = cards_to_run[i].hooks[hook_name](this, value_to_alter);
   }
   
   return value_to_alter;
