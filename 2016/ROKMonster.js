@@ -55,6 +55,10 @@ function Monster(myId, myName, theGame) {
     return this.getData().player_id;
   };
 
+  Monster.prototype.setPlayerId = function (theId) {
+    return this.getData().player_id = theId;
+  };
+
   Monster.prototype.getName = function () {
     return this.getData().name;
   };
@@ -99,8 +103,26 @@ function Monster(myId, myName, theGame) {
     return this.getData().mimic;
   }
 
-   Monster.prototype.getCardsOwned = function () {
+  Monster.prototype.getCardsOwned = function () {
     return this.getData().cards_owned;
+  }
+
+  Monster.prototype.addCard = function (card) {
+    this.getCardsOwned().push(card);
+  }
+
+  Monster.prototype.removeCard = function (card) {
+    var cards = this.getCardsOwned();
+
+    if (typeof card == undefined) {
+      cards.pop();
+    }
+    else {
+      var index = cards.indexOf(card);
+      if (index != -1) {
+        cards.splice(index, 1);
+      }
+    }
   }
 
    /**

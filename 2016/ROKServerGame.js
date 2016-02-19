@@ -403,14 +403,13 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
 // This may be a situation where 'player_monster' is different to 'turn_monster' if a player buys cards when it is not there turn.  I think there is a card called 'The Opertunist' which allows this.
 
   // Add the card to the monster/
-  var monster_cards = monster.getCardsOwned();
-  monster_cards.push(card)
+  monster.addCard(card);
 
   this.card_hook("CARD_BOUGHT", { "monster_id": monster.getId(), "value_to_alter": card });
   if (!this.cards.properties[card].keep) {
-    monster_cards.pop(card)
+    monster.removeCard(); // Pop's last card.
   }
-  this.updateState("monsters__" + monster.getId() + "__cards_owned", monster_cards);
+  this.updateState("monsters__" + monster.getId() + "__cards_owned", monster.getCardsOwned());
 
   // Move a card from the deck to the available cards:
   var cards_available = this.cards_available;
@@ -1088,9 +1087,10 @@ ROKServerGame.prototype.selectMonster = function (player, selected_monster_id) {
       if (player.monster_id == 0) {
         // Set monster to player:
         player.monster_id = selected_monster_id;
-
+        this.monsters[selected_monster_id].setPlayerId(player.id);
+        
         // Set player to monster
-        this.updateState('monsters__' + selected_monster_id + '__player_id', player.id);
+        this.updateState('monsters__' + selected_monster_id + '__player_id', this.monsters[selected_monster_id].getPlayerId());
 
         // If this was the last player to select a monster, advance the game state.
         var ready = 1;
@@ -1262,7 +1262,9 @@ ROKServerGame.prototype.leaveGame = function(player) {
   else {
     // Player leaving while game is still going on.
 
-    this.updateState("monsters__" + monster_id_used + "__player_id", 0);
+    var monster = this.monsters[monster_id_used];
+    monster.setPlayerId(0);
+    this.updateState("monsters__" + monster_id_used + "__player_id", monster.getPlayerId());
 
     // If it was the player's turn, end the turn.
     if (this.turn_monster == monster_id_used) {
@@ -1270,8 +1272,9 @@ ROKServerGame.prototype.leaveGame = function(player) {
     }
 
     // Kill monster
-    var log_message = this.monsters[monster_id_used].getName() + "'s player has left the game.";
-    this.updateState('monsters__' + monster_id_used + '__health', 0, log_message);
+    var log_message = monster.getName() + "'s player has left the game.";
+    monster.addHealth(-monster.getHealth());
+    this.updateState('monsters__' + monster_id_used + '__health', monster.getHealth(), log_message);
     // CARDS Make sure "it has a child" doesn't respawn the monster...
 
     // If the monster was yielding, advance the turn_phase
