@@ -1,3 +1,5 @@
+// Copy this to ROKConfig.js and make your local changes there.
+
 ROKConfig = {
   'always_allow_buying_cards' : true,
   'clean_up_idle_players': false,

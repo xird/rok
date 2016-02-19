@@ -88,52 +88,61 @@ var theCards = {
     1: {name: "Acid Attack", cost: 6, keep: true, set: "original", implemented: true, description: "Deal 1 extra damage each turn (even when you don't otherwise attack).",
         hooks: {
           "RESOLVE_ATTACK_DICE": function (game, attackage) {
-            attackage.damage++;
+            var rv = attackage;
+            rv.damage++;
 
-            utils.log("Damage: " + attackage.damage);
+            game.updateState(false, false, game.monsters[game.turn_monster].getName() + " deals 1 extra dammage due to 'Acid Attack'. Damage: " + attackage.damave + " -> " + rv.damage);
+            utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
             return attackage;
           }
         }
        },
-    2: {name: "Alien Metabolism",              cost: 3, keep: true, set: "original", implemented: true, description: "Buying cards costs you 1 less [Snot].",
+    2: {name: "Alien Metabolism", cost: 3, keep: true, set: "original", implemented: true, description: "Buying cards costs you 1 less [Snot].",
         hooks: {
-          "BUY_CARD": function(game, cardCost) {
-          cardCost--;
+          "BUY_CARD": function(game, cardPrice) {
+            var rv = cardPrice;
+            rv--;
 
-          utils.log("Card cost: " + cardCost);
-          return cardCost;
+            game.updateState(false, false, "Card cost reduced by 1 Snot Cube by 'Alian Metabolism. Cost: " + cardPrice + " -> " + rv);
+            utils.log("Card cost: " + cardPrice + " -> " + rv);
+            return rv;
+          }
         }
-       }
-    },
+       },
     3: {name: "Alpha Monster", cost: 5, keep: true, set: "original", implemented: true, description: "Gain 1[Star] when you attack.",
         hooks: {
           "RESOLVE_ATTACK_DICE": function (game, attackage) {
           if (attackage.attack > 0)
             game.monsters[game.turn_monster].addVictoryPoints(1);
 
-            utils.log("VPs: " + game.monsters[game.turn_monster].victory_points);
+            game.updateState(false, false, "For 'Alpha Monster " + game.monsters[game.turn_monster].getName() + " gains 1 Victory Point for attacking. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
             return attackage;
           }
         }
        },
-    4: {name: "Apartment Building",            cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]",
+    4: {name: "Apartment Building", cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]",
         hooks: {
           "CARD_BOUGHT": function (game) {
-            game.monsters[game.turn_monster].addVictoryPoints(3);
+            game.monsters[game.turn_monster].getAddVictoryPoints()(3);
 
-            utils.log("VPs: " + game.monsters[game.turn_monster].victory_points);
+            game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 3 Victory Points for 'Apartment Building'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
           }
         }
        },
-    5: {name: "Armor Plating",                 cost: 4, keep: true,  set: "original", implemented: true,  description: "Ignore damage of 1.",
+    5: {name: "Armor Plating", cost: 4, keep: true, set: "original", implemented: true, priority: -1000, description: "Ignore damage of 1.",
         hooks: {
           "APPLY_DAMAGE": function (game, damage) {
+            var rv = damage;
+
             if (damage == 1) {
-              damage = 0;
+              rv = 0;
+              game.updateState(false, false, "Due to 'Armor Plating' monster recieves no damage. Damage: " + damage + " -> " + rv);
             }
 
-            utils.log("Damage: " + damage);
-            return damage;
+            utils.log("Damage: " + damage + " -> " + rv);
+            return rv;
           }
         }
        },
@@ -149,9 +158,66 @@ var theCards = {
           }
         }
        },
-    7: {name: "Burrowing",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.", hooks: {}},
-    8: {name: "Camouflage",                    cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.", hooks: {}},
-    9: {name: "Commuter Train",                cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]", hooks: {}},
+    7: {name: "Burrowing", cost: 5, keep: true,  set: "original", implemented: false, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.",
+        hooks: {
+          "RESOLVE_ATTACK_DICE": function (game, attackage) {
+            rv = attackage;
+
+            if (!game.inKyoto(game.monsters[game.turn_monster])) {
+              rv.damage++
+              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 extra damage for attacking Kyoto. Damage: " + attackage.damage + " -> " + rv.damage);
+            }
+
+            utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
+            return rv;
+          },
+          "YEILD_KYOTO": function (game) {
+            var rv = 0;
+
+          if (!game.inKyoto(game.monsters[game.turn_monster])) {
+            rv = 1;
+              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 damage to " + game.monsters[game.turn_monster].getName() + " for yielding Kyoto. Damage: " + rv);
+            }
+
+            utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
+            return rv;
+          }
+        }
+    },
+    8: {name: "Camouflage", cost: 3, keep: true,  set: "original", implemented: false, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.",
+        hooks: {
+          "APPLY_DAMAGE": function (game, damage) {
+            var rv = damage;
+            var log_message = "For 'Camouflage' monster rolls: ";
+
+            for (var i = 0; i < damage ; i++) {
+              var roll = utils.dieRoll()
+              log_message += roll + (i == damage-1 ? '.' : ", ")
+
+              if (roll === 'h') {
+                rv--;
+              }
+            }
+            log_message += "\nDamage: " + damage + " -> " + rv;
+
+            utils.log(log_message);
+            game.updateState(false, false, log_message);
+            return rv;
+          }
+        }
+       },
+    9: {
+      name: "Commuter Train", cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]",
+        hooks: {
+          "CARD_BOUGHT": function (game) {
+            game.monsters[game.turn_monster].addVictoryPoints(2);
+
+            game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 2 Victory Points for 'Commuter Train'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+          }
+        }
+       },
+ 
     10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.", hooks: {}},
     11: {name: "Corner Store",                  cost: 3, keep: false, set: "original", implemented: false, description: "+ 1[Star]", hooks: {}},
     12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[Star] whenever you buy a card.", hooks: {}},
@@ -190,7 +256,7 @@ var theCards = {
     42: {name: "National Guard",                cost: 3, keep: false, set: "original", implemented: false, description: "+ 2[Star] and take 2 damage.", hooks: {}},
     43: {name: "Nova Breath",                   cost: 7, keep: true,  set: "original", implemented: false, description: "Your attacks damage all other monsters.", hooks: {}},
     44: {name: "Nuclear Power Plant",           cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[Star] and heal 3 damage.", hooks: {}},
-    45: {name: "Omnivore",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Once each turn you can score [1][2][3] for 2[Star]. You can use these dice in other combinations.", hooks: {}},
+    45: { name: "Omnivore", cost: 4, keep: true, set: "original", implemented: false, description: "Once each turn you can score [1][2][3] for 2[Star]. You can use these dice in other combinations.", hooks: {} },
     46: {name: "Opportunist",                   cost: 3, keep: true,  set: "original", implemented: false, description: "Whenever a new card is revealed you have the option of purchasing it as soon as it is revealed.", hooks: {}},
     47: {name: "Parasitic Tentacles",           cost: 4, keep: true,  set: "original", implemented: false, description: "You can purchase cards from other monsters. Pay them the [Snot] cost.", hooks: {}},
     48: {name: "Plot Twist",                    cost: 3, keep: true,  set: "original", implemented: false, description: "Change one die to any result. Discard when used.", hooks: {}},
