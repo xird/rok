@@ -203,12 +203,15 @@ ROKGame.prototype.initClient = function() {
 
       // Dice.
       for (var i = 0; i < data.dice.length; i++) {
-        game.handle__dice__state([{value: data.dice[i].state, id: i}]);
-        game.handle__dice__value([{value: data.dice[i].value, id: i}]);
+        game.updates.push({value: data.dice[i].state, id: i});
+        game.handle__dice__state();
+        game.updates.push({value: data.dice[i].value, id: i});
+        game.handle__dice__value();
       }
 
       // Cards
-      game.handle__cards_available([{value: data.cards_available}]);
+      game.updates.push({value: data.cards_available});
+      game.handle__cards_available();
 
       // Enable appropriate buttons for the current state.
       if (game.game_state == 'over') {
@@ -277,8 +280,9 @@ ROKGame.prototype.initClient = function() {
    * Update game state changes to the UI.
    */
   socket.on('state_changes', function socketStateChanges(data) {
-    console.log("received game state changes");
-    game.handleUpdates(data.updates);
+    console.log("Received game state changes:");
+    game.updates = game.updates.concat(data.updates);
+    game.handleUpdates();
   });
 
 
@@ -546,7 +550,7 @@ ROKGame.prototype.moveMonster = function(monster_id, target, immediate) {
 /**
  * Main game data update handler.
  *
- * @param Array updates
+ * The updates are saved in game.updates in socket.on('state_changes').
  *   This array contains a number of "update" objects.
  *
  *   Each "update" object contains four fields:
@@ -559,11 +563,13 @@ ROKGame.prototype.moveMonster = function(monster_id, target, immediate) {
  *   - log: A log message to be shown to users.
  *
  */
-ROKGame.prototype.handleUpdates = function(updates) {
+ROKGame.prototype.handleUpdates = function() {
+  var updates = this.updates;
   if (updates.length == 0) {
+    console.log("Handle updates - nothing to handle");
     return false;
   }
-  console.log("Handle updates");
+  console.log("Handle updates (" + updates.length + ")");
 
   var update = updates[0];
 
@@ -571,24 +577,23 @@ ROKGame.prototype.handleUpdates = function(updates) {
     this.addToLog(update.log);
   }
 
-  //console.log(utils.dump(update));
   console.log('Handler: ' + update.handler);
 
   if (typeof this[update.handler] == "function") {
     // Specific handler exists, call it
-    this[update.handler](updates);
+    this[update.handler]();
   }
   else if (update.element) {
     // No handler, just update matching DOM element
     game[update.element] = update.value;
     $("#" + update.element).html(update.value);
-    updates.shift();
-    this.handleUpdates(updates);
+    game.updates.shift();
+    this.handleUpdates();
   }
   else {
     // It was just a log message
-    updates.shift();
-    this.handleUpdates(updates);
+    game.updates.shift();
+    this.handleUpdates();
   }
 }
 
@@ -601,8 +606,8 @@ ROKGame.prototype.addToLog = function(str) {
 /**
  * Moves the game from the lobby to monster selection and to the actual game.
  */
-ROKGame.prototype.handle__game_state = function(updates) {
-  var update = updates.shift();
+ROKGame.prototype.handle__game_state = function() {
+  var update = game.updates.shift();
   console.log("ROKGame.prototype.handle__game_state to " + update.value);
   this.game_state = update.value;
   //$('#game_state').html(update.value);
@@ -614,24 +619,24 @@ ROKGame.prototype.handle__game_state = function(updates) {
     console.log('Game over man, game over!');
     $('#leave_game_button').show();
   }
-  this.handleUpdates(updates);
+  this.handleUpdates();
 }
 
 
-ROKGame.prototype.handle__next_input_from_monster = function(updates) {
-  var update = updates.shift();
+ROKGame.prototype.handle__next_input_from_monster = function() {
+  var update = game.updates.shift();
   console.log("ROKGame.prototype.handle__next_input_from_monster to " + update.value);
   this.next_input_from_monster = update.value;
 
   $('.monster').removeClass('active');
   $('#m' + update.value).addClass('active');
 
-  this.handleUpdates(updates);
+  this.handleUpdates();
 }
 
 
-ROKGame.prototype.handle__roll_number = function(updates) {
-  var update = updates.shift();
+ROKGame.prototype.handle__roll_number = function() {
+  var update = game.updates.shift();
   console.log("ROKGame.prototype.handle__roll_number to " + update.value);
   game.roll_number = update.value;
   var ordinals = ['0th', '1st', '2nd', '3rd', '4th', '5th', '6th'];
@@ -645,11 +650,11 @@ ROKGame.prototype.handle__roll_number = function(updates) {
     $('#done_rolling_button').hide();
   }
 
-  this.handleUpdates(updates);
+  this.handleUpdates();
 }
 
-ROKGame.prototype.handle__turn_phase = function(updates) {
-  var update = updates.shift();
+ROKGame.prototype.handle__turn_phase = function() {
+  var update = game.updates.shift();
   console.log("ROKGame.prototype.handle__turn_phase to " + update.value);
   game.turn_phase = update.value;
   var elid = "#turn_phase";
@@ -699,19 +704,25 @@ ROKGame.prototype.handle__turn_phase = function(updates) {
     $('#stay_in_kyoto_bay_button').hide();
   }
 
-  game.handleUpdates(updates);
+  game.handleUpdates();
 }
 
-ROKGame.prototype.handle__dice__state = function (updates) {
-  var update = updates.shift();
+ROKGame.prototype.handle__dice__state = function () {
+  console.log("ROKGame.prototype.handle__dice__state");
+  //console.log(game.updates);
+  var update = game.updates.shift();
   game.dice[update.id].state = update.value;
   $("#dice__" + update.id + "__value").removeClass("r i f n k rr kr");
   $("#dice__" + update.id + "__value").addClass(update.value);
-  this.handleUpdates(updates);
+
+  if (game.updates.length > 0) {
+    this.handleUpdates();
+  }
+
 }
 
-ROKGame.prototype.handle__dice__value = function(updates) {
-  var update = updates.shift();
+ROKGame.prototype.handle__dice__value = function() {
+  var update = game.updates.shift();
 
   game.dice[update.id].value = update.value;
   var elid = "#dice__" + update.id + "__value";
@@ -719,32 +730,32 @@ ROKGame.prototype.handle__dice__value = function(updates) {
   switch (update.value) {
     case "p":
       $(elid).css('opacity', 0).html("").removeClass('heal snot').addClass('punch').animate({opacity: 1}, 300, function() {
-        game.handleUpdates(updates);
+        game.handleUpdates();
       });
       break;
 
     case "h":
       $(elid).css('opacity', 0).html("").removeClass('punch snot').addClass('heal').animate({opacity: 1}, 300, function() {
-        game.handleUpdates(updates);
+        game.handleUpdates();
       });
       break;
 
     case "s":
       $(elid).css('opacity', 0).html("").removeClass('punch heal').addClass('snot').animate({opacity: 1}, 300, function() {
-        game.handleUpdates(updates);
+        game.handleUpdates();
       });
       break;
 
     default:
       $(elid).removeClass('punch heal snot').css('opacity', 0).html(update.value).animate({opacity: 1}, 300, function() {
-        game.handleUpdates(updates);
+        game.handleUpdates();
       });
       break;
   }
 }
 
-ROKGame.prototype.handle__monsters__victory_points = function(updates) {
-  var update = updates.shift();
+ROKGame.prototype.handle__monsters__victory_points = function() {
+  var update = game.updates.shift();
   game.monsters[update.id].victory_points = update.value;
   var elid = "#monsters__" + update.id + "__victory_points";
 
@@ -758,12 +769,12 @@ ROKGame.prototype.handle__monsters__victory_points = function(updates) {
   }
 
   $(elid).html(update.value).parent().find('.monster_stats_bg').css('opacity', 1).animate({opacity: 0}, 1000, function() {
-    game.handleUpdates(updates);
+    game.handleUpdates();
   });
 }
 
-ROKGame.prototype.handle__monsters__snot = function(updates) {
-  var update = updates.shift();
+ROKGame.prototype.handle__monsters__snot = function() {
+  var update = game.updates.shift();
   game.monsters[update.id].snot = update.value;
   var elid = "#monsters__" + update.id + "__snot";
 
@@ -777,21 +788,21 @@ ROKGame.prototype.handle__monsters__snot = function(updates) {
   }
 
   $(elid).html(update.value).parent().find('.monster_stats_bg').css('opacity', 1).animate({opacity: 0}, 1000, function() {
-    game.handleUpdates(updates);
+    game.handleUpdates();
   });
 }
 
-ROKGame.prototype.handle__monsters__player_id = function(updates) {
-  var update = updates.shift();
+ROKGame.prototype.handle__monsters__player_id = function() {
+  var update = game.updates.shift();
   game.monsters[update.id].player_id = update.value;
   var elid = "#monster_select_button_" + update.id;
 
   $(elid).addClass('selected');
-  game.handleUpdates(updates);
+  game.handleUpdates();
 }
 
-ROKGame.prototype.handle__monsters__health = function(updates) {
-  var update = updates.shift();
+ROKGame.prototype.handle__monsters__health = function() {
+  var update = game.updates.shift();
   var old_health = game.monsters[update.id].health;
   game.monsters[update.id].health = update.value;
   var elid = "#monsters__" + update.id + "__health";
@@ -826,78 +837,78 @@ ROKGame.prototype.handle__monsters__health = function(updates) {
       console.log('mark monster dead');
       $('#m' + update.id).addClass("dead");
     }
-    game.handleUpdates(updates);
+    game.handleUpdates();
   });
 }
 
-ROKGame.prototype.handle__monster_in_kyoto_city_id = function(updates) {
+ROKGame.prototype.handle__monster_in_kyoto_city_id = function() {
   console.log("handle__monster_in_kyoto_city_id");
 
-  var update = updates.shift();
+  var update = game.updates.shift();
 
   if (update.value != null) {
     this.moveMonster(update.value, "city");
   }
   game.monster_in_kyoto_city_id = update.value;
-  game.handleUpdates(updates);
+  game.handleUpdates();
 }
 
-ROKGame.prototype.handle__monster_in_kyoto_bay_id = function(updates) {
+ROKGame.prototype.handle__monster_in_kyoto_bay_id = function() {
   console.log("handle__monster_in_kyoto_bay_id");
 
-  var update = updates.shift();
+  var update = game.updates.shift();
 
   if (update.value != null) {
     this.moveMonster(update.value, "bay");
   }
   game.monster_in_kyoto_bay_id = update.value;
-  game.handleUpdates(updates);
+  game.handleUpdates();
 }
 
-ROKGame.prototype.handle__monster_leaving_kyoto_city_id = function(updates) {
+ROKGame.prototype.handle__monster_leaving_kyoto_city_id = function() {
   console.log("handle__monster_leaving_kyoto_city_id");
 
-  var update = updates.shift();
+  var update = game.updates.shift();
 
   if (update.value != null) {
     this.moveMonster(update.value, "home");
   }
 
-  game.handleUpdates(updates);
+  game.handleUpdates();
 }
 
-ROKGame.prototype.handle__monster_leaving_kyoto_bay_id = function(updates) {
+ROKGame.prototype.handle__monster_leaving_kyoto_bay_id = function() {
   console.log("handle__monster_leaving_kyoto_bay_id");
 
-  var update = updates.shift();
+  var update = game.updates.shift();
 
   if (update.value != null) {
     this.moveMonster(update.value, "home");
   }
 
-  game.handleUpdates(updates);
+  game.handleUpdates();
 }
 
 /**
  * Show the cards currently available for purchase.
  */
-ROKGame.prototype.handle__cards_available = function(updates) {
+ROKGame.prototype.handle__cards_available = function() {
   console.log("ROKGame.prototype.handle__cards_available");
-  var update = updates.shift();
+  var update = game.updates.shift();
 
   for (var i = 0; i < update.value.length; i++) {
     $('#card__' + i).html('<img src="' + static_ + '/images/cards/' + update.value[i] + '.jpg" alt="' + update.value[i] + '" width="117" height="91" />');
   }
 
-  game.handleUpdates(updates);
+  game.handleUpdates();
 }
 
 /**
  *
  */
-ROKGame.prototype.handle__monsters__cards_owned = function(updates) {
+ROKGame.prototype.handle__monsters__cards_owned = function() {
   console.log("ROKGame.prototype.handle__monsters__cards_owned");
-  var update = updates.shift();
+  var update = game.updates.shift();
 
   // TODO Add hover effect for larger view for card
   for (var i = 0; i < update.value.length; i++) {
@@ -906,5 +917,5 @@ ROKGame.prototype.handle__monsters__cards_owned = function(updates) {
     $('#' + update.element + "__" + i).html(html);
   }
 
-  game.handleUpdates(updates);
+  game.handleUpdates();
 }
