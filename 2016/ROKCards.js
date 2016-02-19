@@ -149,7 +149,7 @@ var theCards = {
     6: {name: "Background Dweller", cost: 4, keep: true, set: "original", implemented: false, description: "You can always reroll any [3] you have.",
         hooks: {
           "DICE_STATE": function (game, die) {
-            if (die.value === 3) {
+            if (die.value == '3') {
               die.state = die.state == 'r' ? 'rr' : "kr";  // 'rr' means 're-roll(able)'.  'kr' means 'keep-rerollale'.
             }
 
@@ -206,8 +206,7 @@ var theCards = {
           }
         }
        },
-    9: {
-      name: "Commuter Train", cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]",
+    9: {name: "Commuter Train", cost: 4, keep: false, set: "original", implemented: false, description: "+ 2[Star]",
         hooks: {
           "CARD_BOUGHT": function (game) {
             game.monsters[game.turn_monster].addVictoryPoints(2);
@@ -217,8 +216,28 @@ var theCards = {
           }
         }
        },
- 
-    10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.", hooks: {}},
+    10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: false, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.",
+         hooks: {
+          "RESOLVE_DICE": function (game) {
+            var values = [];
+            for (var i = 0; i < game.monsters[game.turn_monster].numberOfDice() ; i++) {
+              values.push(game.dice[i].value);
+            }
+
+            if (    values.indexOf('1') != -1 
+                 && values.indexOf('2') != -1 
+                 && values.indexOf('3') != -1 
+                 && values.indexOf('h') != -1 
+                 && values.indexOf('p') != -1 
+                 && values.indexOf('s') != -1) {
+              game.monsters[game.turn_monster].addVictoryPoints(9);
+              game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 9 Victory Points for 'Complete Distruction'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+            }
+
+            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+          }
+        }
+       },
     11: {name: "Corner Store",                  cost: 3, keep: false, set: "original", implemented: false, description: "+ 1[Star]", hooks: {}},
     12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[Star] whenever you buy a card.", hooks: {}},
     13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[Star] and take control of Tokyo if you don't already control it.", hooks: {}},
@@ -227,10 +246,7 @@ var theCards = {
     16: {name: "Energy Hoarder",                cost: 3, keep: true,  set: "original", implemented: false, description: "You gain 1[Star] for every 6[Snot] you have at the end of your turn.", hooks: {}},
     17: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[Star].", hooks: {}},
     18: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[Star].", hooks: {}},
-    19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.",
-         hooks: {
-         }
-        },
+    19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.", hooks: {}},
     20: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.", hooks: {}},
     21: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.", hooks: {}},
     22: {name: "Fire Blast",                    cost: 3, keep: false, set: "original", implemented: false, description: "Deal 2 damage to all other monsters.", hooks: {}},

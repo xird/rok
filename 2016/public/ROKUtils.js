@@ -78,9 +78,9 @@ ROKUtils.prototype.shuffleArray = function shuffleArray(array) {
  */
 ROKUtils.prototype.dieRoll = function () {
   var faces = [
-    1,
-    2,
-    3,
+    '1',
+    '2',
+    '3',
     'p',
     'h',
     's'
