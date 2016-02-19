@@ -96,6 +96,10 @@ ROKUtils.prototype.dieRoll = function () {
 ROKUtils.prototype.log = function (msg, level) {
   var currentLevel = ROKConfig.log_level;
 
+  if (typeof level == "undefined") {
+    level = "debug";
+  }
+
   var levels = ["debug", "notice", "warning", "error"];
   if (levels.indexOf(level) == -1) {
     level = "debug";
@@ -121,6 +125,9 @@ ROKUtils.prototype.log = function (msg, level) {
       if (level == "error") {
         console.log(msg);
       }
+
+    default:
+      break;
   }
 }
 
