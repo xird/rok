@@ -248,7 +248,20 @@ var theCards = {
            }
          }
         },
-    12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[VP] whenever you buy a card.", hooks: {}},
+    12: {name: "Dedicated News Team", cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[VP] whenever you buy a card.",
+         hooks: {
+           "CARD_BOUGHT": function (game, current_card) {
+
+              // Card affect not to be applied when buying itself.
+             if (current_card != 12) {
+               game.monsters[game.turn_monster].addVictoryPoints(1);
+            
+               game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 1 Victory Points for 'Dedicated News Team'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+               utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+             }
+           }
+         }
+        },
     13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[VP] and take control of Tokyo if you don't already control it.", hooks: {}},
     14: {name: "Eater of the Dead",             cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 3[VP] every time a monster's [Heart] goes to 0.", hooks: {}},
     15: {name: "Energize",                      cost: 8, keep: false, set: "original", implemented: false, description: "+ 9[Snot]", hooks: {}},

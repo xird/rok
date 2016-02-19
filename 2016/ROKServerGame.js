@@ -387,7 +387,7 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   utils.log(card)
   var monster = this.monsters[player.monster_id];
   var price = this.cards.properties[card].cost;
-  var cost = this.card_hook("BUY_CARD", { "value_to_alter": price });
+  var cost = this.card_hook("BUY_CARD", { "monster_id": monster.getId(), "value_to_alter": price });
 
   // A monster can attempt to buy cards they can't afford but the purchace
   // will be denied.
@@ -397,20 +397,16 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   }
 
   // Deduct the money from the monster.
-  var new_snot = monster.getSnot() - cost;
-  this.updateState("monsters__" + monster.getId() + "__snot", new_snot);
+  monster.addSnot(-cost);
+  this.updateState("monsters__" + monster.getId() + "__snot", monster.getSnot());
 
-  // "Dedicated News Team" gives the monster a Vip each time they purchace a
-  // card, but not when they're buying the "Dedicated news team".
-  if (monster.getCardsOwned().indexOf(this.cards.DEDICATED_NEWS_TEAM) != -1) {
-      this.monsters[this.turn_monster].addVictoryPoints(+1);  // This may be a situation where 'player_monster' is different to 'turn_monster' if a player buys cards when it is not there turn.  I think there is a card called 'The Opertunist' which allows this.
-  }
+// This may be a situation where 'player_monster' is different to 'turn_monster' if a player buys cards when it is not there turn.  I think there is a card called 'The Opertunist' which allows this.
 
   // Add the card to the monster/
   var monster_cards = monster.getCardsOwned();
   monster_cards.push(card)
 
-  this.card_hook("CARD_BOUGHT");
+  this.card_hook("CARD_BOUGHT", { "monster_id": monster.getId(), "value_to_alter": card });
   if (!this.cards.properties[card].keep) {
     monster_cards.pop(card)
   }
@@ -1362,16 +1358,14 @@ ROKServerGame.prototype.card_hook = function(hook_name, params) {
       if (typeof card.priority == "undefined") {
         card.priority = 0;
       }
-      
       cards_to_run.push(card);
-
     }
   }
 
   cards_to_run.sort(function (a, b) { return b.priority - a.priority; }); // Reverse numerical order (highest priority first).
 
   for (var i = 0; i < cards_to_run.length ; i++) {
-    utils.log(hook_name + " hook implemented in " + this.cards.properties[card_id].name + ".");
+    utils.log(hook_name + " hook implemented in " + cards_to_run[i].name + ".");
     value_to_alter = cards_to_run[i].hooks[hook_name](this, value_to_alter);
   }
   
