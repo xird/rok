@@ -109,7 +109,7 @@ var theCards = {
           }
         }
        },
-    3: {name: "Alpha Monster", cost: 5, keep: true, set: "original", implemented: true, description: "Gain 1[Star] when you attack.",
+    3: {name: "Alpha Monster", cost: 5, keep: true, set: "original", implemented: true, description: "Gain 1[VP] when you attack.",
         hooks: {
           "RESOLVE_ATTACK_DICE": function (game, attackage) {
           if (attackage.attack > 0)
@@ -121,7 +121,7 @@ var theCards = {
           }
         }
        },
-    4: {name: "Apartment Building", cost: 5, keep: false, set: "original", implemented: true, description: "+ 3[Star]",
+    4: {name: "Apartment Building", cost: 5, keep: false, set: "original", implemented: true, description: "+ 3[VP]",
         hooks: {
           "CARD_BOUGHT": function (game) {
             game.monsters[game.turn_monster].getAddVictoryPoints()(3);
@@ -206,7 +206,7 @@ var theCards = {
           }
         }
        },
-    9: {name: "Commuter Train", cost: 4, keep: false, set: "original", implemented: true, description: "+ 2[Star]",
+    9: {name: "Commuter Train", cost: 4, keep: false, set: "original", implemented: true, description: "+ 2[VP]",
         hooks: {
           "CARD_BOUGHT": function (game) {
             game.monsters[game.turn_monster].addVictoryPoints(2);
@@ -216,7 +216,7 @@ var theCards = {
           }
         }
        },
-    10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: true, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[Star] in addition to the regular results.",
+    10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: true, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[VP] in addition to the regular results.",
          hooks: {
           "RESOLVE_DICE": function (game) {
             var values = [];
@@ -238,7 +238,7 @@ var theCards = {
           }
         }
        },
-    11: {name: "Corner Store", cost: 3, keep: false, set: "original", implemented: true, description: "+ 1[Star]",
+    11: {name: "Corner Store", cost: 3, keep: false, set: "original", implemented: true, description: "+ 1[VP]",
          hooks: {
            "CARD_BOUGHT": function (game) {
              game.monsters[game.turn_monster].addVictoryPoints(1);
@@ -248,13 +248,13 @@ var theCards = {
            }
          }
         },
-    12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[Star] whenever you buy a card.", hooks: {}},
-    13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[Star] and take control of Tokyo if you don't already control it.", hooks: {}},
-    14: {name: "Eater of the Dead",             cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 3[Star] every time a monster's [Heart] goes to 0.", hooks: {}},
+    12: {name: "Dedicated News Team",           cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[VP] whenever you buy a card.", hooks: {}},
+    13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[VP] and take control of Tokyo if you don't already control it.", hooks: {}},
+    14: {name: "Eater of the Dead",             cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 3[VP] every time a monster's [Heart] goes to 0.", hooks: {}},
     15: {name: "Energize",                      cost: 8, keep: false, set: "original", implemented: false, description: "+ 9[Snot]", hooks: {}},
-    16: {name: "Energy Hoarder",                cost: 3, keep: true,  set: "original", implemented: false, description: "You gain 1[Star] for every 6[Snot] you have at the end of your turn.", hooks: {}},
-    17: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[Star].", hooks: {}},
-    18: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[Star].", hooks: {}},
+    16: {name: "Energy Hoarder",                cost: 3, keep: true,  set: "original", implemented: false, description: "You gain 1[VP] for every 6[Snot] you have at the end of your turn.", hooks: {}},
+    17: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].", hooks: {}},
+    18: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].", hooks: {}},
     19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.", hooks: {}},
     20: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.", hooks: {}},
     21: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.", hooks: {}},
@@ -263,25 +263,25 @@ var theCards = {
     24: {name: "Freeze Time",                   cost: 5, keep: true,  set: "original", implemented: false, description: "On a turn where you score [1][1][1], you can take another turn with one less die.", hooks: {}},
     25: {name: "Frenzy",                        cost: 7, keep: false, set: "original", implemented: false, description: "When you purchase this card Take another turn immediately after this one.", hooks: {}},
     26: {name: "Friend of Children",            cost: 3, keep: true,  set: "original", implemented: false, description: "When you gain any [Snot] gain 1 extra [Snot].", hooks: {}},
-    27: {name: "Gas Refinery",                  cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[Star] and deal 3 damage to all other monsters.", hooks: {}},
+    27: {name: "Gas Refinery",                  cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[VP] and deal 3 damage to all other monsters.", hooks: {}},
     28: {name: "Giant Brain",                   cost: 5, keep: true,  set: "original", implemented: true,  description: "You have one extra reroll each turn.", hooks: {}},
-    29: {name: "Gourmet",                       cost: 4, keep: true,  set: "original", implemented: false, description: "When scoring [1][1][1] gain 2 extra [Star].", hooks: {}},
+    29: {name: "Gourmet",                       cost: 4, keep: true,  set: "original", implemented: false, description: "When scoring [1][1][1] gain 2 extra [VP].", hooks: {}},
     30: {name: "Heal",                          cost: 3, keep: false, set: "original", implemented: false, description: "Heal 2 damage.", hooks: {}},
     31: {name: "Healing Ray",                   cost: 4, keep: true,  set: "original", implemented: false, description: "You can heal other monsters with your [Heart] results. They must pay you 2[Snot] for each damage you heal (or their remaining [Snot] if they haven't got enough.", hooks: {}},
-    32: {name: "Herbivore",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Gain 1[Star] on your turn if you don't damage anyone.", hooks: {}},
+    32: {name: "Herbivore",                     cost: 5, keep: true,  set: "original", implemented: false, description: "Gain 1[VP] on your turn if you don't damage anyone.", hooks: {}},
     33: {name: "Herd Culler",                   cost: 3, keep: true,  set: "original", implemented: false, description: "You can change one of your dice to a [1] each turn.", hooks: {}},
     34: {name: "High Altitude Bombing",         cost: 4, keep: false, set: "original", implemented: false, description: "All monsters (including you) take 3 damage.", hooks: {}},
-    35: {name: "It Has a Child",                cost: 7, keep: true,  set: "original", implemented: false, description: "If you are eliminated discard all your cards and lose all your [Star], Heal to 10[Heart] and start again.", hooks: {}},
-    36: {name: "Jet Fighters",                  cost: 5, keep: false, set: "original", implemented: false, description: "+ 5[Star] and take 4 damage", hooks: {}},
+    35: {name: "It Has a Child",                cost: 7, keep: true,  set: "original", implemented: false, description: "If you are eliminated discard all your cards and lose all your [VP], Heal to 10[Heart] and start again.", hooks: {}},
+    36: {name: "Jet Fighters",                  cost: 5, keep: false, set: "original", implemented: false, description: "+ 5[VP] and take 4 damage", hooks: {}},
     37: {name: "Jets",                          cost: 5, keep: true,  set: "original", implemented: false, description: "You suffer no damage when yielding Tokyo.", hooks: {}},
     38: {name: "Made in a Lab",                 cost: 2, keep: true,  set: "original", implemented: false, description: "When purchasing cards you can peek at and purchase the top card of the deck.", hooks: {}},
     39: {name: "Metamorph",                     cost: 3, keep: true,  set: "original", implemented: false, description: "At the end of your turn you can discard any keep cards you have to receive the [Snot] they were purchased for.", hooks: {}},
     40: {name: "Mimic",                         cost: 8, keep: true,  set: "original", implemented: false, description: "Choose a card any monster has in play and put a mimic counter on it. This card counts as a duplicate of that card as if it just had been bought. Spend 1[Snot] at the start of your turn to change the power you are mimicking.", hooks: {}},
     41: {name: "Monster Batteries",             cost: 2, keep: true,  set: "original", implemented: false, description: "When you purchase this put as many [Snot] as you want on it from your reserve. Match this from the bank. At the start of each turn take 2[Snot] off and add them to your reserve. When there are no [Snot] left discard this card.", hooks: {}},
-    42: {name: "National Guard",                cost: 3, keep: false, set: "original", implemented: false, description: "+ 2[Star] and take 2 damage.", hooks: {}},
+    42: {name: "National Guard",                cost: 3, keep: false, set: "original", implemented: false, description: "+ 2[VP] and take 2 damage.", hooks: {}},
     43: {name: "Nova Breath",                   cost: 7, keep: true,  set: "original", implemented: false, description: "Your attacks damage all other monsters.", hooks: {}},
-    44: {name: "Nuclear Power Plant",           cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[Star] and heal 3 damage.", hooks: {}},
-    45: { name: "Omnivore", cost: 4, keep: true, set: "original", implemented: false, description: "Once each turn you can score [1][2][3] for 2[Star]. You can use these dice in other combinations.", hooks: {} },
+    44: {name: "Nuclear Power Plant",           cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[VP] and heal 3 damage.", hooks: {}},
+    45: { name: "Omnivore", cost: 4, keep: true, set: "original", implemented: false, description: "Once each turn you can score [1][2][3] for 2[VP]. You can use these dice in other combinations.", hooks: {} },
     46: {name: "Opportunist",                   cost: 3, keep: true,  set: "original", implemented: false, description: "Whenever a new card is revealed you have the option of purchasing it as soon as it is revealed.", hooks: {}},
     47: {name: "Parasitic Tentacles",           cost: 4, keep: true,  set: "original", implemented: false, description: "You can purchase cards from other monsters. Pay them the [Snot] cost.", hooks: {}},
     48: {name: "Plot Twist",                    cost: 3, keep: true,  set: "original", implemented: false, description: "Change one die to any result. Discard when used.", hooks: {}},
@@ -290,30 +290,30 @@ var theCards = {
     51: {name: "Psychic Probe",                 cost: 3, keep: true,  set: "original", implemented: false, description: "You can reroll a die of each other monster once each turn. If the reroll is [Heart] discard this card.", hooks: {}},
     52: {name: "Rapid Healing",                 cost: 3, keep: true,  set: "original", implemented: false, description: "Spend 2[Snot] at any time to heal 1 damage.", hooks: {}},
     53: {name: "Regeneration",                  cost: 4, keep: true,  set: "original", implemented: false, description: "When you heal, heal 1 extra damage.", hooks: {}},
-    54: {name: "Rooting for the Underdog",      cost: 3, keep: true,  set: "original", implemented: false, description: "At the end of a turn when you have the fewest [Star] gain 1 [Star].", hooks: {}},
+    54: {name: "Rooting for the Underdog",      cost: 3, keep: true,  set: "original", implemented: false, description: "At the end of a turn when you have the fewest [VP] gain 1 [VP].", hooks: {}},
     55: {name: "Shrink Ray",                    cost: 6, keep: true,  set: "original", implemented: false, description: "When you deal damage to monsters give them a shrink counter. A monster rolls one less die for each shrink counter. You can get rid of a shrink counter with a [Heart] (that [Heart] doesn't heal a damage also).", hooks: {}},
-    56: {name: "Skyscraper",                    cost: 6, keep: false, set: "original", implemented: false, description: "+ 4[Star]", hooks: {}},
+    56: {name: "Skyscraper",                    cost: 6, keep: false, set: "original", implemented: false, description: "+ 4[VP]", hooks: {}},
     57: {name: "Smoke Cloud",                   cost: 4, keep: true,  set: "original", implemented: false, description: "This card starts with 3 charges. Spend a charge for an extra reroll. Discard this card when all charges are spent.", hooks: {}},
     58: {name: "Solar Powered",                 cost: 2, keep: true,  set: "original", implemented: false, description: "At the end of your turn gain 1[Snot] if you have no [Snot].", hooks: {}},
     59: {name: "Spiked Tail",                   cost: 5, keep: true,  set: "original", implemented: false, description: "When you attack deal 1 extra damage.", hooks: {}},
     60: {name: "Stretchy",                      cost: 3, keep: true,  set: "original", implemented: false, description: "You can spend 2[Snot] to change one of your dice to any result.", hooks: {}},
-    61: {name: "Tanks",                         cost: 4, keep: false, set: "original", implemented: false, description: "+ 4[Star] and take 3 damage.", hooks: {}},
+    61: {name: "Tanks",                         cost: 4, keep: false, set: "original", implemented: false, description: "+ 4[VP] and take 3 damage.", hooks: {}},
     62: {name: "Telepath",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Spend 1[Snot] to get 1 extra reroll.", hooks: {}},
-    63: {name: "Urbavore",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 1 extra [Star] when beginning the turn in Tokyo. Deal 1 extra damage when dealing any damage from Tokyo.", hooks: {}},
-    64: {name: "Vast Storm",                    cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[Star]. All other monsters lose 1[Snot] for every 2[Snot] they have.", hooks: {}},
+    63: {name: "Urbavore",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 1 extra [VP] when beginning the turn in Tokyo. Deal 1 extra damage when dealing any damage from Tokyo.", hooks: {}},
+    64: {name: "Vast Storm",                    cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[VP]. All other monsters lose 1[Snot] for every 2[Snot] they have.", hooks: {}},
     65: {name: "We're Only Making It Stronger", cost: 3, keep: true,  set: "original", implemented: false, description: "When you lose 2[Heart] or more gain 1[Snot].", hooks: {}},
     66: {name: "Wings",                         cost: 6, keep: true,  set: "original", implemented: false, description: "Spend 2[Snot] to negate damage to you for a turn.", hooks: {}},
 
-    67: {name: "Amusement Park",                cost: 6, keep: false, set: "promo",    implemented: false, description: "+ 4[Star]", hooks: {}},
-    68: {name: "Army",                          cost: 2, keep: false, set: "promo",    implemented: false, description: "(+ 1[Star] and suffer one damage) for each card you have.", hooks: {}},
+    67: {name: "Amusement Park",                cost: 6, keep: false, set: "promo",    implemented: false, description: "+ 4[VP]", hooks: {}},
+    68: {name: "Army",                          cost: 2, keep: false, set: "promo",    implemented: false, description: "(+ 1[VP] and suffer one damage) for each card you have.", hooks: {}},
     69: {name: "Cannibalistic",                 cost: 5, keep: true,  set: "promo",    implemented: false, description: "When you do damage gain 1[Heart].", hooks: {}},
     70: {name: "Intimidating Roar",             cost: 3, keep: true,  set: "promo",    implemented: false, description: "The monsters in Tokyo must yield if you damage them.", hooks: {}},
-    71: {name: "Monster Sidekick",              cost: 4, keep: true,  set: "promo",    implemented: false, description: "If someone kills you, Go back to 10[Heart] and lose all your [Star]. If either of you or your killer win, or all other players are eliminated then you both win. If your killer is eliminated then you are also. If you are eliminated a second time this card has no effect.", hooks: {}},
+    71: {name: "Monster Sidekick",              cost: 4, keep: true,  set: "promo",    implemented: false, description: "If someone kills you, Go back to 10[Heart] and lose all your [VP]. If either of you or your killer win, or all other players are eliminated then you both win. If your killer is eliminated then you are also. If you are eliminated a second time this card has no effect.", hooks: {}},
     72: {name: "Reflective Hide",               cost: 6, keep: true,  set: "promo",    implemented: false, description: "If you suffer damage the monster that inflicted the damage suffers 1 as well.", hooks: {}},
-    73: {name: "Sleep Walker",                  cost: 3, keep: true,  set: "promo",    implemented: false, description: "Spend 3[Snot] to gain 1[Star].", hooks: {}},
+    73: {name: "Sleep Walker",                  cost: 3, keep: true,  set: "promo",    implemented: false, description: "Spend 3[Snot] to gain 1[VP].", hooks: {}},
     74: {name: "Super Jump",                    cost: 4, keep: true,  set: "promo",    implemented: false, description: "Once each turn you may spend 1[Snot] to negate 1 damage you are receiving.", hooks: {}},
-    75: {name: "Throw a Tanker",                cost: 4, keep: true,  set: "promo",    implemented: false, description: "On a turn you deal 3 or more damage gain 2[Star].", hooks: {}},
-    76: {name: "Thunder Stomp",                 cost: 3, keep: true,  set: "promo",    implemented: false, description: "If you score 4[Star] in a turn, all players roll one less die until your next turn.", hooks: {}},
+    75: {name: "Throw a Tanker",                cost: 4, keep: true,  set: "promo",    implemented: false, description: "On a turn you deal 3 or more damage gain 2[VP].", hooks: {}},
+    76: {name: "Thunder Stomp",                 cost: 3, keep: true,  set: "promo",    implemented: false, description: "If you score 4[VP] in a turn, all players roll one less die until your next turn.", hooks: {}},
     77: {name: "Unstable DNA",                  cost: 3, keep: true,  set: "promo",    implemented: false, description: "If you yield Tokyo you can take any card the recipient has and give him this card.",
          hooks: {}
         }
