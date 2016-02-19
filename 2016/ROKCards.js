@@ -88,52 +88,61 @@ var theCards = {
     1: {name: "Acid Attack", cost: 6, keep: true, set: "original", implemented: true, description: "Deal 1 extra damage each turn (even when you don't otherwise attack).",
         hooks: {
           "RESOLVE_ATTACK_DICE": function (game, attackage) {
-            attackage.damage++;
+            var rv = attackage;
+            rv.damage++;
 
-            utils.log("Damage: " + attackage.damage);
+            game.updateState(false, false, game.monsters[game.turn_monster].name + " deals 1 extra dammage due to 'Acid Attack'. Damage: " + attackage.damave + " -> " + rv.damage);
+            utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
             return attackage;
           }
         }
        },
-    2: {name: "Alien Metabolism",              cost: 3, keep: true, set: "original", implemented: true, description: "Buying cards costs you 1 less [Snot].",
+    2: {name: "Alien Metabolism", cost: 3, keep: true, set: "original", implemented: true, description: "Buying cards costs you 1 less [Snot].",
         hooks: {
-          "BUY_CARD": function(game, cardCost) {
-          cardCost--;
+          "BUY_CARD": function(game, cardPrice) {
+            var rv = cardPrice;
+            rv--;
 
-          utils.log("Card cost: " + cardCost);
-          return cardCost;
+            game.updateState(false, false, "Card cost reduced by 1 Snot Cube by 'Alian Metabolism. Cost: " + cardPrice + " -> " + rv);
+            utils.log("Card cost: " + cardPrice + " -> " + rv);
+            return rv;
+          }
         }
-       }
-    },
+       },
     3: {name: "Alpha Monster", cost: 5, keep: true, set: "original", implemented: true, description: "Gain 1[Star] when you attack.",
         hooks: {
           "RESOLVE_ATTACK_DICE": function (game, attackage) {
           if (attackage.attack > 0)
             game.monsters[game.turn_monster].addVictoryPoints(1);
 
+            game.updateState(false, false, "For 'Alpha Monster " + game.monsters[game.turn_monster].name + " gains 1 Victory Point for attacking. " + game.monsters[game.turn_monster].name + " now has " + game.monsters[game.turn_monster].victory_points + " Victory Points");
             utils.log("VPs: " + game.monsters[game.turn_monster].victory_points);
             return attackage;
           }
         }
        },
-    4: {name: "Apartment Building",            cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]",
+    4: {name: "Apartment Building", cost: 5, keep: false, set: "original", implemented: false, description: "+ 3[Star]",
         hooks: {
           "CARD_BOUGHT": function (game) {
             game.monsters[game.turn_monster].addVictoryPoints(3);
 
+            game.updateState(false, false, game.monsters[game.turn_monster].name + " gains 3 Victory Points for 'Apartment Building'. " + game.monsters[game.turn_monster].name + " now has " + game.monsters[game.turn_monster].victory_points + " Victory Points");
             utils.log("VPs: " + game.monsters[game.turn_monster].victory_points);
           }
         }
        },
-    5: {name: "Armor Plating",                 cost: 4, keep: true,  set: "original", implemented: true,  description: "Ignore damage of 1.",
+    5: {name: "Armor Plating", cost: 4, keep: true, set: "original", implemented: true, priority: -1000, description: "Ignore damage of 1.",
         hooks: {
           "APPLY_DAMAGE": function (game, damage) {
+            var rv = damage;
+
             if (damage == 1) {
-              damage = 0;
+              rv = 0;
+              game.updateState(false, false, "Due to 'Armor Plating' monster recieves no damage. Damage: " + damage + " -> " + rv);
             }
 
-            utils.log("Damage: " + damage);
-            return damage;
+            utils.log("Damage: " + damage + " -> " + rv);
+            return rv;
           }
         }
        },
