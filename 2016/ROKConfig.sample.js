@@ -1,6 +1,7 @@
 // Copy this to ROKConfig.js and make your local changes there.
 
 ROKConfig = {
+  'allow_kill_monster': false,
   'always_allow_buying_cards' : false,
   'clean_up_idle_players': false,
   'initial_snot': 0,

@@ -408,6 +408,16 @@ io.on('connection', function (socket) {
   /**
    * Debug
    */
+  // Kill a monster
+  socket.on("kill_monster", function killMonster() {
+    console.log("Kill Monster");
+    if (ROKConfig.allow_kill_monster) {
+      var game = games[player.game_id];
+      var monster_id_to_kill = game.monster_order[0];
+      game.monsters[monster_id_to_kill].applyDamage(100);
+      game.sendStateChanges();
+    }
+  });
 
   // Debug game
   socket.on("log_lobby_state", function debugLobbyState() {

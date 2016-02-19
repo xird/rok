@@ -551,10 +551,10 @@ div#dice div.snotInactive {
 #debug {
   background: #fcc;
   height: 450px;
-  right: -300px;
+  right: -150px;
   position: absolute;
   top:0;
-  width: 300px;
+  width: 150px;
   z-index: 15;
 }
 
