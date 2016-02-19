@@ -4,4 +4,4 @@ obj/
 bin/
 .vs/
 .ntvs_analysis.dat
-.ROKConfig.js
+ROKConfig.js
