@@ -124,7 +124,7 @@ var theCards = {
     4: {name: "Apartment Building", cost: 5, keep: false, set: "original", implemented: true, description: "+ 3[VP]",
         hooks: {
           "CARD_BOUGHT": function (game, owning_monster) {
-            owning_monster.getAddVictoryPoints()(3);
+            owning_monster.addVictoryPoints()(3);
 
             game.updateState(false, false, owning_monster.getName() + " gains 3 Victory Points for 'Apartment Building'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
             utils.log("VPs: " + owning_monster.getVictoryPoints());
