@@ -448,6 +448,7 @@ ROKServerGame.prototype.doneBuying = function (player) {
 ROKServerGame.prototype.endTurn = function() {
   utils.log("ROKServerGame.prototype.endTurn", "debug");
 
+  this.card_hook("TURN_END");
   var _this_turn_monster = this.monsters[this.turn_monster];
 
   // Turn end.

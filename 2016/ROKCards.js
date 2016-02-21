@@ -305,12 +305,23 @@ var theCards = {
            "CARD_BOUGHT": function (game, owning_monster) {
              owning_monster.addSnot(9);
         
-             game.updateState(false, false, owning_monster.getName() + " gains 9 Snot for 'Snoterize'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
+             game.updateState(false, false, owning_monster.getName() + " gains 9 Snot for 'Enererize'. " + owning_monster.getName() + " now has " + owning_monster.getSnot() + " Snot");
              utils.log("VPs: " + owning_monster.getVictoryPoints());
            }
          }
         },
-    16: {name: "Energy Hoarder",                cost: 3, keep: true,  set: "original", implemented: false, description: "You gain 1[VP] for every 6[Snot] you have at the end of your turn.", hooks: {}},
+    16: {name: "Energy Hoarder",                cost: 3, keep: true,  set: "original", implemented: false, description: "You gain 1[VP] for every 6[Snot] you have at the end of your turn.",
+         hooks: {
+           "TURN_END": function (game, owning_monster) {
+             var vips = Math.floor(owning_monster.getSnot() / 6);
+             if (vips > 0) {
+                owning_monster.addVictoryPoints(vips);
+                game.updateState(false, false, owning_monster.getName() + " gains " + vips + " Victory Point" + (vips == 1 ? "s" : "") + " for 'Energy Hoarder'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
+                utils.log("VPs: " + owning_monster.getVictoryPoints());
+             }
+           }
+         }
+        },
     17: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].", hooks: {}},
     18: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].", hooks: {}},
     19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.", hooks: {}},
