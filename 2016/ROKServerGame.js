@@ -58,8 +58,11 @@ ROKServerGame.prototype.init = function (player) {
 
   // Put all the cards in the deck
   for (var card in cards) {
+    // ..but skip the properties attribute, which isn't actually a card
     if (cards[card] != cards.properties) {
-      card_deck.push(card);
+      if (ROKConfig.deck.indexOf(card) != -1) {
+        card_deck.push(card);
+      }
     }
   }
 
@@ -1091,7 +1094,7 @@ ROKServerGame.prototype.selectMonster = function (player, selected_monster_id) {
         // Set monster to player:
         player.monster_id = selected_monster_id;
         this.monsters[selected_monster_id].setPlayerId(player.id);
-        
+
         // Set player to monster
         this.updateState('monsters__' + selected_monster_id + '__player_id', this.monsters[selected_monster_id].getPlayerId());
 
@@ -1374,7 +1377,7 @@ ROKServerGame.prototype.card_hook = function(hook_name, params) {
     utils.log(hook_name + " hook implemented in " + cards_to_run[i].name + ".");
     value_to_alter = cards_to_run[i].hooks[hook_name](this, this.monsters[params['monster_id']], value_to_alter);
   }
-  
+
   return value_to_alter;
 }
 
