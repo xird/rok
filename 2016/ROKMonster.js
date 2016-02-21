@@ -195,7 +195,7 @@ function Monster(myId, myName, theGame) {
 
       this._game.updateState("monsters__" + this.getId() + "__victory_points", this.getVictoryPoints(), log_message);
 
-      // TODO ticket #18, "Finish monster attribute modifier functions":: Check for win
+      this._game.checkWin();
     }
 
     // Return new/current VPs
