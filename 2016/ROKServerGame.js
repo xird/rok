@@ -448,6 +448,7 @@ ROKServerGame.prototype.doneBuying = function (player) {
 ROKServerGame.prototype.endTurn = function() {
   utils.log("ROKServerGame.prototype.endTurn", "debug");
 
+  this.card_hook("TURN_END");
   var _this_turn_monster = this.monsters[this.turn_monster];
 
   // Turn end.
@@ -902,6 +903,8 @@ ROKServerGame.prototype.checkDeaths = function() {
   for (var mid in this.monsters) {
     mid = parseInt(mid);
     if (this.monsters[mid].getHealth() < 1) {
+      this.card_hook("MONSTER_DIES", { "monster_id": mid });
+
       utils.log(this.monsters[mid].getName() + ' is dead');
       // Remove monster from monster_order so it doesn't get to play.
       var log_message = this.monsters[mid].getName() + " is killed.";
@@ -1369,7 +1372,7 @@ ROKServerGame.prototype.card_hook = function(hook_name, params) {
 
   for (var i = 0; i < cards_to_run.length ; i++) {
     utils.log(hook_name + " hook implemented in " + cards_to_run[i].name + ".");
-    value_to_alter = cards_to_run[i].hooks[hook_name](this, value_to_alter);
+    value_to_alter = cards_to_run[i].hooks[hook_name](this, this.monsters[params['monster_id']], value_to_alter);
   }
   
   return value_to_alter;
