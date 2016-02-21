@@ -114,7 +114,7 @@ function Monster(myId, myName, theGame) {
   Monster.prototype.removeCard = function (card) {
     var cards = this.getCardsOwned();
 
-    if (typeof card == undefined) {
+    if (typeof card == "undefined") {
       cards.pop();
     }
     else {
