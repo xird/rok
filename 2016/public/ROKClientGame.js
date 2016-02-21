@@ -91,6 +91,12 @@ ROKGame.prototype.initClient = function() {
         }
       }
 
+      if (game.original_monster_order.length >= 5) {
+        $('#game').addClass("fivetosix");
+      }
+      else {
+        $('#game').removeClass("fivetosix");
+      }
 
       // Show the appropriate monster slots for the number of players in game.
       // The bottom left slot is always shown, as that's this player's slot.

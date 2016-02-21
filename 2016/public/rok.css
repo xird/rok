@@ -227,6 +227,14 @@ div.monster {
   display: block;
 }
 
+#game.fivetosix #log_wrap {
+  width: 204px;
+}
+
+#game.fivetosix #log {
+  font-size: 0.85em;
+}
+
 #m1 {
   background-position: 0 0;
 }
