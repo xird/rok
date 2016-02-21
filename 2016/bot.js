@@ -85,14 +85,14 @@ socket.on('snap_state', function(data) {
   this_monster_id = data.this_monster_id;
 
   if (game.game_state == "play") {
-    if (game.turn_monster == game.this_monster_id) {
+    if (game.next_input_from_monster == this_monster_id) {
       console.log("  Doing stuff...");
 
       // A small timeout makes it easier to follow what the bot is doing.
       setTimeout(doStuff, 2000);
     }
     else {
-      console.log("  It's not my turn.");
+      console.log("  It's not my turn: " + game.next_input_from_monster + " / " + this_monster_id);
     }
   }
   else if (game.game_state == "select_monsters") {
@@ -134,8 +134,15 @@ socket.on("game_message", function(data) {
  * Handle updates to game state while game is underway.
  */
 socket.on('state_changes', function(updates_wrapper) {
+  // Ugly fix to keep the bot from barfing before the first snap_state sets
+  // this_monster_id
+  if (this_monster_id == 0) {
+    return false;
+  }
+
+
   var updates = updates_wrapper.updates;
-  console.log("State changes, monster id " + game.this_monster_id);
+  console.log("State changes, monster id " + this_monster_id);
 
   if (updates.length == 0) {
     return false;
@@ -179,7 +186,7 @@ socket.on('state_changes', function(updates_wrapper) {
       setTimeout(doStuff, 2000);
     }
     else {
-      console.log("  It's not my turn.");
+      console.log("  It's not my turn: " + game.next_input_from_monster + " / " + this_monster_id);
     }
   }
   else {
