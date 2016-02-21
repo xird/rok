@@ -198,6 +198,7 @@ ROKGame.prototype.initClient = function() {
       $('#board_monster_in_kyoto_bay_id').html(data.monster_in_kyoto_bay_id);
 
       // Highlight the active monster
+      $('.monster').removeClass("active");
       $('#m' + game.next_input_from_monster).addClass('active');
 
       // Clear the game log
