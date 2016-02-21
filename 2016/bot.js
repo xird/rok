@@ -17,7 +17,7 @@ socket.on('connect', function() {
 setInterval(function (){socket.emit('keep_alive');}, 2000);
 
 var game = {};
-var this_monster = 0;
+var this_monster_id = 0;
 
 /**
  * In the lobby, the bot always accepts invites.
@@ -40,10 +40,10 @@ socket.on('update_lobby', function(data) {
 socket.on('snap_state', function(data) {
   console.log("Snap state, " + this.id);
   game = data;
-  this_monster = data.this_monster;
+  this_monster_id = data.this_monster_id;
 
   if (game.game_state == "play") {
-    if (game.turn_monster == game.this_monster) {
+    if (game.turn_monster == game.this_monster_id) {
       console.log("  Doing stuff...");
 
       // A small timeout makes it easier to follow what the bot is doing.
@@ -101,11 +101,12 @@ socket.on('state_changes', function(updates_wrapper) {
   }
 
   if (game.state == "over") {
+    console.log("  Leaving game...");
     socket.emit("leave_game");
     return;
   }
 
-  if (game.next_input_from_monster == this_monster) {
+  if (game.next_input_from_monster == this_monster_id) {
     console.log("  Doing stuff...");
 
     setTimeout(doStuff, 2000);
@@ -130,10 +131,10 @@ function doStuff() {
   }
   else if (game.turn_phase == "yield_kyoto") {
     console.log("    I'm yielding! " + socket.id);
-    if (game.monster_in_kyoto_city_id == this_monster) {
+    if (game.monster_in_kyoto_city_id == this_monster_id) {
       var part = "city";
     }
-    else if (game.monster_in_kyoto_city_id == this_monster) {
+    else if (game.monster_in_kyoto_city_id == this_monster_id) {
       var part = "bay";
     }
     else {

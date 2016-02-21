@@ -284,7 +284,7 @@ ROKServerGame.prototype.snapState = function(player_id) {
     // Send to this player if no player id was given, or if the currently looped
     // player is the given player.
     if (typeof player_id == "undefined" || game_player_id == player_id) {
-      send_object.this_monster = this.players[game_player_id].monster_id;
+      send_object.this_monster_id = this.players[game_player_id].monster_id;
       var player_object = this.players[game_player_id];
       var socket_id = player_object.socket_id;
       var target_socket = this.iosockets[socket_id];
@@ -306,12 +306,12 @@ ROKServerGame.prototype.sendStateChanges = function() {
 
   // Loop through all players in this game and send them the data.
   for (var game_player_id in this.players) {
-    var this_monster = this.players[game_player_id].monster_id;
+    var this_monster_id = this.players[game_player_id].monster_id;
     var player_object = this.players[game_player_id];
 
     var send_object = {
       updates: this.updates,
-      this_monster: this_monster
+      this_monster_id: this_monster_id
     };
 
     var socket_id = player_object.socket_id;

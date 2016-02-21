@@ -3,8 +3,6 @@
  *
  * Base class is in ROKGame.js
  *
- * TODO rename game.this_monster to game.this_monster_id
- *
  */
 ROKGame.prototype.initClient = function() {
   console.log("ROKGame.prototype.initClient");
@@ -37,7 +35,7 @@ ROKGame.prototype.initClient = function() {
     game.monster_in_kyoto_city_id = data.monster_in_kyoto_city_id;
     game.monster_in_kyoto_bay_id  = data.monster_in_kyoto_bay_id;
     game.dice = data.dice;
-    game.this_monster = data.this_monster;
+    game.this_monster_id = data.this_monster_id;
     game.winner = data.winner;
     game.cards_available = data.cards_available;
     game.card_map = data.card_map;
@@ -71,7 +69,7 @@ ROKGame.prototype.initClient = function() {
 
       // Place monsters starting from the monsters that's next in sequence from
       // the current player's monster.
-      var own_monster_index = game.original_monster_order.indexOf(game.this_monster);
+      var own_monster_index = game.original_monster_order.indexOf(game.this_monster_id);
       var first_monster_index = own_monster_index + 1;
       if (first_monster_index == game.original_monster_order.length) {
         first_monster_index = 0;
@@ -223,7 +221,7 @@ ROKGame.prototype.initClient = function() {
       }
       else {
         $('#leave_game_button').hide();
-        if (game.next_input_from_monster == game.this_monster) {
+        if (game.next_input_from_monster == game.this_monster_id) {
           if (game.turn_phase == 'roll') {
             var ordinals = ['0th', '1st', '2nd', '3rd', '4th', '5th', '6th'];
             $('#roll_dice_button').html("Roll dice (" + ordinals[game.roll_number] + ")");
@@ -249,11 +247,11 @@ ROKGame.prototype.initClient = function() {
           }
 
           if (game.turn_phase == 'yield_kyoto') {
-            if (game.monster_in_kyoto_city_id == game.this_monster) {
+            if (game.monster_in_kyoto_city_id == game.this_monster_id) {
               $('#yield_kyoto_city_button').show();
               $('#stay_in_kyoto_city_button').show();
             }
-            else if (game.monster_in_kyoto_bay_id == game.this_monster) {
+            else if (game.monster_in_kyoto_bay_id == game.this_monster_id) {
               $('#yield_kyoto_bay_button').show();
               $('#stay_in_kyoto_bay_button').show();
             }
@@ -486,10 +484,10 @@ ROKGame.prototype.initClient = function() {
     else if (e.keyCode == 89) {
       // [y]ield
       if (game.turn_phase == "yield_kyoto") {
-        if (game.monster_in_kyoto_city_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
+        if (game.monster_in_kyoto_city_id == game.this_monster_id && game.next_input_from_monster == game.this_monster_id) {
           $('#yield_kyoto_city_button').click();
         }
-        else if (game.monster_in_kyoto_bay_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
+        else if (game.monster_in_kyoto_bay_id == game.this_monster_id && game.next_input_from_monster == game.this_monster_id) {
           $('#yield_kyoto_bay_button').click();
         }
       }
@@ -497,10 +495,10 @@ ROKGame.prototype.initClient = function() {
     else if (e.keyCode == 83) {
       // [s]tay
       if (game.turn_phase == "yield_kyoto") {
-        if (game.monster_in_kyoto_city_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
+        if (game.monster_in_kyoto_city_id == game.this_monster_id && game.next_input_from_monster == game.this_monster_id) {
           $('#stay_in_kyoto_city_button').click();
         }
-        else if (game.monster_in_kyoto_bay_id == game.this_monster && game.next_input_from_monster == game.this_monster) {
+        else if (game.monster_in_kyoto_bay_id == game.this_monster_id && game.next_input_from_monster == game.this_monster_id) {
           $('#stay_in_kyoto_bay_button').click();
         }
       }
@@ -653,7 +651,7 @@ ROKGame.prototype.handle__roll_number = function() {
   $('#roll_dice_button').html("Roll dice (" + ordinals[update.value] + ")");
 
   // Don't show the "done" button before first roll.
-  if (game.roll_number != 1 && game.turn_monster == game.this_monster) {
+  if (game.roll_number != 1 && game.turn_monster == game.this_monster_id) {
     $('#done_rolling_button').show();
   }
   else {
@@ -670,9 +668,9 @@ ROKGame.prototype.handle__turn_phase = function() {
   var elid = "#turn_phase";
   $(elid).html(update.value);
 
-  // Note: "this_monster" needs to always be updated before turn_phase, or this
+  // Note: "this_monster_id" needs to always be updated before turn_phase, or this
   // will never remove the disabled-attribute.
-  if (update.value == 'roll' && game.turn_monster == game.this_monster) {
+  if (update.value == 'roll' && game.turn_monster == game.this_monster_id) {
     $('#roll_dice_button').show();
     // Don't show the "done" button before first roll.
     if (game.roll_number != 1) {
@@ -687,14 +685,14 @@ ROKGame.prototype.handle__turn_phase = function() {
     $('#done_rolling_button').hide();
   }
 
-  if (update.value == 'buy' && game.turn_monster == game.this_monster) {
+  if (update.value == 'buy' && game.turn_monster == game.this_monster_id) {
     $('#done_buying_button').show();
   }
   else {
     $('#done_buying_button').hide();
   }
 
-  if (update.value == 'yield_kyoto' && game.next_input_from_monster == game.this_monster) {
+  if (update.value == 'yield_kyoto' && game.next_input_from_monster == game.this_monster_id) {
     console.log('enable yield');
 
     if (game.monster_in_kyoto_city_id == game.next_input_from_monster) {
@@ -920,7 +918,6 @@ ROKGame.prototype.handle__monsters__cards_owned = function() {
   console.log("ROKGame.prototype.handle__monsters__cards_owned");
   var update = game.updates.shift();
 
-  // TODO Add hover effect for larger view for card
   for (var i = 0; i < update.value.length; i++) {
     var card_name = game.card_map[update.value[i]];
     var html = '<img src="' + static_ + '/images/cards/' + card_name + '.jpg" alt="' + card_name + '" width="50" height="39" />';
