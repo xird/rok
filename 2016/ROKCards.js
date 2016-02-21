@@ -87,11 +87,11 @@ var theCards = {
   properties: {
     1: {name: "Acid Attack", cost: 6, keep: true, set: "original", implemented: true, description: "Deal 1 extra damage each turn (even when you don't otherwise attack).",
         hooks: {
-          "RESOLVE_ATTACK_DICE": function (game, attackage) {
+        "RESOLVE_ATTACK_DICE": function (game, owning_monster, attackage) {
             var rv = attackage;
             rv.damage++;
 
-            game.updateState(false, false, game.monsters[game.turn_monster].getName() + " deals 1 extra dammage due to 'Acid Attack'. Damage: " + attackage.damave + " -> " + rv.damage);
+          game.updateState(false, false, owning_monster.getName() + " deals 1 extra dammage due to 'Acid Attack'. Damage: " + attackage.damave + " -> " + rv.damage);
             utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
             return attackage;
           }
@@ -99,7 +99,7 @@ var theCards = {
        },
     2: {name: "Alien Metabolism", cost: 3, keep: true, set: "original", implemented: true, description: "Buying cards costs you 1 less [Snot].",
         hooks: {
-          "BUY_CARD": function(game, cardPrice) {
+          "BUY_CARD": function (game, owning_monster, cardPrice) {
             var rv = cardPrice;
             rv--;
 
@@ -111,29 +111,29 @@ var theCards = {
        },
     3: {name: "Alpha Monster", cost: 5, keep: true, set: "original", implemented: true, description: "Gain 1[VP] when you attack.",
         hooks: {
-          "RESOLVE_ATTACK_DICE": function (game, attackage) {
+        "RESOLVE_ATTACK_DICE": function (game, owning_monster, attackage) {
           if (attackage.attack > 0)
-            game.monsters[game.turn_monster].addVictoryPoints(1);
+            owning_monster.addVictoryPoints(1);
 
-            game.updateState(false, false, "For 'Alpha Monster " + game.monsters[game.turn_monster].getName() + " gains 1 Victory Point for attacking. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
-            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+            game.updateState(false, false, "For 'Alpha Monster " + owning_monster.getName() + " gains 1 Victory Point for attacking. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
+            utils.log("VPs: " + owning_monster.getVictoryPoints());
             return attackage;
           }
         }
        },
     4: {name: "Apartment Building", cost: 5, keep: false, set: "original", implemented: true, description: "+ 3[VP]",
         hooks: {
-          "CARD_BOUGHT": function (game) {
-            game.monsters[game.turn_monster].getAddVictoryPoints()(3);
+          "CARD_BOUGHT": function (game, owning_monster) {
+            owning_monster.getAddVictoryPoints()(3);
 
-            game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 3 Victory Points for 'Apartment Building'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
-            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+            game.updateState(false, false, owning_monster.getName() + " gains 3 Victory Points for 'Apartment Building'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
+            utils.log("VPs: " + owning_monster.getVictoryPoints());
           }
         }
        },
     5: {name: "Armor Plating", cost: 4, keep: true, set: "original", implemented: true, priority: -1000, description: "Ignore damage of 1.",
         hooks: {
-          "APPLY_DAMAGE": function (game, damage) {
+          "APPLY_DAMAGE": function (game, owning_monster, damage) {
             var rv = damage;
 
             if (damage == 1) {
@@ -148,7 +148,7 @@ var theCards = {
        },
     6: {name: "Background Dweller", cost: 4, keep: true, set: "original", implemented: true, description: "You can always reroll any [3] you have.",
         hooks: {
-          "DICE_STATE": function (game, die) {
+          "DICE_STATE": function (game, owning_monster, die) {
             if (die.value == '3') {
               die.state = die.state == 'r' ? 'rr' : "kr";  // 'rr' means 're-roll(able)'.  'kr' means 'keep-rerollale'.
             }
@@ -160,10 +160,10 @@ var theCards = {
        },
     7: {name: "Burrowing", cost: 5, keep: true,  set: "original", implemented: true, description: "Deal 1 extra damage on Tokyo. Deal 1 damage when yielding Tokyo to the monster taking it.",
         hooks: {
-          "RESOLVE_ATTACK_DICE": function (game, attackage) {
+          "RESOLVE_ATTACK_DICE": function (game, owning_monster, attackage) {
             rv = attackage;
 
-            if (!game.inKyoto(game.monsters[game.turn_monster])) {
+            if (!game.inKyoto(owning_monster)) {
               rv.damage++
               game.updateState(false, false, "Due to 'Burrowing' monster deals 1 extra damage for attacking Kyoto. Damage: " + attackage.damage + " -> " + rv.damage);
             }
@@ -171,12 +171,12 @@ var theCards = {
             utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
             return rv;
           },
-          "YEILD_KYOTO": function (game) {
+          "YEILD_KYOTO": function (game, owning_monster) {
             var rv = 0;
 
-          if (!game.inKyoto(game.monsters[game.turn_monster])) {
+          if (!game.inKyoto(owning_monster)) {
             rv = 1;
-              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 damage to " + game.monsters[game.turn_monster].getName() + " for yielding Kyoto. Damage: " + rv);
+              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 damage to " + owning_monster.getName() + " for yielding Kyoto. Damage: " + rv);
             }
 
             utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
@@ -186,7 +186,7 @@ var theCards = {
     },
     8: {name: "Camouflage", cost: 3, keep: true,  set: "original", implemented: true, description: "If you take damage roll a die for each damage point. On a [Heart] you do not take that damage point.",
         hooks: {
-          "APPLY_DAMAGE": function (game, damage) {
+          "APPLY_DAMAGE": function (game, owning_monster, damage) {
             var rv = damage;
             var log_message = "For 'Camouflage' monster rolls: ";
 
@@ -208,19 +208,19 @@ var theCards = {
        },
     9: {name: "Commuter Train", cost: 4, keep: false, set: "original", implemented: true, description: "+ 2[VP]",
         hooks: {
-          "CARD_BOUGHT": function (game) {
-            game.monsters[game.turn_monster].addVictoryPoints(2);
+          "CARD_BOUGHT": function (game, owning_monster) {
+            owning_monster.addVictoryPoints(2);
 
-            game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 2 Victory Points for 'Commuter Train'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
-            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+            game.updateState(false, false, owning_monster.getName() + " gains 2 Victory Points for 'Commuter Train'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
+            utils.log("VPs: " + owning_monster.getVictoryPoints());
           }
         }
        },
     10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: true, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[VP] in addition to the regular results.",
          hooks: {
-          "RESOLVE_DICE": function (game) {
+          "RESOLVE_DICE": function (game, owning_monster) {
             var values = [];
-            for (var i = 0; i < game.monsters[game.turn_monster].numberOfDice() ; i++) {
+            for (var i = 0; i < owning_monster.numberOfDice() ; i++) {
               values.push(game.dice[i].value);
             }
 
@@ -230,47 +230,48 @@ var theCards = {
                  && values.indexOf('h') != -1 
                  && values.indexOf('p') != -1 
                  && values.indexOf('s') != -1) {
-              game.monsters[game.turn_monster].addVictoryPoints(9);
-              game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 9 Victory Points for 'Complete Distruction'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
+              owning_monster.addVictoryPoints(9);
+              game.updateState(false, false, owning_monster.getName() + " gains 9 Victory Points for 'Complete Distruction'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
             }
 
-            utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+            utils.log("VPs: " + owning_monster.getVictoryPoints());
           }
         }
        },
     11: {name: "Corner Store", cost: 3, keep: false, set: "original", implemented: true, description: "+ 1[VP]",
          hooks: {
-           "CARD_BOUGHT": function (game) {
-             game.monsters[game.turn_monster].addVictoryPoints(1);
+           "CARD_BOUGHT": function (game, owning_monster) {
+             owning_monster.addVictoryPoints(1);
         
-             game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 1 Victory Points for 'Corner Store'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
-             utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+             game.updateState(false, false, owning_monster.getName() + " gains 1 Victory Points for 'Corner Store'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
+             utils.log("VPs: " + owning_monster.getVictoryPoints());
            }
          }
         },
     12: {name: "Dedicated News Team", cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[VP] whenever you buy a card.",
          hooks: {
-           "CARD_BOUGHT": function (game, current_card) {
+           "CARD_BOUGHT": function (game, owning_monster, current_card) {
 
               // Card affect not to be applied when buying itself.
              if (current_card != 12) {
-               game.monsters[game.turn_monster].addVictoryPoints(1);
+               owning_monster.addVictoryPoints(1);
             
-               game.updateState(false, false, game.monsters[game.turn_monster].getName() + " gains 1 Victory Points for 'Dedicated News Team'. " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points");
-               utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+               game.updateState(false, false, owning_monster.getName() + " gains 1 Victory Points for 'Dedicated News Team'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
+               utils.log("VPs: " + owning_monster.getVictoryPoints());
              }
            }
          }
         },
     13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[VP] and take control of Tokyo if you don't already control it.",
          hooks: {
+           // This card is also knon as "Death from Above".
            // For a 5 or 6 player game it is unclear wether "take control of Kyoto"
            // means both monsters leave or not and if not who should.
            // In this implementation both monsters leave.
-           "CARD_BOUGHT": function (game) {
-              game.monsters[game.turn_monster].addVictoryPoints(2);
-              var log_message = game.monsters[game.turn_monster].getName() + " gains 2 Victory Points for 'Drop from High Altitude'"
-              if (!game.inKyoto(game.monsters[game.turn_monster])) {
+           "CARD_BOUGHT": function (game, owning_monster) {
+              owning_monster.addVictoryPoints(2);
+              var log_message = owning_monster.getName() + " gains 2 Victory Points for 'Drop from High Altitude'"
+              if (!game.inKyoto(owning_monster)) {
                 if (game.monster_in_kyoto_city_id != null) {
                   game.monsters[game.monster_in_kyoto_city_id].yieldKyoto();
                 }
@@ -278,19 +279,37 @@ var theCards = {
                   game.monsters[game.monster_in_kyoto_bay_id].yieldKyoto();
                 }
 
-                game.checkEnterKyoto(game.monsters[game.turn_monster]);
+                game.checkEnterKyoto(owning_monster);
                 log_message += " and enters Kyoto"
               }
             
-              log_message += ". " + game.monsters[game.turn_monster].getName() + " now has " + game.monsters[game.turn_monster].getVictoryPoints() + " Victory Points";
+              log_message += ". " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points";
               game.updateState(false, false, log_message);
 
-              utils.log("VPs: " + game.monsters[game.turn_monster].getVictoryPoints());
+              utils.log("VPs: " + owning_monster.getVictoryPoints());
             }
          }
         },
-    14: {name: "Eater of the Dead",             cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 3[VP] every time a monster's [Heart] goes to 0.", hooks: {}},
-    15: {name: "Energize",                      cost: 8, keep: false, set: "original", implemented: false, description: "+ 9[Snot]", hooks: {}},
+    14: {name: "Eater of the Dead",             cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 3[VP] every time a monster's [Heart] goes to 0.",
+         hooks: {
+           "MONSTER_DIES": function (game, owning_monster) {
+             owning_monster.addVictoryPoints(3);
+        
+             game.updateState(false, false, owning_monster.getName() + " gains 3 Victory Points for 'Eater of the Dead'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
+             utils.log("VPs: " + owning_monster.getVictoryPoints());
+           }
+         }
+        },
+    15: {name: "Energize", cost: 8, keep: false, set: "original", implemented: false, description: "+ 9[Snot]",
+         hooks: {
+           "CARD_BOUGHT": function (game, owning_monster) {
+             owning_monster.addSnot(9);
+        
+             game.updateState(false, false, owning_monster.getName() + " gains 9 Snot for 'Snoterize'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
+             utils.log("VPs: " + owning_monster.getVictoryPoints());
+           }
+         }
+        },
     16: {name: "Energy Hoarder",                cost: 3, keep: true,  set: "original", implemented: false, description: "You gain 1[VP] for every 6[Snot] you have at the end of your turn.", hooks: {}},
     17: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].", hooks: {}},
     18: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].", hooks: {}},

@@ -21,7 +21,9 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Content Include="package.json" />
+    <Compile Include="bot.js" />
     <Compile Include="ROKCards.js" />
+    <Compile Include="ROKConfig.js" />
     <Compile Include="ROKMonster.js" />
     <Compile Include="ROKServerGame.js" />
     <Compile Include="ROKServerLobby.js" />
