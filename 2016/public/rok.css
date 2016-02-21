@@ -418,10 +418,9 @@ div#log p {
 }
 
 .card {
-  background: #eee;
+  background: #ccc;
   font-size: 0.4em;
   overflow: visible;
-  background: red;
 }
 
 #card__0 {

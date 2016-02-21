@@ -232,6 +232,7 @@ ROKGame.prototype.initClient = function() {
             var ordinals = ['0th', '1st', '2nd', '3rd', '4th', '5th', '6th'];
             $('#roll_dice_button').html("Roll dice (" + ordinals[game.roll_number] + ")");
             $('#roll_dice_button').show();
+            $('#roll_dice_button').attr('disabled', false);
             // Don't show the "done" button before first roll.
             if (game.roll_number != 1) {
               $('#done_rolling_button').show();
@@ -322,6 +323,9 @@ ROKGame.prototype.initClient = function() {
   // Roll dice.
   $('#game').on("click", "#roll_dice_button", function clickRollDice(){
     console.log('clickRollDice');
+    if ($(this).attr('disabled')) {
+      return false;
+    }
     $(this).attr('disabled', true);
 
     var keep_dice_ids = [];
@@ -369,6 +373,13 @@ ROKGame.prototype.initClient = function() {
   // Buy cards
   $('#game').on("click", ".card", function clickBuyCard() {
     console.log("clickBuyCard " + $(this).data("available_card_index"));
+    if ($(this).attr('disabled')) {
+      return false;
+    }
+    $(this).attr('disabled', true);
+    $(this).mouseout();
+    $(this).data('empty', true);
+    $(this).find('img').hide(500);
     socket.emit("buy_card", $(this).data("available_card_index"));
   });
 
@@ -382,20 +393,25 @@ ROKGame.prototype.initClient = function() {
   // Show bigger cards when hovering on them.
   $('#game').on({
     mouseover: function () {
-      var div = $(this);
-      var big_w = 200;
-      var big_h = 156;
-      div.data('width', div.css('width'));
-      div.data('height', div.css('height'));
+      // Only do the mouseover if there is currently a card that can be bought.
+      // This keeps the empty card slot from expanding on hover after a card is
+      // bought.
+      if (!$(this).attr('disabled')) {
+        var div = $(this);
+        var big_w = 200;
+        var big_h = 156;
+        div.data('width', div.css('width'));
+        div.data('height', div.css('height'));
 
-      div.css("width", big_w + "px");
-      div.css("height", big_h + "px");
+        div.css("width", big_w + "px");
+        div.css("height", big_h + "px");
 
-      var img = div.find('img');
-      img.attr('width', big_w);
-      img.attr('height', big_h);
+        var img = div.find('img');
+        img.attr('width', big_w);
+        img.attr('height', big_h);
 
-      $(this).css('z-index', 99);
+        $(this).css('z-index', 99);
+      }
     },
     mouseout: function () {
       var div = $(this);
@@ -655,6 +671,7 @@ ROKGame.prototype.handle__roll_number = function() {
   game.roll_number = update.value;
   var ordinals = ['0th', '1st', '2nd', '3rd', '4th', '5th', '6th'];
   $('#roll_dice_button').html("Roll dice (" + ordinals[update.value] + ")");
+  $("#roll_dice_button").attr('disabled', false);
 
   // Don't show the "done" button before first roll.
   if (game.roll_number != 1 && game.turn_monster == game.this_monster_id) {
@@ -678,6 +695,7 @@ ROKGame.prototype.handle__turn_phase = function() {
   // will never remove the disabled-attribute.
   if (update.value == 'roll' && game.turn_monster == game.this_monster_id) {
     $('#roll_dice_button').show();
+    $('#roll_dice_button').attr('disabled', false);
     // Don't show the "done" button before first roll.
     if (game.roll_number != 1) {
       $('#done_rolling_button').show();
@@ -911,6 +929,8 @@ ROKGame.prototype.handle__cards_available = function() {
   var update = game.updates.shift();
 
   for (var i = 0; i < update.value.length; i++) {
+    $('#card__' + i).attr('disabled', false);
+    $('#card__' + i).data('empty', false);
     $('#card__' + i).html('<img src="' + static_ + '/images/cards/' + update.value[i] + '.jpg" alt="' + update.value[i] + '" width="117" height="91" />');
   }
 
