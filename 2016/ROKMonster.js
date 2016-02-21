@@ -184,7 +184,7 @@ function Monster(myId, myName, theGame) {
    **/
   Monster.prototype.addVictoryPoints = function (amount, log_message) {
     if (amount != 0) {
-      this.getData().victory_points += amount;
+      this.getData().victory_points = Math.max(this.getVictoryPoints() + amount, 0);
 
       if (!log_message) {
         log_message = this.getName()
