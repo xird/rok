@@ -274,6 +274,7 @@ div.monster {
   height: 142px;
   opacity: 1;
   background-image: url('/dead.png');
+  background-position: 3px -2px;
   z-index: 3;
 }
 

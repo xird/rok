@@ -646,7 +646,7 @@ ROKGame.prototype.handle__roll_number = function() {
   $('#roll_dice_button').html("Roll dice (" + ordinals[update.value] + ")");
 
   // Don't show the "done" button before first roll.
-  if (game.roll_number != 1) {
+  if (game.roll_number != 1 && game.turn_monster == game.this_monster) {
     $('#done_rolling_button').show();
   }
   else {
