@@ -248,11 +248,11 @@ var removePlayer = function(player) {
  */
 var cleanUpIdlePlayers = function () {
   var now = Date.now();
-  utils.log("cleanUpIdlePlayers " + new Date().getSeconds());
+  //utils.log("cleanUpIdlePlayers " + new Date().getSeconds());
   var idle_players = [];
-  utils.log("All players:");
+  //utils.log("All players:");
   for (var pid in players) {
-    utils.log("  " + players[pid].name + " : " + players[pid].status + ", " + players[pid].last_seen);
+    //utils.log("  " + players[pid].name + " : " + players[pid].status + ", " + players[pid].last_seen);
     var diff = now - players[pid].last_seen;
     if (diff > 5000) {
       idle_players.push(players[pid]);
