@@ -22,13 +22,14 @@ body {
 
 #messages {
   position: absolute;
-  top: 30px;
+  top: 15px;
   border: 1px solid #444;
   background: #fcc;
   padding: 5px;
   width: 500px;
   display: none;
-  z-index: -10;
+  /*z-index: -10; Why was this here?? */
+  z-index: 2; /* To show messages over monster selection screen */
 }
 
 /* Monster selection */
@@ -274,6 +275,7 @@ div.monster {
   height: 142px;
   opacity: 1;
   background-image: url('/dead.png');
+  background-position: 3px -2px;
   z-index: 3;
 }
 
