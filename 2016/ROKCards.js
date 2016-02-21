@@ -322,7 +322,20 @@ var theCards = {
            }
          }
         },
-    17: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].", hooks: {}},
+    17: {name: "Evacuation Orders", cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].",
+         hooks: {
+           "CARD_BOUGHT": function (game, owning_monster) {
+             for (var monster_id in game.monsters) {
+               if (monster_id != owning_monster) {
+                 game.monsters[monster_id].addSnot(-5);
+               }
+             }
+                  
+             game.updateState(false, false, "" + owning_monster.getName() + " gains 1 Victory Points for 'Dedicated News Team'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
+             utils.log("VPs: " + owning_monster.getVictoryPoints());
+           }
+         }
+        },
     18: {name: "Evacuation Orders",             cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].", hooks: {}},
     19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.", hooks: {}},
     20: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.", hooks: {}},
