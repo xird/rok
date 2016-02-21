@@ -333,7 +333,6 @@ io.on('connection', function (socket) {
   // Make sure that the user has initialized a session.
   if (!socket.handshake.session) {
     utils.log("ERROR: User has no session.");
-    // TODO: Make sure to notify the client that things are not cool
     return;
   }
   var session = socket.handshake.session;

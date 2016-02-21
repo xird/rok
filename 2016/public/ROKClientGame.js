@@ -470,10 +470,17 @@ ROKGame.prototype.initClient = function() {
     else if (e.keyCode == 13) {
       // Enter pressed, roll dice or finish buying, depending on turn_phase.
       if (game.turn_phase == 'roll') {
-        $('#roll_dice_button').click();
+        // If the target is the button, that means that focus was on the button,
+        // and pressing enter will press the button, so there's no need to
+        // separately click the bottom from code.
+        if (e.target.id != "roll_dice_button") {
+          $('#roll_dice_button').click();
+        }
       }
       else if (game.turn_phase == 'buy') {
-        $('#done_buying_button').click();
+        if (e.target.id != "done_buying_button") {
+          $('#done_buying_button').click();
+        }
       }
     }
     else if (e.keyCode == 89) {
