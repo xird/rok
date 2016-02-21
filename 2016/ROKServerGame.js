@@ -698,6 +698,7 @@ ROKServerGame.prototype.resolveDice = function(player) {
   this.resolveHealthDice(player);
   this.resolveVictoryPointDice(player);
   this.resolveAttackDice(player);
+  this.checkWin();
 }
 
 
