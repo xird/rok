@@ -20,21 +20,33 @@ var monster_ids = {
 var monster_traits = {
   "1": {
     "health_limit_for_yield": 7,
+    "keep_dice_in_kyoto": ['3', 'p'],
+    "keep_dice_outside_kyoto": ['h', 'p'],
   },
   "2": {
     "health_limit_for_yield": 5,
+    "keep_dice_in_kyoto": ['p'],
+    "keep_dice_outside_kyoto": ['h', '1', '2', '3'],
   },
   "3": {
     "health_limit_for_yield": 4,
+    "keep_dice_in_kyoto": ['p'],
+    "keep_dice_outside_kyoto": ['p', 'h'],
   },
   "4": {
     "health_limit_for_yield": 9,
+    "keep_dice_in_kyoto": ['1', '2', '3'],
+    "keep_dice_outside_kyoto": ['h', '1', '2', '3'],
   },
   "5": {
     "health_limit_for_yield": 6,
+    "keep_dice_in_kyoto": ['p', '1', '2', '3'],
+    "keep_dice_outside_kyoto": ['h', 'p', '1', '2', '3'],
   },
   "6": {
     "health_limit_for_yield": 8,
+    "keep_dice_in_kyoto": ['2', '3'],
+    "keep_dice_outside_kyoto": ['h', '2', '3'],
   },
 };
 
@@ -146,8 +158,7 @@ socket.on('state_changes', function(updates_wrapper) {
       exit();
     }
 
-    //game[update.element] = update.value;
-    console.log("Updating " + update.element + " to " + update.value);
+    //console.log("Updating " + update.element + " to " + update.value);
   }
 
   if (game.game_state == "over") {
@@ -183,7 +194,24 @@ socket.on('state_changes', function(updates_wrapper) {
 function doStuff() {
   if (game.turn_phase == "roll") {
     console.log("    Let's roll some dice... " + socket.id);
-    socket.emit("roll_dice", []);
+    if (game.monster_in_kyoto_city_id == this_monster_id || game.monster_in_kyoto_bay_id == this_monster_id) {
+      console.log("      Using in-kyoto dice");
+      var keep_dice_list = monster_traits[this_monster_id].keep_dice_in_kyoto;
+    }
+    else {
+      console.log("      Using outside-kyoto dice");
+      var keep_dice_list = monster_traits[this_monster_id].keep_dice_outside_kyoto;
+    }
+
+    var keep_dice = [];
+    for (var i = 0; i < 8; i++) {
+      if (keep_dice_list.indexOf(game.dice[i].value) != -1) {
+        console.log("      Keeping " + game.dice[i].value);
+        keep_dice.push(i);
+      }
+    }
+
+    socket.emit("roll_dice", keep_dice);
   }
   else if (game.turn_phase == "buy") {
     console.log("    I'm done buying cards. " + socket.id);
