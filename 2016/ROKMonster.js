@@ -334,10 +334,7 @@ function Monster(myId, myName, theGame) {
   Monster.prototype.numberOfDice = function () {
     var rv = 6;
 
-    // Can be increased by "Extra Head" and decreased by "Shrink Ray".
-    // Note: There are 2 extra heads (X1 and X2).
-    if (this.getCardsOwned().indexOf(this._game.cards.EXTRA_HEAD_X1) != -1) rv++;
-    if (this.getCardsOwned().indexOf(this._game.cards.EXTRA_HEAD_X2) != -1) rv++;
+    rv = this._game.card_hook("NUMBER_OF_DICE", { "monster_id": this.getId(), "value_to_alter": rv });
 
     // Number of dice is reduced by "Shrink Ray" counters
     rv -= this.getShrinkRayCounters();

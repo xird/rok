@@ -216,7 +216,7 @@ var theCards = {
           }
         }
        },
-    10: {name: "Complete Destruction",          cost: 3, keep: true,  set: "original", implemented: true, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[VP] in addition to the regular results.",
+    10: {name: "Complete Destruction", cost: 3, keep: true,  set: "original", implemented: true, description: "If you roll [1][2][3][Heart][Attack][Snot] gain 9[VP] in addition to the regular results.",
          hooks: {
           "RESOLVE_DICE": function (game, owning_monster) {
             var values = [];
@@ -248,7 +248,7 @@ var theCards = {
            }
          }
         },
-    12: {name: "Dedicated News Team", cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[VP] whenever you buy a card.",
+    12: {name: "Dedicated News Team", cost: 3, keep: true,  set: "original", implemented: true, description: "Gain 1[VP] whenever you buy a card.",
          hooks: {
            "CARD_BOUGHT": function (game, owning_monster, current_card_id) {
 
@@ -262,7 +262,7 @@ var theCards = {
            }
          }
         },
-    13: {name: "Drop from High Altitude",       cost: 5, keep: false, set: "original", implemented: false, description: "+ 2[VP] and take control of Tokyo if you don't already control it.",
+    13: {name: "Drop from High Altitude", cost: 5, keep: false, set: "original", implemented: true, description: "+ 2[VP] and take control of Tokyo if you don't already control it.",
          hooks: {
            // This card is also knon as "Death from Above".
            // For a 5 or 6 player game it is unclear wether "take control of Kyoto"
@@ -290,7 +290,7 @@ var theCards = {
             }
          }
         },
-    14: {name: "Eater of the Dead",             cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 3[VP] every time a monster's [Heart] goes to 0.",
+    14: {name: "Eater of the Dead", cost: 4, keep: true,  set: "original", implemented: true, description: "Gain 3[VP] every time a monster's [Heart] goes to 0.",
          hooks: {
            "MONSTER_DIES": function (game, owning_monster) {
              owning_monster.addVictoryPoints(3);
@@ -300,7 +300,7 @@ var theCards = {
            }
          }
         },
-    15: {name: "Energize", cost: 8, keep: false, set: "original", implemented: false, description: "+ 9[Snot]",
+    15: {name: "Energize", cost: 8, keep: false, set: "original", implemented: true, description: "+ 9[Snot]",
          hooks: {
            "CARD_BOUGHT": function (game, owning_monster) {
              owning_monster.addSnot(9);
@@ -310,7 +310,7 @@ var theCards = {
            }
          }
         },
-    16: {name: "Energy Hoarder",                cost: 3, keep: true,  set: "original", implemented: false, description: "You gain 1[VP] for every 6[Snot] you have at the end of your turn.",
+    16: {name: "Energy Hoarder", cost: 3, keep: true,  set: "original", implemented: true, description: "You gain 1[VP] for every 6[Snot] you have at the end of your turn.",
          hooks: {
            "TURN_END": function (game, owning_monster) {
              var vips = Math.floor(owning_monster.getSnot() / 6);
@@ -322,7 +322,7 @@ var theCards = {
            }
          }
         },
-    17: {name: "Evacuation Orders", cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].",
+    17: {name: "Evacuation Orders", cost: 7, keep: false, set: "original", implemented: true, description: "All other monsters lose 5[VP].",
          hooks: {
            "CARD_BOUGHT": function (game, owning_monster) {
              for (var monster_id in game.monsters) {
@@ -335,14 +335,14 @@ var theCards = {
            }
          }
         },
-    18: {name: "Evacuation Orders", cost: 7, keep: false, set: "original", implemented: false, description: "All other monsters lose 5[VP].",
+    18: {name: "Evacuation Orders", cost: 7, keep: false, set: "original", implemented: true, description: "All other monsters lose 5[VP].",
          hooks: {
            "CARD_BOUGHT": function (game, owning_monster) {
              game.cards.properties[17].hooks.CARD_BOUGHT(game, owning_monster);
            }
          }
         },
-    19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.",
+    19: {name: "Even Bigger", cost: 4, keep: true,  set: "original", implemented: true, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.",
          hooks: {
            "MAX_HEALTH": function (game, owning_monster, max_health) {
              var rv = max_health;
@@ -361,8 +361,23 @@ var theCards = {
            }
          }
         },
-    20: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.", hooks: {}},
-    21: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.", hooks: {}},
+    20: {name: "Extra Head", cost: 7, keep: true, set: "original", implemented: true, description: "You get 1 extra die.",
+         hooks: {
+           "NUMBER_OF_DICE": function (game, owning_monster, dice) {
+             var rv = dice;
+             rv++;
+
+             return rv;
+           }
+         }
+        },
+    21: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.",
+         hooks: {
+           "NUMBER_OF_DICE": function (game, owning_monster, dice) {
+             return game.cards.properties[20].hooks.NUMBER_OF_DICE(game, owning_monster, dice);
+           }
+         }
+        },
     22: {name: "Fire Blast",                    cost: 3, keep: false, set: "original", implemented: false, description: "Deal 2 damage to all other monsters.", hooks: {}},
     23: {name: "Fire Breathing",                cost: 4, keep: true,  set: "original", implemented: false, description: "Your neighbors take 1 extra damage when you deal damage", hooks: {}},
     24: {name: "Freeze Time",                   cost: 5, keep: true,  set: "original", implemented: false, description: "On a turn where you score [1][1][1], you can take another turn with one less die.", hooks: {}},
