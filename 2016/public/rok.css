@@ -29,7 +29,7 @@ body {
   width: 500px;
   display: none;
   /*z-index: -10; Why was this here?? */
-  z-index: 2; /* To show messages over monster selection screen */
+  z-index: 5; /* To show messages over main game screen */
 }
 
 /* Monster selection */
@@ -553,7 +553,8 @@ div#dice div.snotInactive {
 
 #stay_in_kyoto_city_button,
 #stay_in_kyoto_bay_button,
-#done_rolling_button {
+#done_rolling_button,
+#sweep_cards_button {
   left: 22px;
 }
 

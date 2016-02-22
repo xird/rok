@@ -721,6 +721,14 @@ io.on('connection', function (socket) {
 
 
   /**
+   * Player sweeps cards.
+   */
+  socket.on("sweep_cards", function gameSweepCards() {
+    games[player.game_id].sweepCards(player);
+  });
+
+
+  /**
    * Player is responding to yield question.
    */
   socket.on("resolve_yield", function resolveYield (args) {

@@ -224,11 +224,11 @@ var theCards = {
               values.push(game.dice[i].value);
             }
 
-            if (    values.indexOf('1') != -1 
-                 && values.indexOf('2') != -1 
-                 && values.indexOf('3') != -1 
-                 && values.indexOf('h') != -1 
-                 && values.indexOf('p') != -1 
+            if (    values.indexOf('1') != -1
+                 && values.indexOf('2') != -1
+                 && values.indexOf('3') != -1
+                 && values.indexOf('h') != -1
+                 && values.indexOf('p') != -1
                  && values.indexOf('s') != -1) {
               owning_monster.addVictoryPoints(9);
               game.updateState(false, false, owning_monster.getName() + " gains 9 Victory Points for 'Complete Distruction'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
@@ -242,7 +242,7 @@ var theCards = {
          hooks: {
            "CARD_BOUGHT": function (game, owning_monster) {
              owning_monster.addVictoryPoints(1);
-        
+
              game.updateState(false, false, owning_monster.getName() + " gains 1 Victory Points for 'Corner Store'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
              utils.log("VPs: " + owning_monster.getVictoryPoints());
            }
@@ -255,7 +255,7 @@ var theCards = {
               // Card affect not to be applied when buying itself.
              if (current_card_id != 12) {
                owning_monster.addVictoryPoints(1);
-            
+
                game.updateState(false, false, owning_monster.getName() + " gains 1 Victory Points for 'Dedicated News Team'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
                utils.log("VPs: " + owning_monster.getVictoryPoints());
              }
@@ -282,7 +282,7 @@ var theCards = {
                 game.checkEnterKyoto(owning_monster);
                 log_message += " and enters Kyoto"
               }
-            
+
               log_message += ". " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points";
               game.updateState(false, false, log_message);
 
@@ -294,7 +294,7 @@ var theCards = {
          hooks: {
            "MONSTER_DIES": function (game, owning_monster) {
              owning_monster.addVictoryPoints(3);
-        
+
              game.updateState(false, false, owning_monster.getName() + " gains 3 Victory Points for 'Eater of the Dead'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
              utils.log("VPs: " + owning_monster.getVictoryPoints());
            }
@@ -304,7 +304,7 @@ var theCards = {
          hooks: {
            "CARD_BOUGHT": function (game, owning_monster) {
              owning_monster.addSnot(9);
-        
+
              game.updateState(false, false, owning_monster.getName() + " gains 9 Snot for 'Enererize'. " + owning_monster.getName() + " now has " + owning_monster.getSnot() + " Snot");
              utils.log("VPs: " + owning_monster.getVictoryPoints());
            }
@@ -347,14 +347,14 @@ var theCards = {
            "MAX_HEALTH": function (game, owning_monster, max_health) {
              var rv = max_health;
              rv += 2;
-              
+
              return rv;
            },
            "CARD_BOUGHT": function (game, owning_monster, current_card_id) {
              // Check if this card was just bought.
              if (current_card_id == 19) {
                owning_monster.addHealth(2);
-              
+
                game.updateState(false, false, owning_monster.getName() + " gains 2 Health for 'Even Bigger'. " + owning_monster.getName() + " now has " + owning_monster.getHealth() + " Health");
                utils.log("Health: " + owning_monster.getHealth());
              }

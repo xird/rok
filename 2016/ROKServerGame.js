@@ -396,6 +396,11 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   // will be denied.
   if (cost > monster.getSnot()) {
     utils.log("Does this look like a charity.  Come back when you have more snot!", "debug");
+
+    // Send a status update to reset the UI on the client side.
+    this.updateState("cards_available", this.cards_available);
+    this.sendStateChanges();
+
     return;
   }
 
@@ -443,6 +448,37 @@ ROKServerGame.prototype.doneBuying = function (player) {
     utils.log("ERROR: Not buying phase", "debug");
     player.getSocket().emit('game_message', "It's not the buying phase.");
   }
+}
+
+/**
+ * User sweeps the available cards, i.e. discards all available cards and
+ * replaces them with new cards from the deck.
+ */
+ROKServerGame.prototype.sweepCards = function (player) {
+  utils.log("ROKServerGame.prototype.sweepCards", "debug");
+
+  if (this.monsters[player.monster_id].getSnot() < 2) {
+    console.log("Not enough money to sweep cards");
+
+    // This is here to trigger the handle__cards_available handler on client
+    // side so that the button gets re-enabled.
+    this.updateState('cards_available', this.cards_available);
+    this.sendStateChanges();
+
+    player.getSocket().emit("game_message", "You don't have enough snot to sweep.");
+
+    return false;
+  }
+
+  this.monsters[player.monster_id].addSnot(-2);
+  this.updateState("monsters__" + player.monster_id + "__snot", this.monsters[player.monster_id].getSnot());
+
+  var cards_available = [];
+  cards_available[0] = this.card_deck.pop();
+  cards_available[1] = this.card_deck.pop();
+  cards_available[2] = this.card_deck.pop();
+  this.updateState('cards_available', cards_available, this.monsters[player.monster_id].getName() + " sweeps cards.");
+  this.sendStateChanges();
 }
 
 /**

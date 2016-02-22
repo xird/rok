@@ -44,7 +44,7 @@ ROKLobby.prototype.initClient = function() {
     lobby.this_player_mode = data.this_player_mode;
     lobby.this_player_game_id = data.this_player_game_id;
     lobby.this_game_players = data.this_game_players;
-    console.log(utils.dump(lobby));
+    //console.log(utils.dump(lobby));
 
     $('#lobby #welcome strong').html(data.this_player_name);
 
