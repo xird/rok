@@ -307,7 +307,8 @@ function Monster(myId, myName, theGame) {
    **/
   Monster.prototype.maxHealth = function () {
     var rv = 10;
-    // There is a card for this but I can't remember it off hand.
+    rv = this._game.card_hook("MAX_HEALTH", { "monster_id": this.getId(), "value_to_alter": rv });
+
     return rv;
   };
 

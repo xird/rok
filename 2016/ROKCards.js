@@ -250,10 +250,10 @@ var theCards = {
         },
     12: {name: "Dedicated News Team", cost: 3, keep: true,  set: "original", implemented: "needs_testing", description: "Gain 1[VP] whenever you buy a card.",
          hooks: {
-           "CARD_BOUGHT": function (game, owning_monster, current_card) {
+           "CARD_BOUGHT": function (game, owning_monster, current_card_id) {
 
               // Card affect not to be applied when buying itself.
-             if (current_card != 12) {
+             if (current_card_id != 12) {
                owning_monster.addVictoryPoints(1);
             
                game.updateState(false, false, owning_monster.getName() + " gains 1 Victory Points for 'Dedicated News Team'. " + owning_monster.getName() + " now has " + owning_monster.getVictoryPoints() + " Victory Points");
@@ -342,7 +342,25 @@ var theCards = {
            }
          }
         },
-    19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.", hooks: {}},
+    19: {name: "Even Bigger",                   cost: 4, keep: true,  set: "original", implemented: false, description: "Your maximum [Heart] is increased by 2. Gain 2[Heart] when you get this card.",
+         hooks: {
+           "MAX_HEALTH": function (game, owning_monster, max_health) {
+             var rv = max_health;
+             rv += 2;
+              
+             return rv;
+           },
+           "CARD_BOUGHT": function (game, owning_monster, current_card_id) {
+             // Check if this card was just bought.
+             if (current_card_id == 19) {
+               owning_monster.addHealth(2);
+              
+               game.updateState(false, false, owning_monster.getName() + " gains 2 Health for 'Even Bigger'. " + owning_monster.getName() + " now has " + owning_monster.getHealth() + " Health");
+               utils.log("Health: " + owning_monster.getHealth());
+             }
+           }
+         }
+        },
     20: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.", hooks: {}},
     21: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.", hooks: {}},
     22: {name: "Fire Blast",                    cost: 3, keep: false, set: "original", implemented: false, description: "Deal 2 damage to all other monsters.", hooks: {}},
