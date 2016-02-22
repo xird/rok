@@ -392,7 +392,29 @@ var theCards = {
            }
          }
         },
-    23: {name: "Fire Breathing",                cost: 4, keep: true,  set: "original", implemented: false, description: "Your neighbors take 1 extra damage when you deal damage", hooks: {}},
+    23: {name: "Fire Breathing", cost: 4, keep: true,  set: "original", implemented: false, description: "Your neighbors take 1 extra damage when you deal damage",
+        hooks: {
+        "RESOLVE_ATTACK_DICE": function (game, owning_monster, attackage) {
+            if (attackage.attack > 0) {
+              var neighbour;
+
+              var current_monster_index = game.monster_order.indexOf(game.turn_monster_id);
+              var number_of_monsters = game.monster_order.length;
+              neighbour = game.monsters[game.monster_order[(current_monster_index + number_of_monsters - 1) % number_of_monsters]];
+              game.updateState(false, false, neighbour.getName() + " is dealt 1 extra damage due to 'Fire Breath'");
+              neighbour.applyDamage(1);
+
+              if (number_of_monsters > 2) {
+                neighbour = game.monsters[game.monster_order[(current_monster_index + 1) % number_of_monsters]];
+                game.updateState(false, false, neighbour.getName() + " id dealt 1 extra damage due to 'Fire Breath'");
+                neighbour.applyDamage(1);
+              }
+            }
+
+            return attackage;
+          }
+        }
+       },
     24: {name: "Freeze Time",                   cost: 5, keep: true,  set: "original", implemented: false, description: "On a turn where you score [1][1][1], you can take another turn with one less die.", hooks: {}},
     25: {name: "Frenzy",                        cost: 7, keep: false, set: "original", implemented: false, description: "When you purchase this card Take another turn immediately after this one.", hooks: {}},
     26: {name: "Friend of Children",            cost: 3, keep: true,  set: "original", implemented: false, description: "When you gain any [Snot] gain 1 extra [Snot].", hooks: {}},
