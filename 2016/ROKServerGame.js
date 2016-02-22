@@ -243,7 +243,7 @@ ROKServerGame.prototype.snapState = function(player_id) {
   var send_object = {};
   send_object.game_state = this.game_state;
   send_object.turn_phase = this.turn_phase;
-  send_object.turn_monster = this.turn_monster;
+  send_object.turn_monster_id = this.turn_monster_id;
   send_object.next_input_from_monster = this.next_input_from_monster;
   send_object.roll_number = this.roll_number;
   send_object.monster_order = this.monster_order;
@@ -352,10 +352,10 @@ ROKServerGame.prototype.getMonster = function(monster_id) {
  */
 ROKServerGame.prototype.buyCards = function() {
   utils.log("ROKServerGame.prototype.buyCards", "debug");
-  var log_message = this.monsters[this.turn_monster].getName() + ' can buy cards.'
+  var log_message = this.monsters[this.turn_monster_id].getName() + ' can buy cards.'
   this.updateState("turn_phase", 'buy', log_message);
   // Reset NIFP, in case yield resolution has changed it.
-  this.updateState("next_input_from_monster", this.turn_monster);
+  this.updateState("next_input_from_monster", this.turn_monster_id);
   this.sendStateChanges();
 }
 
@@ -380,7 +380,7 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
     utils.log("This is no time to be buying cards.", "debug");
     return;
   }
-  if (this.turn_monster != player.monster_id && !ROKConfig.always_allow_buying_cards) {
+  if (this.turn_monster_id != player.monster_id && !ROKConfig.always_allow_buying_cards) {
     utils.log("It's not your turn, I'm not selling you anything.", "debug");
     return;
   }
@@ -408,7 +408,7 @@ ROKServerGame.prototype.buyCard = function(player, available_card_index) {
   monster.addSnot(-cost);
   this.updateState("monsters__" + monster.getId() + "__snot", monster.getSnot());
 
-// This may be a situation where 'player_monster' is different to 'turn_monster' if a player buys cards when it is not there turn.  I think there is a card called 'The Opertunist' which allows this.
+// This may be a situation where 'player_monster' is different to 'turn_monster_id' if a player buys cards when it is not there turn.  I think there is a card called 'The Opertunist' which allows this.
 
   // Add the card to the monster/
   monster.addCard(card);
@@ -435,7 +435,7 @@ ROKServerGame.prototype.doneBuying = function (player) {
   utils.log("ROKServerGame.prototype.doneBuying", "debug");
   // Check that it's this player's turn
   if (this.turn_phase == 'buy') {
-    if (this.turn_monster == player.monster_id) {
+    if (this.turn_monster_id == player.monster_id) {
       this.endTurn();
       this.sendStateChanges();
     }
@@ -516,16 +516,16 @@ ROKServerGame.prototype.endTurn = function() {
   this.updateState("turn_phase", 'start');
   this.updateState("roll_number", 1);
 
-  var current_monster_index = this.monster_order.indexOf(this.turn_monster);
+  var current_monster_index = this.monster_order.indexOf(this.turn_monster_id);
   var next_monster_index = current_monster_index + 1;  // does this account for monster deaths?  Note 'next_monster_index' was used for setting active dice above.  Perhaps 'next_monster_index' should be a method rather than a varable.
   if (typeof this.monster_order[next_monster_index] == 'undefined') {
     next_monster_index = 0;
   }
 
   log_message = this.monsters[this.monster_order[next_monster_index]].getName() + "'s turn.";
-  this.updateState("turn_monster", this.monster_order[next_monster_index], log_message);
+  this.updateState("turn_monster_id", this.monster_order[next_monster_index], log_message);
   this.updateState("next_input_from_monster", this.monster_order[next_monster_index]);
-  _this_turn_monster = this.monsters[this.turn_monster];
+  _this_turn_monster = this.monsters[this.turn_monster_id];
 
   // Beginning of new player's turn.
   // Reset dice
@@ -677,7 +677,7 @@ ROKServerGame.prototype.rollDice = function (player_monster, state_to_roll) {
  *
  */
 ROKServerGame.prototype.doneRollingClicked = function (player) {
-  if (this.turn_monster != player.monster_id) {
+  if (this.turn_monster_id != player.monster_id) {
     utils.log("It's not your turn so you can't be done rolling.", "debug");
     return;
   }
@@ -712,7 +712,7 @@ ROKServerGame.prototype.checkRollState = function(player) {
     utils.log("  state play", "debug");
     if (this.turn_phase == 'roll') {
       utils.log("    phase roll", "debug");
-      if (this.turn_monster == player.monster_id) {
+      if (this.turn_monster_id == player.monster_id) {
         utils.log("      It's this monster's turn", "debug");
 
         rv = true;
@@ -760,7 +760,7 @@ ROKServerGame.prototype.resolveDice = function(player) {
 ROKServerGame.prototype.resolveAttackDice = function(player) {
   utils.log("ROKServerGame.prototype.resolveAttackDice", "debug");
 
-  var _this_turn_monster = this.monsters[this.turn_monster];
+  var _this_turn_monster = this.monsters[this.turn_monster_id];
   var log_message = "";
   // Calculate attack.
   var attack = 0; // Note: Cards can cause damage without an attack
@@ -900,10 +900,10 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
 
   if (yielding) {
     this.monsters[this.next_input_from_monster].yieldKyoto();
-    this.updateState(false, false, monster_name + " yields Kyoto " + part_of_kyoto + " to " + this.monsters[this.turn_monster].getData().name + ".");
+    this.updateState(false, false, monster_name + " yields Kyoto " + part_of_kyoto + " to " + this.monsters[this.turn_monster_id].getData().name + ".");
 
     var damage = this.card_hook("YEILD_KYOTO", { "monster_id": this.next_input_from_monster });
-    this.monsters[this.turn_monster].applyDamage(damage);
+    this.monsters[this.turn_monster_id].applyDamage(damage);
   }
   else {
     this.updateState(false, false, monster_name + " stays in Kyoto " + part_of_kyoto);
@@ -933,7 +933,7 @@ ROKServerGame.prototype.checkEnterKyoto = function() {
   utils.log("ROKServerGame.prototype.checkEnterKyoto", "debug");
   utils.log("this.monster_in_kyoto_city_id : " + this.monster_in_kyoto_city_id);
 
-  _this_turn_monster = this.monsters[this.turn_monster];
+  _this_turn_monster = this.monsters[this.turn_monster_id];
 
   if (this.monster_in_kyoto_city_id == null) {
     this.updateState("monster_in_kyoto_city_id", _this_turn_monster.getId());
@@ -1043,7 +1043,7 @@ ROKServerGame.prototype.askYieldKyotoBay = function(player) {
  */
 ROKServerGame.prototype.resolveSnotDice = function(player) {
   utils.log("ROKServerGame.prototype.resolveSnotDice", "debug");
-  var _this_turn_monster = this.monsters[this.turn_monster];
+  var _this_turn_monster = this.monsters[this.turn_monster_id];
 
   // CARDS: take cards into account: "Friend of children", etc.
   var additional_snot = 0;
@@ -1064,7 +1064,7 @@ ROKServerGame.prototype.resolveSnotDice = function(player) {
 ROKServerGame.prototype.resolveHealthDice = function(player) {
   utils.log("ROKServerGame.prototype.resolveHealthDice", "debug");
 
-  var _this_turn_monster = this.monsters[this.turn_monster];
+  var _this_turn_monster = this.monsters[this.turn_monster_id];
   var additional_health = 0;
   for (var i = 0; i < this.dice.length; i++) {
     if (this.dice[i].state == 'f' && this.dice[i].value == 'h') {
@@ -1077,7 +1077,7 @@ ROKServerGame.prototype.resolveHealthDice = function(player) {
       _this_turn_monster.addHealth(additional_health);
     }
     else {
-      var log_message = this.monsters[this.turn_monster].getName() + " can't heal in Kyoto.";
+      var log_message = this.monsters[this.turn_monster_id].getName() + " can't heal in Kyoto.";
       this.updateState(false, false, log_message);
     }
   }
@@ -1091,13 +1091,13 @@ ROKServerGame.prototype.resolveHealthDice = function(player) {
 ROKServerGame.prototype.resolveVictoryPointDice = function(player) {
   utils.log("ROKServerGame.prototype.resolveVPDice", "debug");
 
-  var _this_turn_monster = this.monsters[this.turn_monster];
+  var _this_turn_monster = this.monsters[this.turn_monster_id];
   var victory_points_dice = {
     1: 0,
     2: 0,
     3: 0,
   };
-  for (var i = 0; i < this.monsters[this.turn_monster].numberOfDice(); i++) {
+  for (var i = 0; i < this.monsters[this.turn_monster_id].numberOfDice(); i++) {
     switch (this.dice[i].value) {
       case '1': victory_points_dice[1]++; break;
       case '2': victory_points_dice[2]++; break;
@@ -1169,7 +1169,7 @@ ROKServerGame.prototype.selectMonster = function (player, selected_monster_id) {
           // Separately, because snapState() doesn't know what to do with log
           // messages.
           this.updateState(false, false, "The game begins.");
-          this.updateState(false, false, this.monsters[this.turn_monster].getName() + "'s turn.");
+          this.updateState(false, false, this.monsters[this.turn_monster_id].getName() + "'s turn.");
           this.sendStateChanges();
         }
         else {
@@ -1239,7 +1239,7 @@ ROKServerGame.prototype.beginGame = function() {
   // Note: We skip the "start" phase of the turn, since there's nothing to do
   // in the beginning of the turn at the start of the game.
   this.updateState("turn_phase", "roll");
-  this.updateState("turn_monster", this.monster_order[0]);
+  this.updateState("turn_monster_id", this.monster_order[0]);
   this.updateState("next_input_from_monster", this.monster_order[0]);
 
   // Loop through all players in this game.
@@ -1326,7 +1326,7 @@ ROKServerGame.prototype.leaveGame = function(player) {
     this.updateState("monsters__" + monster_id_used + "__player_id", monster.getPlayerId());
 
     // If it was the player's turn, end the turn.
-    if (this.turn_monster == monster_id_used) {
+    if (this.turn_monster_id == monster_id_used) {
       this.endTurn();
     }
 
@@ -1341,7 +1341,7 @@ ROKServerGame.prototype.leaveGame = function(player) {
     if (this.turn_phase == 'yield_kyoto_city' || this.turn_phase == 'yield_kyoto_bay') {
       utils.log("detected yielding quitter", "debug");
       this.updateState('turn_phase', 'buy');
-      this.updateState('next_input_from_monster', this.turn_monster);
+      this.updateState('next_input_from_monster', this.turn_monster_id);
     }
 
     this.checkDeaths();
@@ -1408,7 +1408,7 @@ ROKServerGame.prototype.card_hook = function(hook_name, params) {
   var value_to_alter = params['value_to_alter'];
 
   if (typeof params['monster_id'] == "undefined") {
-    params['monster_id'] = this.turn_monster;
+    params['monster_id'] = this.turn_monster_id;
   }
 
   var cards_to_run = [];  // Note, we must save the cards rather than just the hooks as it's the cards that have the priority.

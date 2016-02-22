@@ -26,7 +26,7 @@ ROKGame.prototype.initClient = function() {
 
     game.game_state = data.game_state;
     game.turn_phase = data.turn_phase;
-    game.turn_monster = data.turn_monster;
+    game.turn_monster_id = data.turn_monster_id;
     game.next_input_from_monster = data.next_input_from_monster;
     game.roll_number = data.roll_number;
     game.monster_order = data.monster_order;
@@ -700,7 +700,7 @@ ROKGame.prototype.handle__roll_number = function() {
   $("#roll_dice_button").attr('disabled', false);
 
   // Don't show the "done" button before first roll.
-  if (game.roll_number != 1 && game.turn_monster == game.this_monster_id) {
+  if (game.roll_number != 1 && game.turn_monster_id == game.this_monster_id) {
     $('#done_rolling_button').show();
   }
   else {
@@ -719,7 +719,7 @@ ROKGame.prototype.handle__turn_phase = function() {
 
   // Note: "this_monster_id" needs to always be updated before turn_phase, or this
   // will never remove the disabled-attribute.
-  if (update.value == 'roll' && game.turn_monster == game.this_monster_id) {
+  if (update.value == 'roll' && game.turn_monster_id == game.this_monster_id) {
     $('#roll_dice_button').show();
     $('#roll_dice_button').attr('disabled', false);
     // Don't show the "done" button before first roll.
@@ -735,7 +735,7 @@ ROKGame.prototype.handle__turn_phase = function() {
     $('#done_rolling_button').hide();
   }
 
-  if (update.value == 'buy' && game.turn_monster == game.this_monster_id) {
+  if (update.value == 'buy' && game.turn_monster_id == game.this_monster_id) {
     $('#done_buying_button').show();
     if (game.monsters[game.this_monster_id].snot >= 2) {
       $('#sweep_cards_button').show();

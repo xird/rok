@@ -10,7 +10,7 @@
  *   - host_name: Only really needed in the lobby phase.
  *   - game_state: Tracks the progress of the preparation of the game.
  *   - turn_phase: Tracks the progress of a single turn taken by a player.
- *   - turn_monster: The monster whose turn it is at the moment.
+ *   - turn_monster_id The monster whose turn it is at the moment.
  *   - next_input_from_monster: Sometimes a player needs to give input outside of
  *     the player's turn. For example, plr A is attacking plr B, and plr B wants
  *     to spend money on rapid healing.
@@ -27,7 +27,7 @@ function ROKGame(player) {
   this.host_name = "";
   this.game_state = "";
   this.turn_phase = "";
-  this.turn_monster = "";
+  this.turn_monster_id= "";
   this.next_input_from_monster = "";
   this.roll_number = 0;
   this.players = {};
