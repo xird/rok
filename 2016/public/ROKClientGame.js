@@ -22,7 +22,7 @@ ROKGame.prototype.initClient = function() {
    */
   socket.on('snap_state', function socketSnapState(data) {
     console.log("snapping game state");
-    console.log(utils.dump(data));
+    //console.log(utils.dump(data));
 
     game.game_state = data.game_state;
     game.turn_phase = data.turn_phase;
@@ -248,9 +248,13 @@ ROKGame.prototype.initClient = function() {
 
           if (game.turn_phase == 'buy') {
             $('#done_buying_button').show();
+            if (game.monsters[game.this_monster_id].snot >= 2) {
+              $('#sweep_cards_button').show();
+            }
           }
           else {
             $('#done_buying_button').hide();
+            $('#sweep_cards_button').hide();
           }
 
           if (game.turn_phase == 'yield_kyoto') {
@@ -379,8 +383,18 @@ ROKGame.prototype.initClient = function() {
     $(this).attr('disabled', true);
     $(this).mouseout();
     $(this).data('empty', true);
-    $(this).find('img').hide(500);
     socket.emit("buy_card", $(this).data("available_card_index"));
+  });
+
+  // Sweep cards
+  $('#game').on("click", "#sweep_cards_button", function sweepCards() {
+    console.log("clickSweepCards");
+    if ($(this).attr('disabled')) {
+      return false;
+    }
+    $(this).attr('disabled', true);
+    socket.emit("sweep_cards");
+    return false;
   });
 
   // Finish buying cards.
@@ -711,9 +725,13 @@ ROKGame.prototype.handle__turn_phase = function() {
 
   if (update.value == 'buy' && game.turn_monster == game.this_monster_id) {
     $('#done_buying_button').show();
+    if (game.monsters[game.this_monster_id].snot >= 2) {
+      $('#sweep_cards_button').show();
+    }
   }
   else {
     $('#done_buying_button').hide();
+    $('#sweep_cards_button').hide();
   }
 
   if (update.value == 'yield_kyoto' && game.next_input_from_monster == game.this_monster_id) {
@@ -825,8 +843,14 @@ ROKGame.prototype.handle__monsters__snot = function() {
 }
 
 ROKGame.prototype.handle__monsters__player_id = function() {
+  console.log("ROKGame.prototype.handle__monsters__player_id");
   var update = game.updates.shift();
-  game.monsters[update.id].player_id = update.value;
+
+  // Ugly fix to suppress error when updating state before first snap_state
+  if (typeof game.monsters[update.id] != "undefined") {
+    game.monsters[update.id].player_id = update.value;
+  }
+
   var elid = "#monster_select_button_" + update.id;
 
   $(elid).addClass('selected');
@@ -928,10 +952,26 @@ ROKGame.prototype.handle__cards_available = function() {
   console.log("ROKGame.prototype.handle__cards_available");
   var update = game.updates.shift();
 
+  $("#sweep_cards_button").attr('disabled', false);
   for (var i = 0; i < update.value.length; i++) {
     $('#card__' + i).attr('disabled', false);
     $('#card__' + i).data('empty', false);
-    $('#card__' + i).html('<img src="' + static_ + '/images/cards/' + update.value[i] + '.jpg" alt="' + update.value[i] + '" width="117" height="91" />');
+
+    var previously_available = $('#card__' + i + ' img').data('card_id');
+    if (previously_available != update.value[i] && previously_available != null) {
+      // This card is newly available, so animate the changing of the img. We
+      // need to use setTimeout() because .html() doesn't play nice with
+      // animations, and because the variables needed would change before any
+      // callbacks would be called.
+      var html = '<img src="' + static_ + '/images/cards/' + update.value[i] + '.jpg" alt="' + update.value[i] + '" width="117" height="91" data-card_id="' + update.value[i] + '" />';
+      window.setTimeout('$("#card__" + ' + i + ').html(\'' + html + '\')', 300);
+      $('#card__' + i).animate({opacity: 0}, 300).animate({opacity: 1}, 300);
+    }
+    else {
+      // This card didn't change on this update, so immediately set the correct
+      // value in the img.
+      $('#card__' + i).html('<img src="' + static_ + '/images/cards/' + update.value[i] + '.jpg" alt="' + update.value[i] + '" width="117" height="91" data-card_id="' + update.value[i] + '" />');
+    }
   }
 
   game.handleUpdates();
