@@ -81,9 +81,6 @@ var theCards = {
   THUNDER_STOMP:                76,
   UNSTABLE_DNA:                 77,
 
-  //TARGET ACQUIRED:              78,
-  //LIGHTNING ARMOR:              79,
-
   // This properties table has been adopted from Maltize's KingOfTokyo-CardList project on GitHub
   // https://github.com/maltize/KingOfTokyo-CardList
 
@@ -425,8 +422,6 @@ var theCards = {
     77: {name: "Unstable DNA",                  cost: 3, keep: true,  set: "promo",    implemented: false, description: "If you yield Tokyo you can take any card the recipient has and give him this card.",
          hooks: {}
         }
-//   78: {name: "Target Acquired",                 cost: ?, keep: true,  set: "?",    implemented: false, description: "When a Monster attacks you, give him the [token]...When you deal damage to the Monster who has the [token], deal 1 extra damage.", hooks: {}},
-//   79: {name: "Lightning Armor",                 cost: ?, keep: true,  set: "?",    implemented: false, description: "If you take damage roll a die for each damage point. On a [claw] the Monster whose turn it is takes 1 damage.", hooks: {}},
     }
   };
 
