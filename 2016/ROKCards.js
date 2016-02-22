@@ -435,7 +435,42 @@ var theCards = {
     63: {name: "Urbavore",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 1 extra [VP] when beginning the turn in Tokyo. Deal 1 extra damage when dealing any damage from Tokyo.", hooks: {}},
     64: {name: "Vast Storm",                    cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[VP]. All other monsters lose 1[Snot] for every 2[Snot] they have.", hooks: {}},
     65: {name: "We're Only Making It Stronger", cost: 3, keep: true,  set: "original", implemented: false, description: "When you lose 2[Heart] or more gain 1[Snot].", hooks: {}},
-    66: {name: "Wings",                         cost: 6, keep: true,  set: "original", implemented: false, description: "Spend 2[Snot] to negate damage to you for a turn.", hooks: {}},
+    66: {
+      name: "Wings",
+      cost: 6,
+      keep: true,
+      set: "original",
+      implemented: 'maybe',
+      description: "Spend 2[Snot] to negate damage to you for a turn.",
+      hooks: {
+        'TURN_END_ALL': function (game, turn_monster) {
+          // Deactivate Wings
+          for (var m in game.monsters) {
+            game.monsters[m].wings_active = false;
+          }
+        },
+        'APPLY_DAMAGE': function (game, owning_monster, damage) {
+          if (owning_monster.wings_active) {
+            game.updateState(false, false, "Wings negates all damage.");
+            return 0;
+          }
+          else {
+            return damage;
+          }
+        }
+      },
+      activate: function(game, activating_monster_id) {
+        // Activate Wings
+        if (game.monsters[activating_monster_id].getSnot() >= 2) {
+          game.monsters[activating_monster_id].addSnot(-2);
+          game.updateState('monsters__' + activating_monster_id + "__snot", game.monsters[activating_monster_id].getSnot());
+          game.monsters[activating_monster_id].wings_active = true;
+          game.updateState(false, false, game.monsters[activating_monster_id].getName() + " activates Wings.");
+          game.updateState("game__monster", false);
+          game.sendStateChanges();
+        }
+      }
+    },
 
     67: {name: "Amusement Park",                cost: 6, keep: false, set: "promo",    implemented: false, description: "+ 4[VP]", hooks: {}},
     68: {name: "Army",                          cost: 2, keep: false, set: "promo",    implemented: false, description: "(+ 1[VP] and suffer one damage) for each card you have.", hooks: {}},

@@ -729,6 +729,14 @@ io.on('connection', function (socket) {
 
 
   /**
+   * Player activates a card.
+   */
+  socket.on("activate_card", function gameActivateCard(owned_card_index) {
+    games[player.game_id].activateCard(player, owned_card_index);
+  });
+
+
+  /**
    * Player is responding to yield question.
    */
   socket.on("resolve_yield", function resolveYield (args) {

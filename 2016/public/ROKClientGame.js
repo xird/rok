@@ -386,6 +386,18 @@ ROKGame.prototype.initClient = function() {
     socket.emit("buy_card", $(this).data("available_card_index"));
   });
 
+  // Activate cards
+  $('#game').on("click", ".monster_cards_owned", function clickActivateCard() {
+    var owned_card_index = $(this).attr('id').substr($(this).attr('id').length - 1);
+    console.log("clickActivateCard " + owned_card_index);
+    if ($(this).attr('disabled')) {
+      return false;
+    }
+    $(this).attr('disabled', true);
+    $(this).mouseout();
+    socket.emit("activate_card", owned_card_index);
+  });
+
   // Sweep cards
   $('#game').on("click", "#sweep_cards_button", function sweepCards() {
     console.log("clickSweepCards");
@@ -983,6 +995,8 @@ ROKGame.prototype.handle__cards_available = function() {
 ROKGame.prototype.handle__monsters__cards_owned = function() {
   console.log("ROKGame.prototype.handle__monsters__cards_owned");
   var update = game.updates.shift();
+
+  $(".monster_cards_owned").attr('disabled', false);
 
   for (var i = 0; i < update.value.length; i++) {
     var card_name = game.card_map[update.value[i]];

@@ -482,10 +482,26 @@ ROKServerGame.prototype.sweepCards = function (player) {
 }
 
 /**
+ *
+ */
+ROKServerGame.prototype.activateCard = function (player, owned_card_index) {
+  utils.log("ROKServerGame.prototype.activateCard " + owned_card_index);
+  var card_id = this.monsters[player.monster_id].cards_owned[owned_card_index];
+  utils.log(card_id);
+  if (typeof this.cards.properties[card_id].activate == "function") {
+    this.cards.properties[card_id].activate(this, player.monster_id);
+  }
+}
+
+/**
  * Move to the final phase of a user's turn.
  */
 ROKServerGame.prototype.endTurn = function() {
   utils.log("ROKServerGame.prototype.endTurn", "debug");
+
+  for (var i = 0; i < this.monster_order.length; i++) {
+    this.card_hook("TURN_END_ALL", {"monster_id": this.monster_order[i]});
+  }
 
   this.card_hook("TURN_END");
   var _this_turn_monster = this.monsters[this.turn_monster];
