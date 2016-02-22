@@ -109,7 +109,8 @@ var theCards = {
           }
         }
        },
-    3: {name: "Alpha Monster", cost: 5, keep: true, set: "original", implemented: true, description: "Gain 1[VP] when you attack.",
+    3: {
+      name: "Alpha Monster", cost: 5, keep: true, set: "original", implemented: true, description: "Gain 1[VP] when you attack.",
         hooks: {
         "RESOLVE_ATTACK_DICE": function (game, owning_monster, attackage) {
           if (attackage.attack > 0)
@@ -371,14 +372,26 @@ var theCards = {
            }
          }
         },
-    21: {name: "Extra Head",                    cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.",
+    21: {name: "Extra Head", cost: 7, keep: true,  set: "original", implemented: true,  description: "You get 1 extra die.",
          hooks: {
            "NUMBER_OF_DICE": function (game, owning_monster, dice) {
              return game.cards.properties[20].hooks.NUMBER_OF_DICE(game, owning_monster, dice);
            }
          }
         },
-    22: {name: "Fire Blast",                    cost: 3, keep: false, set: "original", implemented: false, description: "Deal 2 damage to all other monsters.", hooks: {}},
+    22: {name: "Fire Blast",                    cost: 3, keep: false, set: "original", implemented: false, description: "Deal 2 damage to all other monsters.",
+         hooks: {
+           "CARD_BOUGHT": function (game, owning_monster) {
+             for (var monster_id in game.monsters) {
+               var monster = game.monsters[monster_id];
+               if (monster != owning_monster) {
+                 game.monsters[monster_id].applyDamage(2);
+                 game.updateState(false, false, "" + monster.getName() + " sustains 2 damage from 'Fire Blast'");
+               }
+             }
+           }
+         }
+        },
     23: {name: "Fire Breathing",                cost: 4, keep: true,  set: "original", implemented: false, description: "Your neighbors take 1 extra damage when you deal damage", hooks: {}},
     24: {name: "Freeze Time",                   cost: 5, keep: true,  set: "original", implemented: false, description: "On a turn where you score [1][1][1], you can take another turn with one less die.", hooks: {}},
     25: {name: "Frenzy",                        cost: 7, keep: false, set: "original", implemented: false, description: "When you purchase this card Take another turn immediately after this one.", hooks: {}},
