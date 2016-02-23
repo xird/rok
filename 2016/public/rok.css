@@ -395,6 +395,25 @@ div#log p {
   margin: 0;
 }
 
+#log .log_dice_rolled,
+#log .log_dice_kept {
+  padding: 0 2px 0 2px;
+  border: 1px solid #333;
+  margin-right: 5px;
+  font-family: monospace;
+  font-size: 0.9em;
+  text-transform: uppercase;
+}
+
+#log .log_dice_rolled {
+  background: #333;
+  color: #ccc;
+}
+
+#log .log_dice_kept {
+  background: #ccc;
+  color: #333;
+}
 
 #cards {
   width: 520px;

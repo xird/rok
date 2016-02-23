@@ -219,7 +219,7 @@ function Monster(myId, myName, theGame) {
       this.getData().snot = Math.max(this.getSnot(), 0);
 
       if (this.getSnot() != old_snot) {
-        if (!log_message) {
+        //if (!log_message) {
           /**
            * This should head as either:
            *   "Monster gains xxx snot cube(s)."
@@ -229,11 +229,11 @@ function Monster(myId, myName, theGame) {
            * If the monstrer looses snot cubes without spending them (such as effects
            * from other players cards) a cosmome message will need to be suplied
            **/
-          log_message = this.getName()
-                        + (amount > 0 ? " gains " : " spends ")
-                        + Math.abs(amount) + " snot cube"
-                        + (Math.abs(amount) == 1 ? "." : "s.");
-        }
+          //log_message = this.getName()
+          //              + (amount > 0 ? " gains " : " spends ")
+          //              + Math.abs(amount) + " snot cube"
+          //              + (Math.abs(amount) == 1 ? "." : "s.");
+        //}
 
         this._game.updateState("monsters__" + this.getId() + "__snot", this.getSnot(), log_message);
       }
@@ -280,7 +280,8 @@ function Monster(myId, myName, theGame) {
       player.getSocket().emit('game_message', "Can't leave Kyoto if you're not there.");
     }
 
-    log_message = this.getName() + " yields Kyoto " + city_or_bay + ".";
+    //log_message = this.getName() + " yields Kyoto " + city_or_bay + ".";
+    log_message = null;
     this._game.updateState("monster_in_kyoto_" + city_or_bay.toLowerCase() + "_id", null, log_message);
     this._game.updateState("monster_leaving_kyoto_" + city_or_bay.toLowerCase() + "_id", this.getId());
   };

@@ -642,8 +642,8 @@ ROKServerGame.prototype.rollDiceClicked = function (player, keep_dice_ids) {
 ROKServerGame.prototype.rollDice = function (player_monster, state_to_roll) {
   utils.log("ROKServerGame.prototype.rollDice", "debug");
 
-  roll_log = player_monster.getName() + " rolls: ";
-  gets_log = player_monster.getName() + "  gets: ";
+  roll_log = player_monster.getName() + " rolls ";
+  //gets_log = player_monster.getName() + "  gets: ";
 
   // Flag variable for detecting situation where the monster keeps all
   // the dice
@@ -659,20 +659,20 @@ ROKServerGame.prototype.rollDice = function (player_monster, state_to_roll) {
       this.updateState("dice__" + i + "__state", die.state);
 
 
-      roll_log += this.dice[i].value + (i < player_monster.numberOfDice() - 1 ? ", " : "");
+      roll_log += '<span class="log_dice_rolled">' + this.dice[i].value + "</span>";
     }
     else {
       // Update the state of kept dice so we can animate the kept dice for other
       // players.
       this.updateState("dice__" + i + "__state", this.dice[i].state);
-      roll_log += '#' + (i < player_monster.numberOfDice() - 1 ? ", " : "");
+      roll_log += '<span class="log_dice_kept">' + this.dice[i].value + "</span>";
     }
 
-    gets_log += this.dice[i].value + (i < player_monster.numberOfDice() - 1 ? ", " : "");
+    //gets_log += this.dice[i].value + (i < player_monster.numberOfDice() - 1 ? ", " : "");
   }
 
   this.updateState(false, false, roll_log);
-  this.updateState(false, false, gets_log);
+  //this.updateState(false, false, gets_log);
 }
 
 
@@ -905,7 +905,7 @@ ROKServerGame.prototype.resolveYield = function(part_of_kyoto, yielding) {
     this.monsters[this.next_input_from_monster].yieldKyoto();
     this.updateState(false, false, monster_name + " yields Kyoto " + part_of_kyoto + " to " + this.monsters[this.turn_monster_id].getData().name + ".");
 
-    var damage = this.card_hook("YEILD_KYOTO", { "monster_id": this.next_input_from_monster });
+    var damage = this.card_hook("YIELD_KYOTO", { "monster_id": this.next_input_from_monster });
     this.monsters[this.turn_monster_id].applyDamage(damage);
   }
   else {

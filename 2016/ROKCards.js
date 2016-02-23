@@ -91,7 +91,7 @@ var theCards = {
             var rv = attackage;
             rv.damage++;
 
-          game.updateState(false, false, owning_monster.getName() + " deals 1 extra dammage due to 'Acid Attack'. Damage: " + attackage.damave + " -> " + rv.damage);
+          game.updateState(false, false, owning_monster.getName() + " deals 1 extra damage due to 'Acid Attack'. Damage: " + attackage.damave + " -> " + rv.damage);
             utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
             return attackage;
           }
@@ -103,7 +103,7 @@ var theCards = {
             var rv = cardPrice;
             rv--;
 
-            game.updateState(false, false, "Card cost reduced by 1 Snot Cube by 'Alian Metabolism. Cost: " + cardPrice + " -> " + rv);
+            game.updateState(false, false, "Card cost reduced by 1 by 'Alien Metabolism. Cost: " + cardPrice + " -> " + rv);
             utils.log("Card cost: " + cardPrice + " -> " + rv);
             return rv;
           }
@@ -139,7 +139,7 @@ var theCards = {
 
             if (damage == 1) {
               rv = 0;
-              game.updateState(false, false, "Due to 'Armor Plating' monster recieves no damage. Damage: " + damage + " -> " + rv);
+              game.updateState(false, false, "Due to 'Armor Plating' monster receives no damage. Damage: " + damage + " -> " + rv);
             }
 
             utils.log("Damage: " + damage + " -> " + rv);
@@ -166,18 +166,18 @@ var theCards = {
 
             if (!game.inKyoto(owning_monster)) {
               rv.damage++
-              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 extra damage for attacking Kyoto. Damage: " + attackage.damage + " -> " + rv.damage);
+              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 extra damage when attacking Kyoto. Damage: " + attackage.damage + " -> " + rv.damage);
             }
 
             utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
             return rv;
           },
-          "YEILD_KYOTO": function (game, owning_monster) {
+          "YIELD_KYOTO": function (game, owning_monster) {
             var rv = 0;
 
           if (!game.inKyoto(owning_monster)) {
             rv = 1;
-              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 damage to " + owning_monster.getName() + " for yielding Kyoto. Damage: " + rv);
+              game.updateState(false, false, "Due to 'Burrowing' monster deals 1 damage to " + owning_monster.getName() + " while yielding Kyoto. Damage: " + rv);
             }
 
             utils.log("Damage: " + attackage.damage + " -> " + rv.damage);
@@ -306,7 +306,7 @@ var theCards = {
            "CARD_BOUGHT": function (game, owning_monster) {
              owning_monster.addSnot(9);
 
-             game.updateState(false, false, owning_monster.getName() + " gains 9 Snot for 'Enererize'. " + owning_monster.getName() + " now has " + owning_monster.getSnot() + " Snot");
+             game.updateState(false, false, owning_monster.getName() + " gains 9 Snot for 'Energize'. " + owning_monster.getName() + " now has " + owning_monster.getSnot() + " Snot");
              utils.log("VPs: " + owning_monster.getVictoryPoints());
            }
          }
@@ -330,7 +330,7 @@ var theCards = {
                var monster = game.monsters[monster_id];
                if (monster != owning_monster) {
                  game.monsters[monster_id].addVictoryPoints(-5);
-                 game.updateState(false, false, "" + monster.getName() + " looses 5 Victory Points for 'Evacuation Orders'");
+                 game.updateState(false, false, "" + monster.getName() + " loses 5 Victory Points for 'Evacuation Orders'");
                }
              }
            }
@@ -406,7 +406,7 @@ var theCards = {
 
               if (number_of_monsters > 2) {
                 neighbour = game.monsters[game.monster_order[(current_monster_index + 1) % number_of_monsters]];
-                game.updateState(false, false, neighbour.getName() + " id dealt 1 extra damage due to 'Fire Breath'");
+                game.updateState(false, false, neighbour.getName() + " is dealt 1 extra damage due to 'Fire Breath'");
                 neighbour.applyDamage(1);
               }
             }
@@ -473,7 +473,7 @@ var theCards = {
         },
         'APPLY_DAMAGE': function (game, owning_monster, damage) {
           if (owning_monster.wings_active) {
-            game.updateState(false, false, "Wings negates all damage.");
+            game.updateState(false, false, owning_monster.getName() + " uses Wings to avoid all damage.");
             return 0;
           }
           else {
@@ -487,7 +487,7 @@ var theCards = {
           game.monsters[activating_monster_id].addSnot(-2);
           game.updateState('monsters__' + activating_monster_id + "__snot", game.monsters[activating_monster_id].getSnot());
           game.monsters[activating_monster_id].wings_active = true;
-          game.updateState(false, false, game.monsters[activating_monster_id].getName() + " activates Wings.");
+          game.updateState(false, false, game.monsters[activating_monster_id].getName() + " deploys Wings.");
           game.updateState("game__monster", false);
           game.sendStateChanges();
         }
