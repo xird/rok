@@ -504,7 +504,7 @@ ROKServerGame.prototype.endTurn = function() {
   }
 
   this.card_hook("TURN_END");
-  var _this_turn_monster = this.monsters[this.turn_monster];
+  var _this_turn_monster = this.monsters[this.turn_monster_id];
 
   // Turn end.
   var log_message = _this_turn_monster.getName() + " ends their turn.";
