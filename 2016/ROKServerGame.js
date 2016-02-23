@@ -662,6 +662,9 @@ ROKServerGame.prototype.rollDice = function (player_monster, state_to_roll) {
       roll_log += this.dice[i].value + (i < player_monster.numberOfDice() - 1 ? ", " : "");
     }
     else {
+      // Update the state of kept dice so we can animate the kept dice for other
+      // players.
+      this.updateState("dice__" + i + "__state", this.dice[i].state);
       roll_log += '#' + (i < player_monster.numberOfDice() - 1 ? ", " : "");
     }
 

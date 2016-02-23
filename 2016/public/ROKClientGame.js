@@ -633,7 +633,7 @@ ROKGame.prototype.handleUpdates = function() {
     this.addToLog(update.log);
   }
 
-  console.log('Handler: ' + update.handler);
+  //console.log('Handler: ' + update.handler);
 
   if (typeof this[update.handler] == "function") {
     // Specific handler exists, call it
@@ -654,7 +654,7 @@ ROKGame.prototype.handleUpdates = function() {
 }
 
 ROKGame.prototype.addToLog = function(str) {
-  console.log("adding log message to game log");
+  //console.log("adding log message to game log");
   $('#log').append('<p>'+str+'<p>');
   $('#log').scrollTop($('#log')[0].scrollHeight);
 }
@@ -771,21 +771,30 @@ ROKGame.prototype.handle__turn_phase = function() {
 
 ROKGame.prototype.handle__dice__state = function () {
   console.log("ROKGame.prototype.handle__dice__state");
-  //console.log(game.updates);
   var update = game.updates.shift();
+  console.log(update.id + " to " + update.value)
   game.dice[update.id].state = update.value;
-  $("#dice__" + update.id + "__value").removeClass("r i f n k rr kr");
-  $("#dice__" + update.id + "__value").addClass(update.value);
+  var el = $("#dice__" + update.id + "__value");
+  el.removeClass("r i f n k rr kr");
+  el.addClass(update.value);
 
-  if (game.updates.length > 0) {
-    this.handleUpdates();
+  if (update.value == "k") {
+    console.log('is K');
+    el.animate({top: "-5"}, 300, function() {
+      game.handleUpdates();
+    });
   }
-
+  else {
+    console.log('not K');
+    el.animate({top: "0"}, 0, function() {
+      game.handleUpdates();
+    });
+  }
 }
 
 ROKGame.prototype.handle__dice__value = function() {
+  console.log("ROKGame.prototype.handle__dice__value");
   var update = game.updates.shift();
-
   game.dice[update.id].value = update.value;
   var elid = "#dice__" + update.id + "__value";
 

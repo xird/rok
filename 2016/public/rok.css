@@ -461,7 +461,6 @@ div#log p {
   position: absolute;
   top: 0px;
   width: 440px;
-
 }
 
 
@@ -495,17 +494,16 @@ div#dice div.n {
 }
 
 #dice div {
-  text-align: center;
-}
-
-#dice div {
+  border-radius: 5px;
   float: left;
-  width: 45px;
-  height: 45px;
-  margin: 10px 5px 10px 5px;
   font-family: cracked;
   font-size: 2.4em;
+  height: 45px;
+  margin: 10px 5px 10px 5px;
+  position: relative;
+  text-align: center;
   text-transform: uppercase;
+  width: 45px;
 }
 
 div#dice div.punch {
