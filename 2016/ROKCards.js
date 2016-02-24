@@ -456,7 +456,22 @@ var theCards = {
     62: {name: "Telepath",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Spend 1[Snot] to get 1 extra reroll.", hooks: {}},
     63: {name: "Urbavore",                      cost: 4, keep: true,  set: "original", implemented: false, description: "Gain 1 extra [VP] when beginning the turn in Tokyo. Deal 1 extra damage when dealing any damage from Tokyo.", hooks: {}},
     64: {name: "Vast Storm",                    cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[VP]. All other monsters lose 1[Snot] for every 2[Snot] they have.", hooks: {}},
-    65: {name: "We're Only Making It Stronger", cost: 3, keep: true,  set: "original", implemented: false, description: "When you lose 2[Heart] or more gain 1[Snot].", hooks: {}},
+    65: {
+      name: "We're Only Making It Stronger",
+      cost: 3, keep: true,  set: "original",
+      implemented: false,
+      description: "When you lose 2[Heart] or more gain 1[Snot].",
+      hooks: {
+        'APPLY_DAMAGE': function (game, owning_monster, damage) {
+          if (damage >= 2) {
+            owning_monster.addSnot(1, "Damage is only making " + owning_monster.getName() + " stronger; +1 snot.");
+            game.updateState("monsters__" + owning_monster.getId() + "__snot", owning_monster.getSnot());
+            game.sendStateChanges();
+          }
+          return damage;
+        }
+      }
+    },
     66: {
       name: "Wings",
       cost: 6,
