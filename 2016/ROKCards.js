@@ -458,8 +458,10 @@ var theCards = {
     64: {name: "Vast Storm",                    cost: 6, keep: false, set: "original", implemented: false, description: "+ 2[VP]. All other monsters lose 1[Snot] for every 2[Snot] they have.", hooks: {}},
     65: {
       name: "We're Only Making It Stronger",
-      cost: 3, keep: true,  set: "original",
-      implemented: false,
+      cost: 3,
+      keep: true,
+      set: "original",
+      implemented: true,
       description: "When you lose 2[Heart] or more gain 1[Snot].",
       hooks: {
         'APPLY_DAMAGE': function (game, owning_monster, damage) {
