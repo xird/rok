@@ -1052,7 +1052,6 @@ ROKServerGame.prototype.resolveSnotDice = function(player) {
   utils.log("ROKServerGame.prototype.resolveSnotDice", "debug");
   var _this_turn_monster = this.monsters[this.turn_monster_id];
 
-  // CARDS: take cards into account: "Friend of children", etc.
   var additional_snot = 0;
   for (var i = 0; i < this.dice.length; i++) {
     if (this.dice[i].state == 'f' && this.dice[i].value == 's') {
@@ -1062,6 +1061,8 @@ ROKServerGame.prototype.resolveSnotDice = function(player) {
   utils.log('additional_snot: ' + additional_snot);
 
   _this_turn_monster.addSnot(additional_snot);
+  this.updateState(false, false, this.monsters[player.monster_id].getName() + " rolls " + additional_snot + " snot.");
+  this.sendStateChanges();
 }
 
 
