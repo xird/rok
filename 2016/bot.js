@@ -51,8 +51,11 @@ var monster_traits = {
 };
 
 socket.on('connect', function() {
-  console.log('Socket connected');
-  console.log(this.id);
+  console.log('Socket connected ' + this.id);
+});
+
+socket.on('disconnect', function() {
+  console.log('Socket DISCONNECTED ' + this.id);
 });
 
 // Keep pinging the server so we don't get cleaned up.
@@ -140,9 +143,8 @@ socket.on('state_changes', function(updates_wrapper) {
     return false;
   }
 
-
   var updates = updates_wrapper.updates;
-  console.log("State changes, monster id " + this_monster_id);
+  console.log("State changes, this monster id: " + this_monster_id);
 
   if (updates.length == 0) {
     return false;
@@ -231,7 +233,7 @@ function doStuff() {
       yield = true;
     }
 
-    console.log("    I'm " + (yield ? " yielding!" : " staying!") + socket.id);
+    console.log("    I'm " + (yield ? " yielding! " : " staying!" ) + socket.id);
     if (game.monster_in_kyoto_city_id == this_monster_id) {
       var part = "city";
     }
