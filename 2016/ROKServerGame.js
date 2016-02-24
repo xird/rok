@@ -491,6 +491,10 @@ ROKServerGame.prototype.activateCard = function (player, owned_card_index) {
   if (typeof this.cards.properties[card_id].activate == "function") {
     this.cards.properties[card_id].activate(this, player.monster_id);
   }
+  // Send state changes just to reset the UI to remove the disabled-attribute
+  // from the card button.
+  this.updateState("monsters__" + player.monster_id + "__cards_owned", this.monsters[player.monster_id].getCardsOwned());
+  this.sendStateChanges();
 }
 
 /**
