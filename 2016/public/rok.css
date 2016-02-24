@@ -1,14 +1,23 @@
-/* Production client confirmed CSS rules */
 @font-face {
   font-family: cracked;
-  src: url("/cracked.woff");
+  src: url("fonts/cracked.woff");
+}
+
+/* roboto-condensed-regular - latin */
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Condensed'), local('RobotoCondensed-Regular'),
+       url('fonts/roboto-condensed-v13-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+ */
+       url('fonts/roboto-condensed-v13-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
 
 body {
   background: #fff;
   color: #000;
   font-size: 1em;
-  font-family: helvetica, arial, sans-serif;
+  font-family: 'Roboto Condensed', helvetica, arial, sans-serif;
 }
 
 #wrap {
