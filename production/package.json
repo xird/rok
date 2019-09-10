@@ -9,7 +9,7 @@
     "node-static": "latest",
     "session.socket.io": "latest",
     "connect": "2.12.0",
-    "express": "3.4.8",
+    "express": "3.11.0",
     "ejs": "latest"
   },
   "author": "dev"
